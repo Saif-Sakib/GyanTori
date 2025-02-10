@@ -123,13 +123,16 @@ public class HomeController {
 
             // Recommended Books Data
             List<Book> recommendedBooksList = Arrays.asList(
-                    new Book("Zero to One", "Peter Thiel", "Startups", 4.8, 27.99, "/images/books/zero-to-one.png"),
-                    new Book("The Lean Startup", "Eric Ries", "Business", 4.6, 25.99, "/images/books/lean-startup.png"),
-                    new Book("Deep Work", "Cal Newport", "Productivity", 4.7, 23.99, "/images/books/deep-work.png"),
-                    new Book("The Power of Habit", "Charles Duhigg", "Psychology", 4.5, 21.99,
-                            "/images/books/power-habit.png"),
-                    new Book("Start with Why", "Simon Sinek", "Leadership", 4.6, 26.99,
-                            "/images/books/start-with-why.png"));
+                    new Book("প্রোগ্রামিংয়ের চৌদ্দগোষ্ঠী", " ঝংকার মাহবুব", "প্রোগ্রামিং বেসিক বই", 4.5, 315, "/com/images/books/PRO_gushti.png"),
+                    new Book("হামাস", " খালেদ হারুব ,  আযযাম তামিমি ,  রাকিবুল হাসান (অনুবাদক)", "রাজনৈতিক গবেষণা ও প্রবন্ধ", 5.0,  214, "/com/images/books/Hamas.png"),
+                    new Book("আয়নাঘর", " হুমায়ূন আহমেদ", "অতিপ্রাকৃত ও ভৌতিক", 4.8, 143 , "/com/images/books/AynaGhor.png"),
+                    new Book("হায়াতের দিন ফুরোলে", " আরিফ আজাদ", "ইসলামি বই: আত্ম-উন্নয়ন", 4.5, 241, "/com/images/books/Hayat.png"),
+                    new Book("Breaking Dawn", " Stephenie Meyer", "Novel: Horror and Supernatural", 4.3, 863 , "/com/images/books/Breaking_Dawn.png"),
+                    new Book("গিট ও গিটহাব ", " জাকির হোসাইন", "ওয়েব ডিজাইন ও ডেভেলপমেন্ট", 4.2, 188, "/com/images/books/Git.png"),
+                    new Book("অপেক্ষা", " হুমায়ূন আহমেদ", "সমকালীন উপন্যাস", 4.2, 300, "/com/images/books/Opekkha.png"),
+                    new Book("দ্য আলকেমিস্ট", " পাওলো কোয়েলহো ,  সুফাই রুমিন তাজিন (অনুবাদক)", "অনুবাদ উপন্যাস", 3.8,  195, "/com/images/books/The_Alchemist.png"),
+                    new Book("আরেক ফাল্গুন", " জহির রায়হান", "চিরায়ত উপন্যাস", 4.3, 150, "/com/images/books/Arek_Falgun.png"),
+                    new Book("কাজল চোখের মেয়ে", " সাদাত হোসাইন", "রোমান্টিক কবিতা", 3.5,  180, "/com/images/books/Kajol.png"));
 
             loadBookSection(featuredBooks, featuredBooksList);
             loadBookSection(recommendedBooks, recommendedBooksList);
