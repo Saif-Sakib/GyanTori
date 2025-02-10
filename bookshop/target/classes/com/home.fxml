@@ -72,18 +72,6 @@
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
 
-            <!-- Categories Section with Icons -->
-            <VBox spacing="10" styleClass="sidebar-section">
-                <Label text="Categories" styleClass="sidebar-header"/>
-                <Button text="📚 All Books" styleClass="sidebar-button, animated-button"/>
-                <Button text="💼 Business" styleClass="sidebar-button, animated-button"/>
-                <Button text="💻 Technology" styleClass="sidebar-button, animated-button"/>
-                <Button text="🎨 Arts" styleClass="sidebar-button, animated-button"/>
-                <Button text="📖 Literature" styleClass="sidebar-button, animated-button"/>
-            </VBox>
-
-            <Separator styleClass="custom-separator"/>
-
             <!-- Library Section with Animation -->
             <VBox spacing="10" styleClass="sidebar-section">
                 <Label text="My Library" styleClass="sidebar-header"/>
@@ -95,14 +83,16 @@
                 <Button text="🌟 Highly Rated Books" styleClass="sidebar-button, animated-button"/>
             </VBox>
 
-            <!-- Enhanced Stats Section -->
-            <VBox spacing="10" styleClass="stats-section">
-                <Label text="Reading Stats" styleClass="sidebar-header"/>
-                <VBox fx:id="statsContainer" styleClass="stats-container">
-                    <Label fx:id="booksReadLabel" styleClass="stats-text"/>
-                    <ProgressBar fx:id="readingProgress" styleClass="reading-progress"/>
-                    <Label fx:id="statsLabel" styleClass="stats-text"/>
-                </VBox>
+            <Separator styleClass="custom-separator"/>
+
+            <!-- Categories Section with Icons -->
+            <VBox spacing="10" styleClass="sidebar-section">
+                <Label text="Categories" styleClass="sidebar-header"/>
+                <Button text="📚 All Books" styleClass="sidebar-button, animated-button"/>
+                <Button text="💼 Business" styleClass="sidebar-button, animated-button"/>
+                <Button text="💻 Technology" styleClass="sidebar-button, animated-button"/>
+                <Button text="🎨 Arts" styleClass="sidebar-button, animated-button"/>
+                <Button text="📖 Literature" styleClass="sidebar-button, animated-button"/>
             </VBox>
         </VBox>
     </left>

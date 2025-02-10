@@ -33,8 +33,6 @@ public class HomeController {
     private Label pageTitle;
     @FXML
     private Button profileLoginButton;
-    @FXML
-    private Label statsLabel;
 
     private static boolean isLoggedIn = false;
     private static int booksRead = 0;
@@ -64,7 +62,6 @@ public class HomeController {
         try {
             setupUI();
             loadBooks();
-            updateStatistics();
             addSearchListener();
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Initialization Error",
@@ -304,13 +301,6 @@ public class HomeController {
     private void updateProfileButton() {
         if (profileLoginButton != null) {
             profileLoginButton.setText(isLoggedIn ? "Logout" : "Login");
-        }
-    }
-
-    private void updateStatistics() {
-        if (statsLabel != null) {
-            statsLabel.setText(String.format("Books Read: %d | Reading Time: %d hrs",
-                    booksRead, readingTime));
         }
     }
 

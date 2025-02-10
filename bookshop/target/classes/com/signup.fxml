@@ -70,7 +70,7 @@
 
             <HBox styleClass="signup-prompt">
                 <Label text="Already have an account?"/>
-                <Hyperlink text="Sign In" 
+                <Hyperlink text="Log In" 
                           onAction="#handleBackToLogin"
                           styleClass="signup-link"/>
             </HBox>

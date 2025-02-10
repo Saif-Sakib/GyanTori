@@ -12,7 +12,6 @@
         <ImageView styleClass="brand-logo" fitWidth="150" fitHeight="150" preserveRatio="true">
             <Image url="@images/icons/logo.png"/>
         </ImageView>
-        
         <VBox spacing="20" alignment="CENTER" VBox.vgrow="ALWAYS">
             <!-- GyanTori: Bigger and Higher -->
             <Label text="GyanTori" styleClass="brand-name"/>

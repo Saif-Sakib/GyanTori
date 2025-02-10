@@ -6,8 +6,8 @@
 
 .brand-section {
     -fx-alignment: center;
-    -fx-spacing: 30;
-    -fx-padding: 50;
+    -fx-spacing: 50;
+    -fx-padding: 200;
     -fx-background-color: #7fa7a3;
     -fx-pref-width: 50%;
     -fx-max-width: infinity;
@@ -79,7 +79,7 @@
     -fx-background-radius: 8;
     -fx-padding: 10 15;
     -fx-font-size: 14;
-    -fx-text-fill: white;
+    -fx-text-fill: rgb(11, 11, 11);
     -fx-prompt-text-fill: #ffffffc1;
 }
 
