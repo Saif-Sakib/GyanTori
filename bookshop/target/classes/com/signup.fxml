@@ -8,38 +8,35 @@
 <HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.SignupController" styleClass="login-root" HBox.hgrow="ALWAYS">
     
     <!-- Left Section -->
-    <VBox styleClass="brand-section" HBox.hgrow="ALWAYS">
-        <ImageView styleClass="brand-logo" fitWidth="150" fitHeight="150" preserveRatio="true">
-            <Image url="@images/icons/logo.png"/>
-        </ImageView>
-        
-        <VBox spacing="20" alignment="CENTER" VBox.vgrow="ALWAYS">
-            <Label text="GyanTori" styleClass="brand-name"/>
-            <Label text="Join Our Community" styleClass="brand-tagline"/>
-            <Label text="Create an account to access our vast library of knowledge and start your learning journey today" styleClass="brand-description" wrapText="true"/>
-        </VBox>
-    </VBox>
-
-    <!-- Right Section -->
     <VBox styleClass="login-section" HBox.hgrow="ALWAYS">
         <Label text="Create Account" styleClass="login-header"/>
         <Label text="Fill in your details below" styleClass="login-subheader"/>
 
         <VBox styleClass="form-container" VBox.vgrow="ALWAYS">
             <Label text="FULL NAME" styleClass="input-label"/>
-            <TextField fx:id="fullNameField" promptText="Enter your full name" styleClass="input-field"/>
+            <TextField fx:id="fullNameField" 
+                      promptText="Enter your full name"
+                      styleClass="input-field"/>
 
             <Label text="EMAIL" styleClass="input-label"/>
-            <TextField fx:id="emailField" promptText="Enter your email" styleClass="input-field"/>
+            <TextField fx:id="emailField" 
+                      promptText="Enter your email"
+                      styleClass="input-field"/>
 
             <Label text="USERNAME" styleClass="input-label"/>
-            <TextField fx:id="usernameField" promptText="Choose a username" styleClass="input-field"/>
+            <TextField fx:id="usernameField" 
+                      promptText="Choose a username"
+                      styleClass="input-field"/>
 
             <Label text="PASSWORD" styleClass="input-label"/>
-            <PasswordField fx:id="passwordField" promptText="Create a password" styleClass="input-field"/>
+            <PasswordField fx:id="passwordField" 
+                         promptText="Create a password"
+                         styleClass="input-field"/>
 
             <Label text="CONFIRM PASSWORD" styleClass="input-label"/>
-            <PasswordField fx:id="confirmPasswordField" promptText="Confirm your password" styleClass="input-field"/>
+            <PasswordField fx:id="confirmPasswordField" 
+                         promptText="Confirm your password"
+                         styleClass="input-field"/>
 
             <Button text="SIGN UP" 
                     fx:id="signupButton"
@@ -77,6 +74,19 @@
                           onAction="#handleBackToLogin"
                           styleClass="signup-link"/>
             </HBox>
+        </VBox>
+    </VBox>
+
+    <!-- Right Section -->
+    <VBox styleClass="brand-section" HBox.hgrow="ALWAYS">
+        <ImageView styleClass="brand-logo" fitWidth="150" fitHeight="150" preserveRatio="true">
+            <Image url="@images/icons/logo.png"/>
+        </ImageView>
+        
+        <VBox spacing="20" alignment="CENTER" VBox.vgrow="ALWAYS">
+            <Label text="GyanTori" styleClass="brand-name"/>
+            <Label text="Join Our Book Community – Where Stories Come to Life!" styleClass="brand-tagline"/>
+            <Label text="Sign up and open the doors to endless stories that shares your love for books!!" styleClass="brand-description" wrapText="true"/>
         </VBox>
     </VBox>
 </HBox>

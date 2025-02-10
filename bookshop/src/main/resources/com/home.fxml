@@ -87,9 +87,12 @@
             <!-- Library Section with Animation -->
             <VBox spacing="10" styleClass="sidebar-section">
                 <Label text="My Library" styleClass="sidebar-header"/>
-                <Button text="📚 My Books" styleClass="sidebar-button, animated-button"/>
-                <Button text="❤️ Wishlist" styleClass="sidebar-button, animated-button"/>
-                <Button text="📋 Reading List" styleClass="sidebar-button, animated-button"/>
+                <Button text="🏠 Home" styleClass="sidebar-button, animated-button"/>
+                <Button text="🔍 Explore" styleClass="sidebar-button, animated-button"/>
+                <Button text="📖 List a Book" styleClass="sidebar-button, animated-button"/>
+                <Button text="🔄 Borrow &amp; Share" styleClass="sidebar-button, animated-button"/>
+                <Button text="🏆 Top Publishers" styleClass="sidebar-button, animated-button"/>
+                <Button text="🌟 Highly Rated Books" styleClass="sidebar-button, animated-button"/>
             </VBox>
 
             <!-- Enhanced Stats Section -->
