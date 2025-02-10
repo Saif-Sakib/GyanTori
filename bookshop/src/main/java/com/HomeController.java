@@ -1,0 +1,312 @@
+package com;
+
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.animation.FadeTransition;
+import javafx.animation.ScaleTransition;
+import javafx.util.Duration;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
+public class HomeController {
+
+    @FXML
+    private TextField searchField;
+    @FXML
+    private HBox featuredBooks;
+    @FXML
+    private HBox recommendedBooks;
+    @FXML
+    private Label pageTitle;
+    @FXML
+    private Button profileLoginButton;
+    @FXML
+    private Label statsLabel;
+
+    private static boolean isLoggedIn = false;
+    private static int booksRead = 0;
+    private static int readingTime = 0;
+
+    // Book data structure
+    private static class Book {
+        final String title;
+        final String author;
+        final String category;
+        final double rating;
+        final double price;
+        final String imageUrl;
+
+        Book(String title, String author, String category, double rating, double price, String imageUrl) {
+            this.title = title;
+            this.author = author;
+            this.category = category;
+            this.rating = rating;
+            this.price = price;
+            this.imageUrl = imageUrl;
+        }
+    }
+
+    @FXML
+    public void initialize() {
+        try {
+            setupUI();
+            loadBooks();
+            updateStatistics();
+            addSearchListener();
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Initialization Error",
+                    "Failed to initialize application: " + e.getMessage());
+        }
+    }
+
+    private void setupUI() {
+        if (pageTitle != null) {
+            pageTitle.setText("Welcome to GyanTori");
+            addWelcomeAnimation();
+        }
+        updateProfileButton();
+    }
+
+    private void addSearchListener() {
+        if (searchField != null) {
+            searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null && newValue.length() >= 3) {
+                    performSearch(newValue);
+                }
+            });
+        }
+    }
+
+    @FXML
+    public void performSearch() {
+        if (searchField != null) {
+            String query = searchField.getText();
+            performSearch(query);
+        }
+    }
+
+    private void performSearch(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return;
+        }
+        // Implement search functionality
+        System.out.println("Searching for: " + query.trim());
+        // You would typically call your search service here
+    }
+
+    private void loadBooks() {
+        try {
+            // Featured Books Data
+            List<Book> featuredBooksList = Arrays.asList(
+                    new Book("Rich Dad Poor Dad", "Robert Kiyosaki", "Finance", 4.5, 29.99,
+                            "/images/books/rich-dad.png"),
+                    new Book("The Psychology of Money", "Morgan Housel", "Finance", 4.6, 24.99,
+                            "/images/books/psychology-money.png"),
+                    new Book("Atomic Habits", "James Clear", "Self-Help", 4.8, 19.99,
+                            "/images/books/atomic-habits.png"),
+                    new Book("Think and Grow Rich", "Napoleon Hill", "Success", 4.7, 22.99,
+                            "/images/books/think-grow-rich.png"));
+
+            // Recommended Books Data
+            List<Book> recommendedBooksList = Arrays.asList(
+                    new Book("Zero to One", "Peter Thiel", "Startups", 4.8, 27.99, "/images/books/zero-to-one.png"),
+                    new Book("The Lean Startup", "Eric Ries", "Business", 4.6, 25.99, "/images/books/lean-startup.png"),
+                    new Book("Deep Work", "Cal Newport", "Productivity", 4.7, 23.99, "/images/books/deep-work.png"),
+                    new Book("The Power of Habit", "Charles Duhigg", "Psychology", 4.5, 21.99,
+                            "/images/books/power-habit.png"),
+                    new Book("Start with Why", "Simon Sinek", "Leadership", 4.6, 26.99,
+                            "/images/books/start-with-why.png"));
+
+            loadBookSection(featuredBooks, featuredBooksList);
+            loadBookSection(recommendedBooks, recommendedBooksList);
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Loading Error",
+                    "Failed to load books: " + e.getMessage());
+        }
+    }
+
+    private void loadBookSection(HBox container, List<Book> books) {
+        if (container != null && books != null) {
+            container.getChildren().clear();
+            books.forEach(book -> {
+                if (book != null) {
+                    container.getChildren().add(createBookCard(book));
+                }
+            });
+        }
+    }
+
+    private VBox createBookCard(Book book) {
+        VBox card = new VBox(10);
+        card.getStyleClass().add("book-card");
+        card.setAlignment(Pos.CENTER);
+
+        // Book Cover Image
+        ImageView coverImage = new ImageView();
+        try {
+            Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(book.imageUrl)));
+            coverImage.setImage(image);
+        } catch (Exception e) {
+            // Load placeholder image if book image is not found
+            try {
+                coverImage.setImage(new Image(Objects.requireNonNull(
+                        getClass().getResourceAsStream("/images/books/placeholder-book.png"))));
+            } catch (Exception ex) {
+                System.err.println("Failed to load placeholder image: " + ex.getMessage());
+            }
+        }
+        coverImage.setFitHeight(200);
+        coverImage.setFitWidth(140);
+        coverImage.setPreserveRatio(true);
+
+        // Book Details
+        Label titleLabel = new Label(book.title);
+        titleLabel.getStyleClass().add("book-title");
+        titleLabel.setWrapText(true);
+
+        Label authorLabel = new Label(book.author);
+        authorLabel.getStyleClass().add("book-author");
+
+        Label ratingLabel = new Label(String.format("%.1f ★", book.rating));
+        ratingLabel.getStyleClass().add("book-rating");
+
+        Label priceLabel = new Label(String.format("$%.2f", book.price));
+        priceLabel.getStyleClass().add("book-price");
+
+        Button addToCartBtn = new Button("Add to Cart");
+        addToCartBtn.getStyleClass().addAll("cart-button", "animated-button");
+        addToCartBtn.setOnAction(e -> handleAddToCart(book));
+
+        card.getChildren().addAll(coverImage, titleLabel, authorLabel, ratingLabel, priceLabel, addToCartBtn);
+
+        // Add hover effect
+        addHoverEffect(card);
+
+        return card;
+    }
+
+    private void addHoverEffect(VBox card) {
+        ScaleTransition scaleIn = new ScaleTransition(Duration.millis(200), card);
+        scaleIn.setToX(1.05);
+        scaleIn.setToY(1.05);
+
+        ScaleTransition scaleOut = new ScaleTransition(Duration.millis(200), card);
+        scaleOut.setToX(1.0);
+        scaleOut.setToY(1.0);
+
+        card.setOnMouseEntered(e -> scaleIn.playFromStart());
+        card.setOnMouseExited(e -> scaleOut.playFromStart());
+    }
+
+    private void addWelcomeAnimation() {
+        if (pageTitle != null) {
+            FadeTransition fade = new FadeTransition(Duration.millis(1000), pageTitle);
+            fade.setFromValue(0.0);
+            fade.setToValue(1.0);
+            fade.play();
+        }
+    }
+
+    private void handleAddToCart(Book book) {
+        if (!isLoggedIn) {
+            showAlert(Alert.AlertType.INFORMATION, "Login Required",
+                    "Please login to add books to your cart.");
+            return;
+        }
+        showAlert(Alert.AlertType.INFORMATION, "Success",
+                String.format("%s has been added to your cart!", book.title));
+    }
+
+    @FXML
+    private void handleProfileLogin() {
+        if (isLoggedIn) {
+            logout();
+        } else {
+            loadScene("login.fxml", "login_signup.css", profileLoginButton);
+        }
+    }
+
+    private void logout() {
+        isLoggedIn = false;
+        updateProfileButton();
+        showAlert(Alert.AlertType.INFORMATION, "Logged Out",
+                "You have been successfully logged out.");
+    }
+
+    private void loadScene(String fxmlFile, String cssFile, Button sourceButton) {
+        try {
+            // Get current window dimensions
+            Stage currentStage = (Stage) sourceButton.getScene().getWindow();
+            double currentWidth = currentStage.getWidth();
+            double currentHeight = currentStage.getHeight();
+            boolean isMaximized = currentStage.isMaximized();
+
+            // Load new scene
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+
+            // Apply all stylesheets
+            scene.getStylesheets().addAll(StyleManager.getStylesheet(cssFile));
+
+            // Set the scene
+            currentStage.setScene(scene);
+
+            // Restore dimensions
+            if (isMaximized) {
+                currentStage.setMaximized(true);
+            } else {
+                currentStage.setWidth(currentWidth);
+                currentStage.setHeight(currentHeight);
+            }
+
+            currentStage.show();
+        } catch (Exception e) {
+            showAlert(AlertType.ERROR, "Error", "Error loading " + fxmlFile + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void updateProfileButton() {
+        if (profileLoginButton != null) {
+            profileLoginButton.setText(isLoggedIn ? "Logout" : "Login");
+        }
+    }
+
+    private void updateStatistics() {
+        if (statsLabel != null) {
+            statsLabel.setText(String.format("Books Read: %d | Reading Time: %d hrs",
+                    booksRead, readingTime));
+        }
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    // Getter and setter for login status
+    public static void setLoggedIn(boolean status) {
+        isLoggedIn = status;
+    }
+
+    public boolean getLoggedIn() {
+        return isLoggedIn;
+    }
+}

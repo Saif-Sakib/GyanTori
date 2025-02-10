@@ -1,0 +1,280 @@
+/* Root Styles */
+.root {
+    -fx-background-color: #f5f5f5;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* Navigation Bar Styles */
+.nav-bar {
+    -fx-background-color: #2196F3;
+    -fx-padding: 10px 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);
+}
+
+.nav-logo {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-padding: 0 20px;
+}
+
+.nav-button {
+    -fx-background-color: rgba(255,255,255,0.1);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 15px;
+    -fx-background-radius: 20px;
+    -fx-cursor: hand;
+    -fx-transition: all 0.3s ease;
+}
+
+.nav-button:hover {
+    -fx-background-color: rgba(255,255,255,0.2);
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.3), 10, 0, 0, 0);
+}
+
+/* Search Field Styles */
+.search-field {
+    -fx-background-color: rgba(255,255,255,0.15);
+    -fx-background-radius: 20px;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: rgba(255,255,255,0.7);
+    -fx-padding: 8px 15px;
+    -fx-font-size: 14px;
+}
+
+.search-field:focused {
+    -fx-background-color: rgba(255,255,255,0.2);
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.3), 10, 0, 0, 0);
+}
+
+.search-button {
+    -fx-background-color: rgba(255,255,255,0.1);
+    -fx-background-radius: 20px;
+    -fx-padding: 8px 15px;
+    -fx-cursor: hand;
+}
+
+.search-button:hover {
+    -fx-background-color: rgba(255,255,255,0.2);
+}
+
+/* Sidebar Styles */
+.sidebar {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 0);
+    -fx-min-width: 250px;
+    -fx-max-width: 250px;
+}
+
+.sidebar-header {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2196F3;
+    -fx-padding: 10px 0;
+}
+
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #424242;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 15px;
+    -fx-background-radius: 8px;
+    -fx-alignment: center-left;
+    -fx-cursor: hand;
+    -fx-max-width: infinity;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: #f5f5f5;
+    -fx-text-fill: #2196F3;
+}
+
+.stats-section {
+    -fx-padding: 20px 0;
+}
+
+.stats-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: #757575;
+}
+
+/* Main Content Styles */
+.main-content-scroll {
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+}
+
+.main-content-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.main-content {
+    -fx-background-color: transparent;
+    -fx-padding: 20px;
+}
+
+.welcome-section {
+    -fx-padding: 20px 0;
+}
+
+.welcome-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2196F3;
+}
+
+.welcome-text {
+    -fx-font-size: 16px;
+    -fx-fill: #757575;
+    -fx-padding: 10px 0;
+}
+
+.section-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #424242;
+    -fx-padding: 10px 0;
+}
+
+/* Book Card Styles */
+.books-container {
+    -fx-padding: 20px 0;
+}
+
+.book-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 0);
+    -fx-padding: 15px;
+    -fx-spacing: 10;
+    -fx-alignment: center;
+    -fx-min-width: 180px;
+    -fx-max-width: 180px;
+    -fx-cursor: hand;
+}
+
+.book-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(33,150,243,0.3), 15, 0, 0, 0);
+    -fx-translate-y: -2;
+}
+
+.book-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #424242;
+    -fx-wrap-text: true;
+}
+
+.book-author {
+    -fx-font-size: 14px;
+    -fx-text-fill: #757575;
+}
+
+.book-rating {
+    -fx-font-size: 14px;
+    -fx-text-fill: #FFC107;
+    -fx-font-weight: bold;
+}
+
+.book-price {
+    -fx-font-size: 16px;
+    -fx-text-fill: #2196F3;
+    -fx-font-weight: bold;
+}
+
+.cart-button {
+    -fx-background-color: #2196F3;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 15px;
+    -fx-background-radius: 20px;
+    -fx-cursor: hand;
+}
+
+.cart-button:hover {
+    -fx-background-color: #1976D2;
+}
+
+/* Footer Styles */
+.footer {
+    -fx-background-color: #2196F3;
+    -fx-padding: 20px;
+}
+
+.footer-header {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.footer-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: rgba(255,255,255,0.8);
+}
+
+.social-button {
+    -fx-background-color: rgba(255,255,255,0.1);
+    -fx-background-radius: 50%;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-cursor: hand;
+}
+
+.social-button:hover {
+    -fx-background-color: rgba(255,255,255,0.2);
+}
+
+/* Scroll Bar Styling */
+.scroll-bar:horizontal,
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #BDBDBD;
+    -fx-background-radius: 5em;
+}
+
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+/* Animation Classes */
+.animated-button {
+    -fx-transition: all 0.3s ease;
+}
+
+.animated-button:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* Separator Styling */
+.separator {
+    -fx-padding: 10px 0;
+    -fx-opacity: 0.2;
+}
+
+/* Books ScrollPane */
+.books-scroll-pane {
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+    -fx-padding: 10px 0;
+}
+
+.books-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.books-scroll-pane .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-pref-height: 12px;
+}
+
+.books-scroll-pane .scroll-bar:horizontal .thumb {
+    -fx-background-color: #BDBDBD;
+    -fx-background-radius: 6px;
+}

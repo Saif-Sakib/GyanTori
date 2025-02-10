@@ -15,14 +15,14 @@ public class App extends Application {
     public void start(Stage primaryStage) {
         try {
             // Load the FXML file
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("home.fxml"));
             Parent root = loader.load();
 
             // Create the scene
             Scene scene = new Scene(root);
 
             // Add CSS files
-            scene.getStylesheets().add(getClass().getResource("styles/login_signup.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("styles/home.css").toExternalForm());
 
             // Configure the stage
             primaryStage.setTitle("GyanTori - Login");

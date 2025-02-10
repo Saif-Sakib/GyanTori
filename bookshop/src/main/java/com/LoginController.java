@@ -21,6 +21,7 @@ public class LoginController {
     @FXML
     private Button loginButton;
 
+    private HomeController homeController;
     private void loadScene(String fxmlFile, String cssFile, Button sourceButton) {
         try {
             // Get current window dimensions
@@ -50,7 +51,7 @@ public class LoginController {
 
             currentStage.show();
         } catch (Exception e) {
-            showError("Error loading " + fxmlFile + ": " + e.getMessage());
+            showAlert(AlertType.ERROR, "Error", "Error loading " + fxmlFile + ": " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -62,6 +63,8 @@ public class LoginController {
 
         if (validateInput(username, password)) {
             // Add your authentication logic here
+            // Get controller instance and update boolean value
+            homeController.setLoggedIn(true);
             loadScene("home.fxml", "home.css", loginButton);
         }
     }
@@ -73,17 +76,17 @@ public class LoginController {
 
     private boolean validateInput(String username, String password) {
         if (username.isEmpty() || password.isEmpty()) {
-            showError("Please fill in all fields");
+            showAlert(AlertType.WARNING, "Input Error", "Please fill in all fields");
             return false;
         }
         return true;
     }
 
-    private void showError(String message) {
-        Alert alert = new Alert(AlertType.ERROR);
-        alert.setTitle("Error");
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
         alert.setHeaderText(null);
-        alert.setContentText(message);
+        alert.setContentText(content);
         alert.showAndWait();
     }
 }
