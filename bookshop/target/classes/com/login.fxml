@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.LoginController" styleClass="login-root" HBox.hgrow="ALWAYS">
+    
+    <!-- Left Section -->
+    <VBox styleClass="brand-section" HBox.hgrow="ALWAYS">
+        <ImageView styleClass="brand-logo" fitWidth="150" fitHeight="150" preserveRatio="true">
+            <Image url="@images/icons/logo.png"/>
+        </ImageView>
+        
+        <VBox spacing="20" alignment="CENTER" VBox.vgrow="ALWAYS">
+            <Label text="GyanTori" styleClass="brand-name"/>
+            <Label text="Your Gateway to Knowledge" styleClass="brand-tagline"/>
+            <Label text="Discover thousands of books and expand your horizons with our comprehensive collection" styleClass="brand-description" wrapText="true"/>
+        </VBox>
+    </VBox>
+
+    <!-- Right Section -->
+    <VBox styleClass="login-section" HBox.hgrow="ALWAYS">
+        <Label text="Welcome Back!" styleClass="login-header"/>
+        <Label text="Log in to continue" styleClass="login-subheader"/>
+
+        <VBox styleClass="form-container" VBox.vgrow="ALWAYS">
+            <Label text="USERNAME" styleClass="input-label"/>
+            <TextField fx:id="usernameField" 
+                      promptText="Enter your username"
+                      styleClass="input-field"/>
+
+            <Label text="PASSWORD" styleClass="input-label"/>
+            <PasswordField fx:id="passwordField" 
+                         promptText="Enter your password"
+                         styleClass="input-field"/>
+
+            <HBox styleClass="options-container">
+                <CheckBox text="Remember me" styleClass="remember-checkbox"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Hyperlink text="Forgot Password?" styleClass="forgot-link"/>
+            </HBox>
+
+            <Button text="LOG IN" 
+                    fx:id="loginButton"
+                    onAction="#handleLogin"
+                    styleClass="login-button"/>
+
+            <HBox styleClass="divider">
+                <Separator HBox.hgrow="ALWAYS"/>
+                <Label text="OR" styleClass="divider-text"/>
+                <Separator HBox.hgrow="ALWAYS"/>
+            </HBox>
+
+            <HBox styleClass="social-login">
+                <Button styleClass="social-button">
+                    <graphic>
+                        <ImageView fitHeight="25" fitWidth="25">
+                            <Image url="@images/icons/google.png"/>
+                        </ImageView>
+                    </graphic>
+                </Button>
+                <Button styleClass="social-button">
+                    <graphic>
+                        <ImageView fitHeight="25" fitWidth="25">
+                            <Image url="@images/icons/facebook.png"/>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </HBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <HBox styleClass="signup-prompt">
+                <Label text="Don't have an account?"/>
+                <Hyperlink text="Sign Up" 
+                          onAction="#handleSignUp"
+                          styleClass="signup-link"/>
+            </HBox>
+        </VBox>
+    </VBox>
+</HBox>

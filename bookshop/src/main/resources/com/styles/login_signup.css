@@ -1,0 +1,186 @@
+.login-root {
+    -fx-background-color: #f5f5f5;
+    -fx-fill-width: true;
+    -fx-fill-height: true;
+}
+
+.brand-section {
+    -fx-alignment: center;
+    -fx-spacing: 30;
+    -fx-padding: 50;
+    -fx-background-color: #30363f;
+    -fx-pref-width: 50%;
+    -fx-max-width: infinity;
+}
+
+.brand-logo {
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.2), 10, 0, 0, 0);
+}
+
+.brand-name {
+    -fx-font-size: 48;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 1);
+}
+
+.brand-tagline {
+    -fx-font-size: 24;
+    -fx-text-fill: #ffffff90;
+    -fx-font-style: italic;
+}
+
+.brand-description {
+    -fx-font-size: 16;
+    -fx-text-fill: #ffffff80;
+    -fx-text-alignment: center;
+    -fx-max-width: 350;
+}
+
+.login-section {
+    -fx-padding: 50;
+    -fx-spacing: 20;
+    -fx-alignment: top-center;
+    -fx-background-color: #6a9ae7;
+    -fx-pref-width: 50%;
+    -fx-max-width: infinity;
+}
+
+.login-header {
+    -fx-font-size: 40;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);
+}
+
+.login-subheader {
+    -fx-font-size: 18;
+    -fx-text-fill: #ffffff90;
+    -fx-padding: 0 0 20 0;
+}
+
+.form-container {
+    -fx-spacing: 15;
+    -fx-max-width: 350;
+    -fx-alignment: top-center;
+}
+
+.input-label {
+    -fx-font-size: 14;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.input-field {
+    -fx-pref-height: 45;
+    -fx-background-color: #ffffff20;
+    -fx-background-radius: 8;
+    -fx-padding: 10 15;
+    -fx-font-size: 14;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #ffffff80;
+}
+
+.input-field:focused {
+    -fx-background-color: #ffffff30;
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.3), 5, 0, 0, 0);
+}
+
+.options-container {
+    -fx-padding: 10 0;
+    -fx-alignment: center-left;
+}
+
+.remember-checkbox {
+    -fx-text-fill: white;
+}
+
+.remember-checkbox .box {
+    -fx-background-color: #ffffff20;
+    -fx-background-radius: 4;
+}
+
+.remember-checkbox:selected .box {
+    -fx-background-color: white;
+}
+
+.forgot-link {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.login-button {
+    -fx-background-color: white;
+    -fx-text-fill: #6a9ae7;
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+    -fx-pref-height: 45;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-max-width: infinity;
+}
+
+.login-button:hover {
+    -fx-background-color: #f0f0f0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 0);
+    -fx-translate-y: -1;
+}
+
+.login-button:pressed {
+    -fx-background-color: #e0e0e0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0, 0, 0);
+    -fx-translate-y: 1;
+}
+
+.divider {
+    -fx-padding: 20 0;
+    -fx-alignment: center;
+}
+
+.divider .line {
+    -fx-border-color: #ffffff40;
+}
+
+.divider-text {
+    -fx-padding: 0 15;
+    -fx-text-fill: white;
+}
+
+.social-login {
+    -fx-spacing: 20;
+    -fx-alignment: center;
+}
+
+.social-button {
+    -fx-background-radius: 50%;
+    -fx-min-width: 50;
+    -fx-min-height: 50;
+    -fx-cursor: hand;
+    -fx-background-color: #ffffff20;
+}
+
+.social-button:hover {
+    -fx-background-color: #ffffff30;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 0);
+    -fx-translate-y: -1;
+}
+
+.signup-prompt {
+    -fx-padding: 20 0;
+    -fx-alignment: center;
+    -fx-spacing: 5;
+}
+
+.signup-prompt Label {
+    -fx-text-fill: white;
+}
+
+.signup-link {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-underline: true;
+}
+
+.signup-link:hover {
+    -fx-text-fill: #f0f0f0;
+}
