@@ -4,7 +4,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.*?>
-<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.HomeController" styleClass="root">
 
@@ -17,21 +17,20 @@
                     <Insets left="20" right="20"/>
                 </padding>
                 
-                <!-- Logo Section -->
-                <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-                    <ImageView fitHeight="40.0" fitWidth="40.0">
-                        <Image url="@images/icons/logo.png"/>
-                    </ImageView>
+                <!-- Logo Section with Animation -->
+                <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" styleClass="logo-container">
+                    <StackPane styleClass="logo-circle">
+                        <ImageView fitHeight="40.0" fitWidth="40.0" styleClass="logo-image">
+                            <Image url="@images/icons/logo.png"/>
+                        </ImageView>
+                    </StackPane>
                     <Label text="GyanTori" styleClass="nav-logo"/>
                 </HBox>
                 
-                <!-- Search Bar -->
-                <HBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" maxWidth="500">
-                    <TextField fx:id="searchField" 
-                              promptText="Search for your favorite books..." 
-                              styleClass="search-field"
-                              HBox.hgrow="ALWAYS"/>
-                    <Button onAction="#performSearch" styleClass="search-button">
+                <!-- Enhanced Search Bar -->
+                <HBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" maxWidth="500" styleClass="search-container">
+                    <TextField fx:id="searchField" promptText="Search for your favorite books..." styleClass="search-field" HBox.hgrow="ALWAYS"/>
+                    <Button onAction="#performSearch" styleClass="search-button, animated-button">
                         <graphic>
                             <ImageView fitHeight="20.0" fitWidth="20.0">
                                 <Image url="@images/icons/search.png"/>
@@ -40,65 +39,75 @@
                     </Button>
                 </HBox>
                 
-                <!-- Navigation Buttons -->
-                <Button styleClass="nav-button" text="Cart">
-                    <graphic>
-                        <ImageView fitHeight="24.0" fitWidth="24.0">
-                            <Image url="@images/icons/cart.png"/>
-                        </ImageView>
-                    </graphic>
-                </Button>
-                
-                <Button fx:id="profileLoginButton" 
-                        onAction="#handleProfileLogin" 
-                        styleClass="nav-button" 
-                        text="Login">
-                    <graphic>
-                        <ImageView fitHeight="24.0" fitWidth="24.0">
-                            <Image url="@images/icons/user.png"/>
-                        </ImageView>
-                    </graphic>
-                </Button>
+                <!-- Animated Navigation Buttons -->
+                <HBox spacing="10" alignment="CENTER">
+                    <Button styleClass="nav-button, animated-button" text="Cart">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <ImageView fitHeight="24.0" fitWidth="24.0">
+                                    <Image url="@images/icons/cart.png"/>
+                                </ImageView>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <Button fx:id="profileLoginButton" 
+                            onAction="#handleProfileLogin" 
+                            styleClass="nav-button, animated-button" 
+                            text="Login">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <ImageView fitHeight="24.0" fitWidth="24.0">
+                                    <Image url="@images/icons/user.png"/>
+                                </ImageView>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                </HBox>
             </HBox>
         </VBox>
     </top>
 
-    <!-- Left Sidebar -->
+    <!-- Enhanced Left Sidebar -->
     <left>
         <VBox spacing="20" styleClass="sidebar">
             <padding>
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
 
-            <!-- Categories Section -->
+            <!-- Categories Section with Icons -->
             <VBox spacing="10" styleClass="sidebar-section">
                 <Label text="Categories" styleClass="sidebar-header"/>
-                <Button text="📚 All Books" styleClass="sidebar-button"/>
-                <Button text="💼 Business" styleClass="sidebar-button"/>
-                <Button text="💻 Technology" styleClass="sidebar-button"/>
-                <Button text="🎨 Arts" styleClass="sidebar-button"/>
-                <Button text="📖 Literature" styleClass="sidebar-button"/>
+                <Button text="📚 All Books" styleClass="sidebar-button, animated-button"/>
+                <Button text="💼 Business" styleClass="sidebar-button, animated-button"/>
+                <Button text="💻 Technology" styleClass="sidebar-button, animated-button"/>
+                <Button text="🎨 Arts" styleClass="sidebar-button, animated-button"/>
+                <Button text="📖 Literature" styleClass="sidebar-button, animated-button"/>
             </VBox>
 
-            <Separator/>
+            <Separator styleClass="custom-separator"/>
 
-            <!-- Library Section -->
+            <!-- Library Section with Animation -->
             <VBox spacing="10" styleClass="sidebar-section">
                 <Label text="My Library" styleClass="sidebar-header"/>
-                <Button text="📚 My Books" styleClass="sidebar-button"/>
-                <Button text="❤️ Wishlist" styleClass="sidebar-button"/>
-                <Button text="📋 Reading List" styleClass="sidebar-button"/>
+                <Button text="📚 My Books" styleClass="sidebar-button, animated-button"/>
+                <Button text="❤️ Wishlist" styleClass="sidebar-button, animated-button"/>
+                <Button text="📋 Reading List" styleClass="sidebar-button, animated-button"/>
             </VBox>
 
-            <!-- Stats Section -->
+            <!-- Enhanced Stats Section -->
             <VBox spacing="10" styleClass="stats-section">
                 <Label text="Reading Stats" styleClass="sidebar-header"/>
-                <Label fx:id="statsLabel" styleClass="stats-text"/>
+                <VBox fx:id="statsContainer" styleClass="stats-container">
+                    <Label fx:id="booksReadLabel" styleClass="stats-text"/>
+                    <ProgressBar fx:id="readingProgress" styleClass="reading-progress"/>
+                    <Label fx:id="statsLabel" styleClass="stats-text"/>
+                </VBox>
             </VBox>
         </VBox>
     </left>
 
-    <!-- Main Content Area -->
+    <!-- Main Content Area with Smooth Scrolling -->
     <center>
         <ScrollPane fitToWidth="true" styleClass="main-content-scroll">
             <VBox spacing="30" styleClass="main-content">
@@ -106,16 +115,26 @@
                     <Insets top="20" right="20" bottom="20" left="20"/>
                 </padding>
 
-                <!-- Welcome Section -->
-                <VBox styleClass="welcome-section">
-                    <Label fx:id="pageTitle" styleClass="welcome-title"/>
-                    <Text styleClass="welcome-text" 
-                          text="Discover millions of eBooks, audiobooks, magazines &amp; more"/>
-                </VBox>
+                <!-- Enhanced Welcome Section -->
+                <StackPane styleClass="welcome-section">
+                    <VBox alignment="CENTER_LEFT" spacing="10">
+                        <Label fx:id="pageTitle" styleClass="welcome-title"/>
+                        <Text styleClass="welcome-text" 
+                              text="Discover millions of eBooks, audiobooks, magazines &amp; more"/>
+                        <HBox spacing="15" styleClass="welcome-buttons">
+                            <Button text="Explore Now" styleClass="primary-button, animated-button"/>
+                            <Button text="Learn More" styleClass="secondary-button, animated-button"/>
+                        </HBox>
+                    </VBox>
+                </StackPane>
 
-                <!-- Featured Books Section -->
+                <!-- Featured Books Section with Horizontal Scroll -->
                 <VBox spacing="15">
-                    <Label text="Featured Books" styleClass="section-title"/>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Featured Books" styleClass="section-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="View All" styleClass="view-all-button, animated-button"/>
+                    </HBox>
                     <ScrollPane styleClass="books-scroll-pane" hbarPolicy="NEVER">
                         <HBox fx:id="featuredBooks" spacing="20" styleClass="books-container"/>
                     </ScrollPane>
@@ -123,7 +142,11 @@
 
                 <!-- Recommended Books Section -->
                 <VBox spacing="15">
-                    <Label text="Recommended For You" styleClass="section-title"/>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Recommended For You" styleClass="section-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="View All" styleClass="view-all-button, animated-button"/>
+                    </HBox>
                     <ScrollPane styleClass="books-scroll-pane" hbarPolicy="NEVER">
                         <HBox fx:id="recommendedBooks" spacing="20" styleClass="books-container"/>
                     </ScrollPane>
@@ -132,49 +155,62 @@
         </ScrollPane>
     </center>
 
-    <!-- Footer -->
+    <!-- Enhanced Footer -->
     <bottom>
-        <HBox styleClass="footer" alignment="CENTER" spacing="50">
-            <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
-            </padding>
+        <VBox styleClass="footer">
+            <HBox alignment="CENTER" spacing="50">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+                
+                <VBox alignment="CENTER" spacing="10" styleClass="footer-section">
+                    <Label text="About GyanTori" styleClass="footer-header"/>
+                    <Label text="Your Gateway to Knowledge" styleClass="footer-text"/>
+                    <Label text="© 2023 GyanTori" styleClass="footer-copyright"/>
+                </VBox>
+                
+                <VBox alignment="CENTER" spacing="10" styleClass="footer-section">
+                    <Label text="Contact" styleClass="footer-header"/>
+                    <Label text="support@gyantori.com" styleClass="footer-text"/>
+                    <Label text="+1 (555) 123-4567" styleClass="footer-text"/>
+                </VBox>
+                
+                <VBox alignment="CENTER" spacing="10" styleClass="footer-section">
+                    <Label text="Follow Us" styleClass="footer-header"/>
+                    <HBox spacing="15" alignment="CENTER" styleClass="social-buttons">
+                        <Button styleClass="social-button, animated-button">
+                            <graphic>
+                                <ImageView fitHeight="20" fitWidth="20">
+                                    <Image url="@images/icons/facebook.png"/>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                        <Button styleClass="social-button, animated-button">
+                            <graphic>
+                                <ImageView fitHeight="20" fitWidth="20">
+                                    <Image url="@images/icons/twitter.png"/>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                        <Button styleClass="social-button, animated-button">
+                            <graphic>
+                                <ImageView fitHeight="20" fitWidth="20">
+                                    <Image url="@images/icons/instagram.png"/>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                    </HBox>
+                </VBox>
+            </HBox>
             
-            <VBox alignment="CENTER" spacing="5">
-                <Label text="About GyanTori" styleClass="footer-header"/>
-                <Label text="Your Gateway to Knowledge" styleClass="footer-text"/>
-            </VBox>
-            
-            <VBox alignment="CENTER" spacing="5">
-                <Label text="Contact" styleClass="footer-header"/>
-                <Label text="support@gyantori.com" styleClass="footer-text"/>
-            </VBox>
-            
-            <VBox alignment="CENTER" spacing="5">
-                <Label text="Follow Us" styleClass="footer-header"/>
-                <HBox spacing="10" alignment="CENTER">
-                    <Button styleClass="social-button">
-                        <graphic>
-                            <ImageView fitHeight="20" fitWidth="20">
-                                <Image url="@images/icons/facebook.png"/>
-                            </ImageView>
-                        </graphic>
-                    </Button>
-                    <Button styleClass="social-button">
-                        <graphic>
-                            <ImageView fitHeight="20" fitWidth="20">
-                                <Image url="@images/icons/twitter.png"/>
-                            </ImageView>
-                        </graphic>
-                    </Button>
-                    <Button styleClass="social-button">
-                        <graphic>
-                            <ImageView fitHeight="20" fitWidth="20">
-                                <Image url="@images/icons/instagram.png"/>
-                            </ImageView>
-                        </graphic>
-                    </Button>
-                </HBox>
-            </VBox>
-        </HBox>
+            <!-- Footer Bottom Bar -->
+            <HBox styleClass="footer-bottom" alignment="CENTER">
+                <padding>
+                    <Insets top="10" right="20" bottom="10" left="20"/>
+                </padding>
+                <Label text="Terms of Service | Privacy Policy | Cookie Policy" 
+                       styleClass="footer-links"/>
+            </HBox>
+        </VBox>
     </bottom>
 </BorderPane>
