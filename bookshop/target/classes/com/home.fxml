@@ -32,7 +32,7 @@
                     <TextField fx:id="searchField" promptText="Search for your favorite books..." styleClass="search-field" HBox.hgrow="ALWAYS"/>
                     <Button onAction="#performSearch" styleClass="search-button, animated-button">
                         <graphic>
-                            <ImageView fitHeight="20.0" fitWidth="20.0">
+                            <ImageView fitHeight="20.0" fitWidth="20.0" styleClass="icon">
                                 <Image url="@images/icons/search.png"/>
                             </ImageView>
                         </graphic>
@@ -44,7 +44,7 @@
                     <Button styleClass="nav-button, animated-button" text="Cart">
                         <graphic>
                             <StackPane styleClass="icon-container">
-                                <ImageView fitHeight="24.0" fitWidth="24.0" styleClass="nav-icon">
+                                <ImageView fitHeight="24.0" fitWidth="24.0" styleClass="icon">
                                     <Image url="@images/icons/cart.png"/>
                                 </ImageView>
                             </StackPane>
@@ -54,7 +54,7 @@
                     <Button fx:id="profileLoginButton" onAction="#handleProfileLogin" styleClass="nav-button, animated-button" text="Login">
                         <graphic>
                             <StackPane styleClass="icon-container">
-                                <ImageView fitHeight="24.0" fitWidth="24.0" styleClass="nav-icon">
+                                <ImageView fitHeight="24.0" fitWidth="24.0" styleClass="icon">
                                     <Image url="@images/icons/user.png"/>
                                 </ImageView>
                             </StackPane>
@@ -177,22 +177,22 @@
                     <HBox spacing="15" alignment="CENTER" styleClass="social-buttons">
                         <Button styleClass="social-button, animated-button">
                             <graphic>
-                                <ImageView fitHeight="20" fitWidth="20">
+                                <ImageView fitHeight="20" fitWidth="20" styleClass="icon">
                                     <Image url="@images/icons/facebook.png"/>
                                 </ImageView>
                             </graphic>
                         </Button>
                         <Button styleClass="social-button, animated-button">
                             <graphic>
-                                <ImageView fitHeight="20" fitWidth="20">
-                                    <Image url="@images/icons/twitter.png"/>
+                                <ImageView fitHeight="20" fitWidth="20" styleClass="icon">
+                                    <Image url="@images/icons/x.png"/>
                                 </ImageView>
                             </graphic>
                         </Button>
                         <Button styleClass="social-button, animated-button">
                             <graphic>
-                                <ImageView fitHeight="20" fitWidth="20">
-                                    <Image url="@images/icons/instagram.png"/>
+                                <ImageView fitHeight="20" fitWidth="20" styleClass="icon">
+                                    <Image url="@images/icons/LinkedIn.png"/>
                                 </ImageView>
                             </graphic>
                         </Button>

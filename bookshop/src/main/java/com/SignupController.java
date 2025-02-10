@@ -14,52 +14,39 @@ import javafx.scene.control.Alert.AlertType;
 public class SignupController {
     @FXML
     private TextField fullNameField;
-
     @FXML
     private TextField emailField;
-
     @FXML
     private TextField usernameField;
-
     @FXML
     private PasswordField passwordField;
-
     @FXML
     private PasswordField confirmPasswordField;
-
     @FXML
     private Button signupButton;
 
     private void loadScene(String fxmlFile, String cssFile, Button sourceButton) {
         try {
-            // Get current window dimensions
             Stage currentStage = (Stage) sourceButton.getScene().getWindow();
             double currentWidth = currentStage.getWidth();
             double currentHeight = currentStage.getHeight();
             boolean isMaximized = currentStage.isMaximized();
 
-            // Load new scene
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Parent root = loader.load();
             Scene scene = new Scene(root);
-
-            // Apply all stylesheets
             scene.getStylesheets().addAll(StyleManager.getStylesheet(cssFile));
 
-            // Set the scene
             currentStage.setScene(scene);
-
-            // Restore dimensions
             if (isMaximized) {
                 currentStage.setMaximized(true);
             } else {
                 currentStage.setWidth(currentWidth);
                 currentStage.setHeight(currentHeight);
             }
-
             currentStage.show();
         } catch (Exception e) {
-            showError("Error loading " + fxmlFile + ": " + e.getMessage());
+            showAlert(AlertType.ERROR, "Error", "Error loading " + fxmlFile + ": " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -67,9 +54,17 @@ public class SignupController {
     @FXML
     private void handleSignup() {
         if (validateInput()) {
-            // Add your registration logic here
-            showSuccess("Account created successfully!");
-            loadScene("login.fxml", "login_signup.css", signupButton);
+            String fullName = fullNameField.getText().trim();
+            String email = emailField.getText().trim();
+            String username = usernameField.getText().trim();
+            String password = passwordField.getText();
+
+            if (DatabaseManager.registerUser(fullName, email, username, password)) {
+                showAlert(AlertType.INFORMATION, "Success", "Account created successfully!");
+                loadScene("login.fxml", "login_signup.css", signupButton);
+            } else {
+                showAlert(AlertType.ERROR, "Error", "Error creating account! Username or Email might be taken.");
+            }
         }
     }
 
@@ -79,27 +74,27 @@ public class SignupController {
     }
 
     private boolean validateInput() {
-        if (fullNameField.getText().isEmpty() ||
-                emailField.getText().isEmpty() ||
-                usernameField.getText().isEmpty() ||
+        if (fullNameField.getText().trim().isEmpty() ||
+                emailField.getText().trim().isEmpty() ||
+                usernameField.getText().trim().isEmpty() ||
                 passwordField.getText().isEmpty() ||
                 confirmPasswordField.getText().isEmpty()) {
-            showError("Please fill in all fields");
+            showAlert(AlertType.ERROR, "Error", "Please fill in all fields");
             return false;
         }
 
-        if (!isValidEmail(emailField.getText())) {
-            showError("Please enter a valid email address");
+        if (!isValidEmail(emailField.getText().trim())) {
+            showAlert(AlertType.ERROR, "Error", "Please enter a valid email address");
             return false;
         }
 
-        if (passwordField.getText().length() < 6) {
-            showError("Password must be at least 6 characters long");
+        if (passwordField.getText().length() < 8) {
+            showAlert(AlertType.ERROR, "Error", "Password must be at least 8 characters long");
             return false;
         }
 
         if (!passwordField.getText().equals(confirmPasswordField.getText())) {
-            showError("Passwords do not match");
+            showAlert(AlertType.ERROR, "Error", "Passwords do not match");
             return false;
         }
 
@@ -107,23 +102,15 @@ public class SignupController {
     }
 
     private boolean isValidEmail(String email) {
-        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
         return email.matches(emailRegex);
     }
 
-    private void showError(String message) {
-        Alert alert = new Alert(AlertType.ERROR);
-        alert.setTitle("Error");
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
         alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private void showSuccess(String message) {
-        Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle("Success");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
+        alert.setContentText(content);
         alert.showAndWait();
     }
 }

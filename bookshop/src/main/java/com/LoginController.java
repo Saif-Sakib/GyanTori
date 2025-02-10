@@ -14,41 +14,37 @@ import javafx.scene.control.Alert.AlertType;
 public class LoginController {
     @FXML
     private TextField usernameField;
-
     @FXML
     private PasswordField passwordField;
-
     @FXML
     private Button loginButton;
 
     private HomeController homeController;
+
+    @FXML
+    public void initialize() {
+        homeController = new HomeController();
+    }
+
     private void loadScene(String fxmlFile, String cssFile, Button sourceButton) {
         try {
-            // Get current window dimensions
             Stage currentStage = (Stage) sourceButton.getScene().getWindow();
             double currentWidth = currentStage.getWidth();
             double currentHeight = currentStage.getHeight();
             boolean isMaximized = currentStage.isMaximized();
 
-            // Load new scene
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Parent root = loader.load();
             Scene scene = new Scene(root);
-
-            // Apply all stylesheets
             scene.getStylesheets().addAll(StyleManager.getStylesheet(cssFile));
 
-            // Set the scene
             currentStage.setScene(scene);
-
-            // Restore dimensions
             if (isMaximized) {
                 currentStage.setMaximized(true);
             } else {
                 currentStage.setWidth(currentWidth);
                 currentStage.setHeight(currentHeight);
             }
-
             currentStage.show();
         } catch (Exception e) {
             showAlert(AlertType.ERROR, "Error", "Error loading " + fxmlFile + ": " + e.getMessage());
@@ -61,11 +57,15 @@ public class LoginController {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        if (validateInput(username, password)) {
-            // Add your authentication logic here
-            // Get controller instance and update boolean value
+        if (!validateInput(username, password)) {
+            return;
+        }
+
+        if (DatabaseManager.validateLogin(username, password)) {
             homeController.setLoggedIn(true);
             loadScene("home.fxml", "home.css", loginButton);
+        } else {
+            showAlert(AlertType.ERROR, "Error", "Invalid Username or Password!");
         }
     }
 

@@ -27,29 +27,19 @@
 
         <VBox styleClass="form-container" VBox.vgrow="ALWAYS">
             <Label text="FULL NAME" styleClass="input-label"/>
-            <TextField fx:id="fullNameField" 
-                      promptText="Enter your full name"
-                      styleClass="input-field"/>
+            <TextField fx:id="fullNameField" promptText="Enter your full name" styleClass="input-field"/>
 
             <Label text="EMAIL" styleClass="input-label"/>
-            <TextField fx:id="emailField" 
-                      promptText="Enter your email"
-                      styleClass="input-field"/>
+            <TextField fx:id="emailField" promptText="Enter your email" styleClass="input-field"/>
 
             <Label text="USERNAME" styleClass="input-label"/>
-            <TextField fx:id="usernameField" 
-                      promptText="Choose a username"
-                      styleClass="input-field"/>
+            <TextField fx:id="usernameField" promptText="Choose a username" styleClass="input-field"/>
 
             <Label text="PASSWORD" styleClass="input-label"/>
-            <PasswordField fx:id="passwordField" 
-                         promptText="Create a password"
-                         styleClass="input-field"/>
+            <PasswordField fx:id="passwordField" promptText="Create a password" styleClass="input-field"/>
 
             <Label text="CONFIRM PASSWORD" styleClass="input-label"/>
-            <PasswordField fx:id="confirmPasswordField" 
-                         promptText="Confirm your password"
-                         styleClass="input-field"/>
+            <PasswordField fx:id="confirmPasswordField" promptText="Confirm your password" styleClass="input-field"/>
 
             <Button text="SIGN UP" 
                     fx:id="signupButton"
