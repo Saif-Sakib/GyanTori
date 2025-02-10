@@ -27,13 +27,13 @@
 
 
 .brand-tagline {
-    -fx-font-size: 27;
+    -fx-font-size: 20;
     -fx-text-fill: purple, rgb(56, 41, 103), rgb(192, 59, 192);
     -fx-font-style: italic;
 }
 
 .brand-description {
-    -fx-font-size: 19;
+    -fx-font-size: 15;
     -fx-text-fill: rgb(192, 59, 192)a;
     -fx-text-alignment: center;
     -fx-max-width: 350;
@@ -65,6 +65,11 @@
     -fx-spacing: 15;
     -fx-max-width: 350;
     -fx-alignment: top-center;
+}
+
+.below-form{
+    -fx-spacing: 10;
+    -fx-alignment: center;
 }
 
 .input-label {
@@ -168,7 +173,7 @@
 }
 
 .signup-prompt {
-    -fx-padding: 20 0;
+    -fx-padding: 0 0 100 0;
     -fx-alignment: center;
     -fx-spacing: 5;
 }

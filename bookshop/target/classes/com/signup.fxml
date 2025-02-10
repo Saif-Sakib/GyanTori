@@ -10,7 +10,6 @@
     <!-- Left Section -->
     <VBox styleClass="login-section" HBox.hgrow="ALWAYS">
         <Label text="Create Account" styleClass="login-header"/>
-        <Label text="Fill in your details below" styleClass="login-subheader"/>
 
         <VBox styleClass="form-container" VBox.vgrow="ALWAYS">
             <Label text="FULL NAME" styleClass="input-label"/>
@@ -42,7 +41,8 @@
                     fx:id="signupButton"
                     onAction="#handleSignup"
                     styleClass="login-button"/>
-
+    </VBox>
+    <VBox styleClass="below-form" VBox.vgrow="ALWAYS">
             <HBox styleClass="divider">
                 <Separator HBox.hgrow="ALWAYS"/>
                 <Label text="OR" styleClass="divider-text"/>
@@ -68,7 +68,7 @@
 
             <Region VBox.vgrow="ALWAYS"/>
 
-            <HBox styleClass="signup-prompt">
+            <HBox styleClass="signup-prompt" HBox.hgrow="NEVER">
                 <Label text="Already have an account?"/>
                 <Hyperlink text="Log In" 
                           onAction="#handleBackToLogin"
@@ -86,7 +86,7 @@
         <VBox spacing="20" alignment="CENTER" VBox.vgrow="ALWAYS">
             <Label text="GyanTori" styleClass="brand-name"/>
             <Label text="Join Our Book Community – Where Stories Come to Life!" styleClass="brand-tagline"/>
-            <Label text="Sign up and open the doors to endless stories that shares your love for books!!" styleClass="brand-description" wrapText="true"/>
+            <Label text="Sign up and open the doors to endless&#10;stories that shares your love for&#10;books!!" styleClass="brand-description" wrapText="true"/>
         </VBox>
     </VBox>
 </HBox>

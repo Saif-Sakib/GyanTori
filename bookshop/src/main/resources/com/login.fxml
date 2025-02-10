@@ -77,7 +77,7 @@
 
             <Region VBox.vgrow="ALWAYS"/>
 
-            <HBox styleClass="signup-prompt">
+            <HBox styleClass="signup-prompt" HBox.hgrow="NEVER">
                 <Label text="Don't have an account?"/>
                 <Hyperlink text="Sign Up" 
                           onAction="#handleSignUp"
