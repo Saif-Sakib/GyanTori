@@ -111,14 +111,15 @@ public class HomeController {
         try {
             // Featured Books Data
             List<Book> featuredBooksList = Arrays.asList(
-                    new Book("Rich Dad Poor Dad", "Robert Kiyosaki", "Finance", 4.5, 29.99,
-                            "/images/books/rich-dad.png"),
-                    new Book("The Psychology of Money", "Morgan Housel", "Finance", 4.6, 24.99,
-                            "/images/books/psychology-money.png"),
-                    new Book("Atomic Habits", "James Clear", "Self-Help", 4.8, 19.99,
-                            "/images/books/atomic-habits.png"),
-                    new Book("Think and Grow Rich", "Napoleon Hill", "Success", 4.7, 22.99,
-                            "/images/books/think-grow-rich.png"));
+                    new Book("ড্রাকুলা", " ব্রাম স্টোকার", "অতিপ্রাকৃত ও ভৌতিক", 4.8, 591, "/com/images/books/Dracula.png"),
+                    new Book("বৃহৎ বঙ্গ ২য় খণ্ড", " দীনেশচন্দ্র সেন", "প্রাচীন বাংলার ইতিহাস",4.5, 741, "/com/images/books/Brihot_bongo.png"),
+                    new Book("পথে প্রবাসে", "অন্নদাশঙ্কর রায়", "পশ্চিম বঙ্গের বই: ভ্রমণ ও প্রবাস", 4.6, 205, "/com/images/books/pothe_probashe.png"),
+                    new Book("টিমওয়ার্ক ১০১", " জন সি. ম্যাক্সওয়েল ", "আত্ম-উন্নয়ন ও মেডিটেশন", 3, 165, "/com/images/books/Teamwork_101.png"),
+                    new Book("রিলেশনশিপস ১০১", " জন সি. ম্যাক্সওয়েল ", "আত্ম-উন্নয়ন ও মেডিটেশন", 4.2 , 165, "/com/images/books/Relationship_101.png"),
+                    new Book("পদ্মজা", "  ইলমা বেহরোজ ", "সমকালীন উপন্যাস", 4.8 , 600, "/com/images/books/Poddoja.png"),
+                    new Book("জীবন যেখানে যেমন", " আরিফ আজাদ ", "ইসলামি গল্প", 5 , 210, "/com/images/books/jibon_jekhane_jemon.png"),
+                    new Book("প্যারাডক্সিক্যাল সাজিদ", " আরিফ আজাদ ", "ইসলামি আদর্শ ও মতবাদ", 4.6 , 225, "/com/images/books/paradoxical_sajid.png"),
+                    new Book("ড. জেকিল অ্যান্ড মি. হাইড", "  রবার্ট লুই স্টিভেনসন ", "বয়স যখন ১২-১৭: উপন্যাস", 4.2 , 113, "/com/images/books/dr_jackyll_and_mr_hyde.png"));
 
             // Recommended Books Data
             List<Book> recommendedBooksList = Arrays.asList(

@@ -44,20 +44,17 @@
                     <Button styleClass="nav-button, animated-button" text="Cart">
                         <graphic>
                             <StackPane styleClass="icon-container">
-                                <ImageView fitHeight="24.0" fitWidth="24.0">
+                                <ImageView fitHeight="24.0" fitWidth="24.0" styleClass="nav-icon">
                                     <Image url="@images/icons/cart.png"/>
                                 </ImageView>
                             </StackPane>
                         </graphic>
                     </Button>
                     
-                    <Button fx:id="profileLoginButton" 
-                            onAction="#handleProfileLogin" 
-                            styleClass="nav-button, animated-button" 
-                            text="Login">
+                    <Button fx:id="profileLoginButton" onAction="#handleProfileLogin" styleClass="nav-button, animated-button" text="Login">
                         <graphic>
                             <StackPane styleClass="icon-container">
-                                <ImageView fitHeight="24.0" fitWidth="24.0">
+                                <ImageView fitHeight="24.0" fitWidth="24.0" styleClass="nav-icon">
                                     <Image url="@images/icons/user.png"/>
                                 </ImageView>
                             </StackPane>
