@@ -1,18 +1,12 @@
 package com;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
 import javafx.util.Duration;
 
@@ -30,13 +24,9 @@ public class HomeController {
     @FXML
     private HBox recommendedBooks;
     @FXML
-    private Label pageTitle;
-    @FXML
     private Button profileLoginButton;
 
     private static boolean isLoggedIn = false;
-    private static int booksRead = 0;
-    private static int readingTime = 0;
 
     // Book data structure
     private static class Book {
@@ -60,21 +50,60 @@ public class HomeController {
     @FXML
     public void initialize() {
         try {
-            setupUI();
+            updateProfileButton();
             loadBooks();
             addSearchListener();
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Initialization Error",
-                    "Failed to initialize application: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Initialization Error", "Failed to initialize application: " + e.getMessage());
         }
     }
 
-    private void setupUI() {
-        if (pageTitle != null) {
-            pageTitle.setText("Welcome to GyanTori");
-            addWelcomeAnimation();
+    private void updateProfileButton() {
+        if (profileLoginButton != null) {
+            if (isLoggedIn) {
+                // Create a dropdown menu
+                ContextMenu menu = new ContextMenu();
+
+                // Add menu items
+                CustomMenuItem dashboard = new CustomMenuItem(new Label("Dashboard"));
+                CustomMenuItem settings = new CustomMenuItem(new Label("Settings"));
+                CustomMenuItem logout = new CustomMenuItem(new Label("Logout"));
+
+                // Set action handlers for each menu item
+                dashboard.setOnAction(e -> openDashboard());
+                settings.setOnAction(e -> openSettings());
+                logout.setOnAction(e -> logout());
+
+                // Add items to menu
+                menu.getItems().addAll(dashboard, settings, logout);
+
+                // Style the context menu
+                menu.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-padding: 5;");
+                menu.getItems().forEach(item -> {item.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-padding: 5px;");
+                ((CustomMenuItem) item).getContent().setOnMouseEntered(event -> item.setStyle("-fx-background-color: #555; -fx-text-fill: #ddd;"));
+                ((CustomMenuItem) item).getContent().setOnMouseExited(event -> item.setStyle("-fx-background-color: #444; -fx-text-fill: white;"));
+                });
+
+                // Style the profile login button
+                profileLoginButton.setText("Profile");
+                profileLoginButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-padding: 10px; -fx-border-radius: 5px;");
+                profileLoginButton.setOnAction(e -> menu.show(profileLoginButton, javafx.geometry.Side.BOTTOM, 0, 0));
+
+            } else {
+                // Styling for the login button when not logged in
+                profileLoginButton.setText("Login");
+                profileLoginButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-padding: 10px; -fx-border-radius: 5px;");
+                profileLoginButton.setOnAction(e -> handleProfileLogin());
+            }
         }
-        updateProfileButton();
+    }
+
+    private void openDashboard(){
+        LoadPageController.loadScene("dashboard.fxml", "dashboard.css", profileLoginButton);
+    }
+
+    private void openSettings() {
+        LoadPageController.loadScene("settings.fxml", "settings.css", profileLoginButton);
     }
 
     private void addSearchListener() {
@@ -108,51 +137,33 @@ public class HomeController {
         try {
             // Featured Books Data
             List<Book> featuredBooksList = Arrays.asList(
-                    new Book("ড্রাকুলা", " ব্রাম স্টোকার", "অতিপ্রাকৃত ও ভৌতিক", 4.8, 591,
-                            "/com/images/books/Dracula.png"),
-                    new Book("বৃহৎ বঙ্গ ২য় খণ্ড", " দীনেশচন্দ্র সেন", "প্রাচীন বাংলার ইতিহাস", 4.5, 741,
-                            "/com/images/books/Brihot_bongo.png"),
-                    new Book("পথে প্রবাসে", "অন্নদাশঙ্কর রায়", "পশ্চিম বঙ্গের বই: ভ্রমণ ও প্রবাস", 4.6, 205,
-                            "/com/images/books/pothe_probashe.png"),
-                    new Book("টিমওয়ার্ক ১০১", " জন সি. ম্যাক্সওয়েল ", "আত্ম-উন্নয়ন ও মেডিটেশন", 3, 165,
-                            "/com/images/books/Teamwork_101.png"),
-                    new Book("রিলেশনশিপস ১০১", " জন সি. ম্যাক্সওয়েল ", "আত্ম-উন্নয়ন ও মেডিটেশন", 4.2, 165,
-                            "/com/images/books/Relationship_101.png"),
+                    new Book("ড্রাকুলা", " ব্রাম স্টোকার", "অতিপ্রাকৃত ও ভৌতিক", 4.8, 591,"/com/images/books/Dracula.png"),
+                    new Book("বৃহৎ বঙ্গ ২য় খণ্ড", " দীনেশচন্দ্র সেন", "প্রাচীন বাংলার ইতিহাস", 4.5, 741,"/com/images/books/Brihot_bongo.png"),
+                    new Book("পথে প্রবাসে", "অন্নদাশঙ্কর রায়", "পশ্চিম বঙ্গের বই: ভ্রমণ ও প্রবাস", 4.6, 205,"/com/images/books/pothe_probashe.png"),
+                    new Book("টিমওয়ার্ক ১০১", " জন সি. ম্যাক্সওয়েল ", "আত্ম-উন্নয়ন ও মেডিটেশন", 3, 165,"/com/images/books/Teamwork_101.png"),
+                    new Book("রিলেশনশিপস ১০১", " জন সি. ম্যাক্সওয়েল ", "আত্ম-উন্নয়ন ও মেডিটেশন", 4.2, 165,"/com/images/books/Relationship_101.png"),
                     new Book("পদ্মজা", "  ইলমা বেহরোজ ", "সমকালীন উপন্যাস", 4.8, 600, "/com/images/books/Poddoja.png"),
-                    new Book("জীবন যেখানে যেমন", " আরিফ আজাদ ", "ইসলামি গল্প", 5, 210,
-                            "/com/images/books/jibon_jekhane_jemon.png"),
-                    new Book("প্যারাডক্সিক্যাল সাজিদ", " আরিফ আজাদ ", "ইসলামি আদর্শ ও মতবাদ", 4.6, 225,
-                            "/com/images/books/paradoxical_sajid.png"),
-                    new Book("ড. জেকিল অ্যান্ড মি. হাইড", "  রবার্ট লুই স্টিভেনসন ", "বয়স যখন ১২-১৭: উপন্যাস", 4.2, 113,
-                            "/com/images/books/dr_jackyll_and_mr_hyde.png"));
+                    new Book("জীবন যেখানে যেমন", " আরিফ আজাদ ", "ইসলামি গল্প", 5, 210,"/com/images/books/jibon_jekhane_jemon.png"),
+                    new Book("প্যারাডক্সিক্যাল সাজিদ", " আরিফ আজাদ ", "ইসলামি আদর্শ ও মতবাদ", 4.6, 225,"/com/images/books/paradoxical_sajid.png"),
+                    new Book("ড. জেকিল অ্যান্ড মি. হাইড", "  রবার্ট লুই স্টিভেনসন ", "বয়স যখন ১২-১৭: উপন্যাস", 4.2, 113,"/com/images/books/dr_jackyll_and_mr_hyde.png"));
 
             // Recommended Books Data
             List<Book> recommendedBooksList = Arrays.asList(
-                    new Book("প্রোগ্রামিংয়ের চৌদ্দগোষ্ঠী", " ঝংকার মাহবুব", "প্রোগ্রামিং বেসিক বই", 4.5, 315,
-                            "/com/images/books/PRO_gushti.png"),
-                    new Book("হামাস", " খালেদ হারুব ,  আযযাম তামিমি ,  রাকিবুল হাসান (অনুবাদক)",
-                            "রাজনৈতিক গবেষণা ও প্রবন্ধ", 5.0, 214, "/com/images/books/Hamas.png"),
-                    new Book("আয়নাঘর", " হুমায়ূন আহমেদ", "অতিপ্রাকৃত ও ভৌতিক", 4.8, 143,
-                            "/com/images/books/AynaGhor.png"),
-                    new Book("হায়াতের দিন ফুরোলে", " আরিফ আজাদ", "ইসলামি বই: আত্ম-উন্নয়ন", 4.5, 241,
-                            "/com/images/books/Hayat.png"),
-                    new Book("Breaking Dawn", " Stephenie Meyer", "Novel: Horror and Supernatural", 4.3, 863,
-                            "/com/images/books/Breaking_Dawn.png"),
-                    new Book("গিট ও গিটহাব ", " জাকির হোসাইন", "ওয়েব ডিজাইন ও ডেভেলপমেন্ট", 4.2, 188,
-                            "/com/images/books/Git.png"),
+                    new Book("প্রোগ্রামিংয়ের চৌদ্দগোষ্ঠী", " ঝংকার মাহবুব", "প্রোগ্রামিং বেসিক বই", 4.5, 315,"/com/images/books/PRO_gushti.png"),
+                    new Book("হামাস", " খালেদ হারুব ,  আযযাম তামিমি ,  রাকিবুল হাসান (অনুবাদক)","রাজনৈতিক গবেষণা ও প্রবন্ধ", 5.0, 214, "/com/images/books/Hamas.png"),
+                    new Book("আয়নাঘর", " হুমায়ূন আহমেদ", "অতিপ্রাকৃত ও ভৌতিক", 4.8, 143,"/com/images/books/AynaGhor.png"),
+                    new Book("হায়াতের দিন ফুরোলে", " আরিফ আজাদ", "ইসলামি বই: আত্ম-উন্নয়ন", 4.5, 241,"/com/images/books/Hayat.png"),
+                    new Book("Breaking Dawn", " Stephenie Meyer", "Novel: Horror and Supernatural", 4.3, 863,"/com/images/books/Breaking_Dawn.png"),
+                    new Book("গিট ও গিটহাব ", " জাকির হোসাইন", "ওয়েব ডিজাইন ও ডেভেলপমেন্ট", 4.2, 188,"/com/images/books/Git.png"),
                     new Book("অপেক্ষা", " হুমায়ূন আহমেদ", "সমকালীন উপন্যাস", 4.2, 300, "/com/images/books/Opekkha.png"),
-                    new Book("দ্য আলকেমিস্ট", " পাওলো কোয়েলহো ,  সুফাই রুমিন তাজিন (অনুবাদক)", "অনুবাদ উপন্যাস", 3.8,
-                            195, "/com/images/books/The_Alchemist.png"),
-                    new Book("আরেক ফাল্গুন", " জহির রায়হান", "চিরায়ত উপন্যাস", 4.3, 150,
-                            "/com/images/books/Arek_Falgun.png"),
-                    new Book("কাজল চোখের মেয়ে", " সাদাত হোসাইন", "রোমান্টিক কবিতা", 3.5, 180,
-                            "/com/images/books/Kajol.png"));
+                    new Book("দ্য আলকেমিস্ট", " পাওলো কোয়েলহো ,  সুফাই রুমিন তাজিন (অনুবাদক)", "অনুবাদ উপন্যাস", 3.8,195, "/com/images/books/The_Alchemist.png"),
+                    new Book("আরেক ফাল্গুন", " জহির রায়হান", "চিরায়ত উপন্যাস", 4.3, 150,"/com/images/books/Arek_Falgun.png"),
+                    new Book("কাজল চোখের মেয়ে", " সাদাত হোসাইন", "রোমান্টিক কবিতা", 3.5, 180,"/com/images/books/Kajol.png"));
 
             loadBookSection(featuredBooks, featuredBooksList);
             loadBookSection(recommendedBooks, recommendedBooksList);
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Loading Error",
-                    "Failed to load books: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Loading Error","Failed to load books: " + e.getMessage());
         }
     }
 
@@ -180,8 +191,7 @@ public class HomeController {
         } catch (Exception e) {
             // Load placeholder image if book image is not found
             try {
-                coverImage.setImage(new Image(Objects.requireNonNull(
-                        getClass().getResourceAsStream("/images/books/placeholder-book.png"))));
+                coverImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/books/placeholder-book.png"))));
             } catch (Exception ex) {
                 System.err.println("Failed to load placeholder image: " + ex.getMessage());
             }
@@ -229,23 +239,12 @@ public class HomeController {
         card.setOnMouseExited(e -> scaleOut.playFromStart());
     }
 
-    private void addWelcomeAnimation() {
-        if (pageTitle != null) {
-            FadeTransition fade = new FadeTransition(Duration.millis(1000), pageTitle);
-            fade.setFromValue(0.0);
-            fade.setToValue(1.0);
-            fade.play();
-        }
-    }
-
     private void handleAddToCart(Book book) {
         if (!isLoggedIn) {
-            showAlert(Alert.AlertType.INFORMATION, "Login Required",
-                    "Please login to add books to your cart.");
+            showAlert(Alert.AlertType.INFORMATION, "Login Required","Please login to add books to your cart.");
             return;
         }
-        showAlert(Alert.AlertType.INFORMATION, "Success",
-                String.format("%s has been added to your cart!", book.title));
+        showAlert(Alert.AlertType.INFORMATION, "Success",String.format("%s has been added to your cart!", book.title));
     }
 
     @FXML
@@ -253,55 +252,15 @@ public class HomeController {
         if (isLoggedIn) {
             logout();
         } else {
-            loadScene("login.fxml", "login_signup.css", profileLoginButton);
+            LoadPageController.loadScene("login.fxml", "login_signup.css", profileLoginButton);
         }
     }
 
-    private void logout() {
+    public void logout() {
         isLoggedIn = false;
         updateProfileButton();
-        showAlert(Alert.AlertType.INFORMATION, "Logged Out",
-                "You have been successfully logged out.");
-    }
-
-    private void loadScene(String fxmlFile, String cssFile, Button sourceButton) {
-        try {
-            // Get current window dimensions
-            Stage currentStage = (Stage) sourceButton.getScene().getWindow();
-            double currentWidth = currentStage.getWidth();
-            double currentHeight = currentStage.getHeight();
-            boolean isMaximized = currentStage.isMaximized();
-
-            // Load new scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-
-            // Apply all stylesheets
-            scene.getStylesheets().addAll(StyleManager.getStylesheet(cssFile));
-
-            // Set the scene
-            currentStage.setScene(scene);
-
-            // Restore dimensions
-            if (isMaximized) {
-                currentStage.setMaximized(true);
-            } else {
-                currentStage.setWidth(currentWidth);
-                currentStage.setHeight(currentHeight);
-            }
-
-            currentStage.show();
-        } catch (Exception e) {
-            showAlert(AlertType.ERROR, "Error", "Error loading " + fxmlFile + ": " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    private void updateProfileButton() {
-        if (profileLoginButton != null) {
-            profileLoginButton.setText(isLoggedIn ? "Logout" : "Login");
-        }
+        SessionManager.getInstance().clearSession();
+        showAlert(Alert.AlertType.INFORMATION, "Logged Out","You have been successfully logged out.");
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {

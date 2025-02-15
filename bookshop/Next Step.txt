@@ -1,0 +1,4 @@
+In Home Controller:
+1. Implement search functionality
+2. Implement AddToCart
+3. Add a profile DashBoard And Admin Dashboard in home

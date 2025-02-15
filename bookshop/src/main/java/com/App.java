@@ -11,8 +11,8 @@ import java.net.URL;
 
 public class App extends Application {
 
-    private static final String HOME_FXML = "/com/signup.fxml";
-    private static final String STYLES_CSS = "/com/styles/login_signup.css";
+    private static final String HOME_FXML = "/com/home.fxml";
+    private static final String STYLES_CSS = "/com/styles/home.css";
     private static final String APP_TITLE = "GyanTori";
     private static final double INITIAL_WIDTH = 1024;
     private static final double INITIAL_HEIGHT = 768;
@@ -25,43 +25,29 @@ public class App extends Application {
             Parent root = loader.load();
 
             // Create scene
-            Scene scene = createScene(root);
+            Scene scene = new Scene(root, INITIAL_WIDTH, INITIAL_HEIGHT);
+
+            // Load CSS
+            URL cssURL = getClass().getResource(STYLES_CSS);
+            if (cssURL != null) {
+                scene.getStylesheets().add(cssURL.toExternalForm());
+            } else {
+                System.err.println("Error: CSS file not found!");
+            }
 
             // Configure stage
-            configureStage(stage, scene);
+            stage.setTitle(APP_TITLE);
+            stage.setScene(scene);
+            stage.setMinWidth(800);
+            stage.setMinHeight(600);
+            stage.centerOnScreen();
+            stage.show();
         } catch (IOException e) {
-            handleStartupError(e);
+            System.err.println("Failed to start application: " + e.getMessage());
+            e.printStackTrace();
+            // Optionally, show an error dialog
+            javafx.application.Platform.exit();
         }
-    }
-
-    private Scene createScene(Parent root) {
-        Scene scene = new Scene(root, INITIAL_WIDTH, INITIAL_HEIGHT);
-        
-        // Load CSS
-        URL cssURL = getClass().getResource(STYLES_CSS);
-        if (cssURL != null) {
-            scene.getStylesheets().add(cssURL.toExternalForm());
-        } else {
-            System.err.println("Error: CSS file not found!");
-        }
-        
-        return scene;
-    }
-
-    private void configureStage(Stage stage, Scene scene) {
-        stage.setTitle(APP_TITLE);
-        stage.setScene(scene);
-        stage.setMinWidth(800);
-        stage.setMinHeight(600);
-        stage.centerOnScreen();
-        stage.show();
-    }
-
-    private void handleStartupError(Exception e) {
-        System.err.println("Failed to start application: " + e.getMessage());
-        e.printStackTrace();
-        // Optionally, show an error dialog
-        javafx.application.Platform.exit();
     }
 
     public static void main(String[] args) {

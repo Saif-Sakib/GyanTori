@@ -92,15 +92,6 @@
     -fx-text-fill: #2196F3;
 }
 
-.stats-section {
-    -fx-padding: 20px 0;
-}
-
-.stats-text {
-    -fx-font-size: 14px;
-    -fx-text-fill: #757575;
-}
-
 /* Main Content Styles */
 .main-content-scroll {
     -fx-background: transparent;
@@ -219,7 +210,7 @@
 /* Footer Styles */
 .footer {
     -fx-background-color: #2196F3;
-    -fx-padding: 20px;
+    -fx-padding: 5px;
 }
 
 .footer-header {
