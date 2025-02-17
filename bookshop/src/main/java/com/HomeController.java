@@ -1,19 +1,26 @@
 package com;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
+import javafx.animation.TranslateTransition;
 import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.List;import java.util.Objects;
 
 public class HomeController {
 
@@ -25,19 +32,22 @@ public class HomeController {
     private HBox recommendedBooks;
     @FXML
     private Button profileLoginButton;
+    @FXML
+    private Label navLogo;
 
     private static boolean isLoggedIn = false;
 
     // Book data structure
     private static class Book {
+        final String Id;
         final String title;
         final String author;
         final String category;
         final double rating;
         final double price;
         final String imageUrl;
-
-        Book(String title, String author, String category, double rating, double price, String imageUrl) {
+        Book(String Id, String title, String author, String category, double rating, double price, String imageUrl) {
+            this.Id = Id;
             this.title = title;
             this.author = author;
             this.category = category;
@@ -53,6 +63,10 @@ public class HomeController {
             updateProfileButton();
             loadBooks();
             addSearchListener();
+            
+            if (navLogo != null) {
+                animateNavLogo();
+            }
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Initialization Error", "Failed to initialize application: " + e.getMessage());
         }
@@ -78,32 +92,66 @@ public class HomeController {
                 menu.getItems().addAll(dashboard, settings, logout);
 
                 // Style the context menu
-                menu.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-padding: 5;");
-                menu.getItems().forEach(item -> {item.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-padding: 5px;");
-                ((CustomMenuItem) item).getContent().setOnMouseEntered(event -> item.setStyle("-fx-background-color: #555; -fx-text-fill: #ddd;"));
-                ((CustomMenuItem) item).getContent().setOnMouseExited(event -> item.setStyle("-fx-background-color: #444; -fx-text-fill: white;"));
+                menu.setStyle(
+                        "-fx-background-color: rgba(255, 255, 255, 0.1); -fx-text-fill: white; -fx-padding: 5px; -fx-background-radius: 10px; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0, 0, 3);");
+                menu.getItems().forEach(item -> {
+                    item.setStyle(
+                            "-fx-background-color: #444; -fx-text-fill: white; -fx-padding: 5px; -fx-background-radius: 5px; -fx-cursor: hand;");
+
+                    ((CustomMenuItem) item).getContent().setOnMouseEntered(event -> item
+                            .setStyle("-fx-background-color: #555; -fx-text-fill: #ddd; -fx-background-radius: 5px;"));
+
+                    ((CustomMenuItem) item).getContent().setOnMouseExited(event -> item
+                            .setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-background-radius: 5px;"));
                 });
 
                 // Style the profile login button
                 profileLoginButton.setText("Profile");
-                profileLoginButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-padding: 10px; -fx-border-radius: 5px;");
                 profileLoginButton.setOnAction(e -> menu.show(profileLoginButton, javafx.geometry.Side.BOTTOM, 0, 0));
 
             } else {
                 // Styling for the login button when not logged in
                 profileLoginButton.setText("Login");
-                profileLoginButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-padding: 10px; -fx-border-radius: 5px;");
                 profileLoginButton.setOnAction(e -> handleProfileLogin());
             }
         }
     }
 
+    private void animateNavLogo() {
+    if (navLogo == null) return; // Avoid null pointer exceptions
+
+    // Fade effect
+    FadeTransition fade = new FadeTransition(Duration.seconds(3), navLogo);
+    fade.setFromValue(0.0);
+    fade.setToValue(3.0);
+
+    // Scale effect (slight bounce)
+    ScaleTransition scale = new ScaleTransition(Duration.seconds(1), navLogo);
+    scale.setFromX(0.8);
+    scale.setFromY(0.8);
+    scale.setToX(1.1);
+    scale.setToY(1.1);
+    scale.setAutoReverse(true);
+
+    // Translate effect (left to right)
+    TranslateTransition translate = new TranslateTransition(Duration.seconds(2), navLogo);
+    translate.setFromX(-100);
+    translate.setToX(0);
+
+    // Combine animations
+    ParallelTransition parallelTransition = new ParallelTransition(fade, scale, translate);
+    parallelTransition.play();
+    
+}
+
     private void openDashboard(){
-        LoadPageController.loadScene("dashboard.fxml", "dashboard.css", profileLoginButton);
+        Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+        LoadPageController.loadScene("dashboard.fxml", "dashboard.css", currentStage);
     }
 
     private void openSettings() {
-        LoadPageController.loadScene("settings.fxml", "settings.css", profileLoginButton);
+        Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+        LoadPageController.loadScene("settings.fxml", "settings.css", currentStage);
     }
 
     private void addSearchListener() {
@@ -135,30 +183,30 @@ public class HomeController {
 
     private void loadBooks() {
         try {
-            // Featured Books Data
-            List<Book> featuredBooksList = Arrays.asList(
-                    new Book("ড্রাকুলা", " ব্রাম স্টোকার", "অতিপ্রাকৃত ও ভৌতিক", 4.8, 591,"/com/images/books/Dracula.png"),
-                    new Book("বৃহৎ বঙ্গ ২য় খণ্ড", " দীনেশচন্দ্র সেন", "প্রাচীন বাংলার ইতিহাস", 4.5, 741,"/com/images/books/Brihot_bongo.png"),
-                    new Book("পথে প্রবাসে", "অন্নদাশঙ্কর রায়", "পশ্চিম বঙ্গের বই: ভ্রমণ ও প্রবাস", 4.6, 205,"/com/images/books/pothe_probashe.png"),
-                    new Book("টিমওয়ার্ক ১০১", " জন সি. ম্যাক্সওয়েল ", "আত্ম-উন্নয়ন ও মেডিটেশন", 3, 165,"/com/images/books/Teamwork_101.png"),
-                    new Book("রিলেশনশিপস ১০১", " জন সি. ম্যাক্সওয়েল ", "আত্ম-উন্নয়ন ও মেডিটেশন", 4.2, 165,"/com/images/books/Relationship_101.png"),
-                    new Book("পদ্মজা", "  ইলমা বেহরোজ ", "সমকালীন উপন্যাস", 4.8, 600, "/com/images/books/Poddoja.png"),
-                    new Book("জীবন যেখানে যেমন", " আরিফ আজাদ ", "ইসলামি গল্প", 5, 210,"/com/images/books/jibon_jekhane_jemon.png"),
-                    new Book("প্যারাডক্সিক্যাল সাজিদ", " আরিফ আজাদ ", "ইসলামি আদর্শ ও মতবাদ", 4.6, 225,"/com/images/books/paradoxical_sajid.png"),
-                    new Book("ড. জেকিল অ্যান্ড মি. হাইড", "  রবার্ট লুই স্টিভেনসন ", "বয়স যখন ১২-১৭: উপন্যাস", 4.2, 113,"/com/images/books/dr_jackyll_and_mr_hyde.png"));
-
-            // Recommended Books Data
-            List<Book> recommendedBooksList = Arrays.asList(
-                    new Book("প্রোগ্রামিংয়ের চৌদ্দগোষ্ঠী", " ঝংকার মাহবুব", "প্রোগ্রামিং বেসিক বই", 4.5, 315,"/com/images/books/PRO_gushti.png"),
-                    new Book("হামাস", " খালেদ হারুব ,  আযযাম তামিমি ,  রাকিবুল হাসান (অনুবাদক)","রাজনৈতিক গবেষণা ও প্রবন্ধ", 5.0, 214, "/com/images/books/Hamas.png"),
-                    new Book("আয়নাঘর", " হুমায়ূন আহমেদ", "অতিপ্রাকৃত ও ভৌতিক", 4.8, 143,"/com/images/books/AynaGhor.png"),
-                    new Book("হায়াতের দিন ফুরোলে", " আরিফ আজাদ", "ইসলামি বই: আত্ম-উন্নয়ন", 4.5, 241,"/com/images/books/Hayat.png"),
-                    new Book("Breaking Dawn", " Stephenie Meyer", "Novel: Horror and Supernatural", 4.3, 863,"/com/images/books/Breaking_Dawn.png"),
-                    new Book("গিট ও গিটহাব ", " জাকির হোসাইন", "ওয়েব ডিজাইন ও ডেভেলপমেন্ট", 4.2, 188,"/com/images/books/Git.png"),
-                    new Book("অপেক্ষা", " হুমায়ূন আহমেদ", "সমকালীন উপন্যাস", 4.2, 300, "/com/images/books/Opekkha.png"),
-                    new Book("দ্য আলকেমিস্ট", " পাওলো কোয়েলহো ,  সুফাই রুমিন তাজিন (অনুবাদক)", "অনুবাদ উপন্যাস", 3.8,195, "/com/images/books/The_Alchemist.png"),
-                    new Book("আরেক ফাল্গুন", " জহির রায়হান", "চিরায়ত উপন্যাস", 4.3, 150,"/com/images/books/Arek_Falgun.png"),
-                    new Book("কাজল চোখের মেয়ে", " সাদাত হোসাইন", "রোমান্টিক কবিতা", 3.5, 180,"/com/images/books/Kajol.png"));
+                    List<Book> featuredBooksList = Arrays.asList(
+                            new Book("1", "ড্রাকুলা", " ব্রাম স্টোকার", "অতিপ্রাকৃত ও ভৌতিক", 4.8, 591,"/com/images/books/Dracula.png"),
+                            new Book("2", "বৃহৎ বঙ্গ ২য় খণ্ড", " দীনেশচন্দ্র সেন", "প্রাচীন বাংলার ইতিহাস", 4.5, 741,"/com/images/books/Brihot_bongo.png"),
+                            new Book("3", "পথে প্রবাসে", "অন্নদাশঙ্কর রায়", "পশ্চিম বঙ্গের বই: ভ্রমণ ও প্রবাস", 4.6, 205,"/com/images/books/pothe_probashe.png"),
+                            new Book("4", "টিমওয়ার্ক ১০১", " জন সি. ম্যাক্সওয়েল ", "আত্ম-উন্নয়ন ও মেডিটেশন", 3, 165,"/com/images/books/Teamwork_101.png"),
+                            new Book("5", "রিলেশনশিপস ১০১", " জন সি. ম্যাক্সওয়েল ", "আত্ম-উন্নয়ন ও মেডিটেশন", 4.2, 165,"/com/images/books/Relationship_101.png"),
+                            new Book("6", "পদ্মজা", "  ইলমা বেহরোজ ", "সমকালীন উপন্যাস", 4.8, 600, "/com/images/books/Poddoja.png"),
+                            new Book("7", "জীবন যেখানে যেমন", " আরিফ আজাদ ", "ইসলামি গল্প", 5, 210,"/com/images/books/jibon_jekhane_jemon.png"),
+                            new Book("8", "প্যারাডক্সিক্যাল সাজিদ", " আরিফ আজাদ ", "ইসলামি আদর্শ ও মতবাদ", 4.6, 225,"/com/images/books/paradoxical_sajid.png"),
+                            new Book("9", "ড. জেকিল অ্যান্ড মি. হাইড", "  রবার্ট লুই স্টিভেনসন ", "বয়স যখন ১২-১৭: উপন্যাস", 4.2, 113,"/com/images/books/dr_jackyll_and_mr_hyde.png")
+                    );
+        
+                    List<Book> recommendedBooksList = Arrays.asList(
+                            new Book("10", "প্রোগ্রামিংয়ের চৌদ্দগোষ্ঠী", " ঝংকার মাহবুব", "প্রোগ্রামিং বেসিক বই", 4.5, 315,"/com/images/books/PRO_gushti.png"),
+                            new Book("11", "হামাস", " খালেদ হারুব ,  আযযাম তামিমি ,  রাকিবুল হাসান (অনুবাদক)","রাজনৈতিক গবেষণা ও প্রবন্ধ", 5.0, 214, "/com/images/books/Hamas.png"),
+                            new Book("12", "আয়নাঘর", " হুমায়ূন আহমেদ", "অতিপ্রাকৃত ও ভৌতিক", 4.8, 143,"/com/images/books/AynaGhor.png"),
+                            new Book("13", "হায়াতের দিন ফুরোলে", " আরিফ আজাদ", "ইসলামি বই: আত্ম-উন্নয়ন", 4.5, 241,"/com/images/books/Hayat.png"),
+                            new Book("14", "Breaking Dawn", " Stephenie Meyer", "Novel: Horror and Supernatural", 4.3, 863,"/com/images/books/Breaking_Dawn.png"),
+                            new Book("15", "গিট ও গিটহাব ", " জাকির হোসাইন", "ওয়েব ডিজাইন ও ডেভেলপমেন্ট", 4.2, 188,"/com/images/books/Git.png"),
+                            new Book("16", "অপেক্ষা", " হুমায়ূন আহমেদ", "সমকালীন উপন্যাস", 4.2, 300, "/com/images/books/Opekkha.png"),
+                            new Book("17", "দ্য আলকেমিস্ট", " পাওলো কোয়েলহো ,  সুফাই রুমিন তাজিন (অনুবাদক)", "অনুবাদ উপন্যাস", 3.8,195, "/com/images/books/The_Alchemist.png"),
+                            new Book("18", "আরেক ফাল্গুন", " জহির রায়হান", "চিরায়ত উপন্যাস", 4.3, 150,"/com/images/books/Arek_Falgun.png"),
+                            new Book("19", "কাজল চোখের মেয়ে", " সাদাত হোসাইন", "রোমান্টিক কবিতা", 3.5, 180,"/com/images/books/Kajol.png")
+                    );
 
             loadBookSection(featuredBooks, featuredBooksList);
             loadBookSection(recommendedBooks, recommendedBooksList);
@@ -244,7 +292,15 @@ public class HomeController {
             showAlert(Alert.AlertType.INFORMATION, "Login Required","Please login to add books to your cart.");
             return;
         }
+        CartController cartController = new CartController();
+        cartController.addItemToCart(book.Id, book.title, book.price, book.imageUrl);
         showAlert(Alert.AlertType.INFORMATION, "Success",String.format("%s has been added to your cart!", book.title));
+    }
+
+    @FXML
+    private void handleCartLoad() {
+        Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+        LoadPageController.loadScene("cart.fxml", "cart.css", currentStage);
     }
 
     @FXML
@@ -252,7 +308,8 @@ public class HomeController {
         if (isLoggedIn) {
             logout();
         } else {
-            LoadPageController.loadScene("login.fxml", "login_signup.css", profileLoginButton);
+            Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+            LoadPageController.loadScene("login.fxml", "login_signup.css", currentStage);
         }
     }
 

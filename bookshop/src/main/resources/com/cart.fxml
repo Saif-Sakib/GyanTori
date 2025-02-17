@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/17"
+            fx:controller="com.CartController"
+            styleClass="main-container"
+            prefWidth="800.0"
+            prefHeight="600.0">
+    <VBox spacing="20.0" alignment="CENTER" AnchorPane.topAnchor="20.0"
+          AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0"
+          AnchorPane.bottomAnchor="20.0">
+        <!-- Header Section -->
+        <HBox alignment="CENTER" spacing="10.0" styleClass="header-container">
+            <ImageView fitHeight="32.0" fitWidth="32.0">
+                <Image url="@images/cart-icon.png"/>
+            </ImageView>
+            <Label text="Your Shopping Cart" styleClass="cart-title"/>
+        </HBox>
+        
+        <!-- Empty Cart Message (Initially Hidden) -->
+        <VBox fx:id="emptyCartContainer" alignment="CENTER" spacing="15.0" visible="false">
+            <ImageView fitHeight="120.0" fitWidth="120.0">
+                <Image url="@images/empty-cart.png"/>
+            </ImageView>
+            <Label text="Your cart is empty" styleClass="empty-cart-label"/>
+            <Button onAction="#loadHome" text="Continue Shopping" styleClass="continue-shopping-btn"/>
+        </VBox>
+        
+        <!-- Cart Items Section -->
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="cart-scroll">
+            <VBox fx:id="cartItemsContainer" spacing="15.0">
+                <padding>
+                    <Insets top="15.0" right="15.0" bottom="15.0" left="15.0"/>
+                </padding>
+            </VBox>
+        </ScrollPane>
+        
+        <!-- Cart Summary Section -->
+        <VBox spacing="15.0" styleClass="summary-container">
+            <Label text="Order Summary" styleClass="summary-title"/>
+            <GridPane hgap="10.0" vgap="8.0">
+                <Label text="Subtotal:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <Label fx:id="subtotalLabel" text="0 TK" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <Label text="Online Fee:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <Label fx:id="onlineFeeLabel" text="0 TK" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                <Label text="Delivery Fee:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <Label fx:id="deliveryFeeLabel" text="0 TK" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                <Separator GridPane.rowIndex="3" GridPane.columnSpan="2"/>
+                <Label text="Total:" styleClass="total-text"
+                       GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <Label fx:id="totalLabel" text="0 TK" styleClass="total-amount"
+                       GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+            </GridPane>
+            
+            <!-- Promo Code Section -->
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <TextField fx:id="promoCodeField" promptText="Enter promo code"
+                          styleClass="promo-input" HBox.hgrow="ALWAYS"/>
+                <Button text="Apply" fx:id="applyPromoButton" styleClass="promo-button"/>
+            </HBox>
+        </VBox>
+        
+        <!-- Action Buttons -->
+        <HBox spacing="15.0" alignment="CENTER">
+            <Button text="Save for Later" fx:id="saveButton" styleClass="secondary-button"/>
+            <Button text="Order as a Gift" fx:id="giftButton" styleClass="gift-button"/>
+            <Button text="Proceed to Checkout" fx:id="checkoutButton"
+                    styleClass="checkout-button" defaultButton="true"/>
+        </HBox>
+    </VBox>
+</AnchorPane>

@@ -70,7 +70,8 @@ public class SignupController {
 
     @FXML
     private void handleBackToLogin() {
-        loadScene("login.fxml", "login_signup.css", signupButton);
+        Stage currentStage = (Stage) signupButton.getScene().getWindow();
+        LoadPageController.loadScene("login.fxml", "login_signup.css", currentStage);
     }
 
     private boolean validateInput() {

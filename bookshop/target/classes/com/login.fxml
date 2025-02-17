@@ -79,9 +79,7 @@
 
             <HBox styleClass="signup-prompt" HBox.hgrow="NEVER">
                 <Label text="Don't have an account?"/>
-                <Hyperlink text="Sign Up" 
-                          onAction="#handleSignUp"
-                          styleClass="signup-link"/>
+                <Hyperlink text="Sign Up" onAction="#handleSignUp" styleClass="signup-link"/>
             </HBox>
         </VBox>
     </VBox>

@@ -1,0 +1,218 @@
+/* Variables */
+* {
+    -primary-color: #6a11cb;
+    -secondary-color: #2575fc;
+    -text-primary: #333333;
+    -text-secondary: #666666;
+    -success-color: #28a745;
+    -danger-color: #dc3545;
+    -warning-color: #ffc107;
+    -background-light: #f4f4f9;
+    -white: #ffffff;
+}
+
+/* General Styling */
+.root {
+    -fx-background-color: -background-light;
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+/* Header Styling */
+.header-container {
+    -fx-padding: 20px;
+    -fx-background-color: -white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 1);
+    -fx-background-radius: 10px;
+}
+
+.cart-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-primary;
+}
+
+/* Cart Container */
+.cart-scroll {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.cart-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+#cartItemsContainer {
+    -fx-background-color: transparent;
+    -fx-spacing: 10;
+}
+
+/* Cart Items */
+.cart-item {
+    -fx-background-color: -white;
+    -fx-padding: 15px;
+    -fx-spacing: 15;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+    -fx-border-color: rgba(0,0,0,0.05);
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+}
+
+.cart-item:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 4);
+    -fx-translate-y: -1px;
+}
+
+/* Empty Cart */
+.empty-cart-label {
+    -fx-font-size: 18px;
+    -fx-text-fill: -text-secondary;
+    -fx-font-weight: normal;
+}
+
+/* Labels */
+.label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-primary;
+}
+
+.summary-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 10 0;
+}
+
+.total-text {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.total-amount {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -primary-color;
+}
+
+/* Summary Container */
+.summary-container {
+    -fx-background-color: -white;
+    -fx-padding: 20px;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 1);
+}
+
+/* Buttons */
+.button {
+    -fx-background-color: -primary-color;
+    -fx-text-fill: -white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12px 24px;
+    -fx-background-radius: 25px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 1);
+}
+
+.button:hover {
+    -fx-background-color: derive(-primary-color, 10%);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 6, 0, 0, 2);
+    -fx-translate-y: -1px;
+}
+
+.button:pressed {
+    -fx-background-color: derive(-primary-color, -10%);
+    -fx-translate-y: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 2, 0, 0, 0);
+}
+
+.checkout-button {
+    -fx-background-color: linear-gradient(to right, -primary-color, -secondary-color);
+}
+
+.checkout-button:hover {
+    -fx-background-color: linear-gradient(to right, derive(-primary-color, 10%), derive(-secondary-color, 10%));
+}
+
+.secondary-button {
+    -fx-background-color: -text-secondary;
+}
+
+.gift-button {
+    -fx-background-color: -warning-color;
+    -fx-text-fill: -text-primary;
+}
+
+.remove-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -danger-color;
+    -fx-border-color: -danger-color;
+    -fx-border-radius: 20px;
+    -fx-background-radius: 20px;
+    -fx-padding: 5px 15px;
+    -fx-effect: none;
+}
+
+.remove-button:hover {
+    -fx-background-color: derive(-danger-color, 95%);
+    -fx-effect: none;
+}
+
+/* Spinners */
+.spinner {
+    -fx-pref-width: 100px;
+}
+
+.spinner .increment-arrow-button,
+.spinner .decrement-arrow-button {
+    -fx-background-color: -primary-color;
+    -fx-background-radius: 0;
+}
+
+.spinner .increment-arrow,
+.spinner .decrement-arrow {
+    -fx-background-color: -white;
+}
+
+/* Promo Code Section */
+.promo-input {
+    -fx-background-color: -white;
+    -fx-border-color: rgba(0,0,0,0.1);
+    -fx-border-radius: 20px;
+    -fx-background-radius: 20px;
+    -fx-padding: 8px 15px;
+}
+
+.promo-input:focused {
+    -fx-border-color: -primary-color;
+    -fx-effect: dropshadow(three-pass-box, rgba(106,17,203,0.1), 4, 0, 0, 0);
+}
+
+.promo-button {
+    -fx-background-color: -text-secondary;
+    -fx-padding: 8px 20px;
+}
+
+/* Separators */
+.separator {
+    -fx-padding: 10 0 10 0;
+}
+
+/* Animations */
+.cart-item {
+    -fx-transition: all 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        -fx-translate-y: -20px;
+        -fx-opacity: 0;
+    }
+    to {
+        -fx-translate-y: 0;
+        -fx-opacity: 1;
+    }
+}
+
+.cart-item {
+    -fx-animation: slideDown 0.3s ease-out;
+}

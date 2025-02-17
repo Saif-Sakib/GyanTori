@@ -1,12 +1,13 @@
 /* Root Styles */
 .root {
-    -fx-background-color: #f5f5f5;
+    -fx-background-color: #ffffff;
     -fx-font-family: 'Segoe UI', Arial, sans-serif;
 }
 
 /* Navigation Bar Styles */
 .nav-bar {
-    -fx-background-color: #2196F3;
+    -fx-background-color: linear-gradient(to right, rgb(202, 99, 202), rgb(171, 65, 171), rgb(224, 124, 61));
+    padding: 10px 20px;
     -fx-padding: 10px 20px;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);
 }
@@ -14,14 +15,14 @@
 .nav-logo {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
-    -fx-text-fill: white;
+    -fx-text-fill: rgb(0, 0, 0);
     -fx-padding: 0 20px;
 }
 
 
 
 .nav-button {
-    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-background-color:  rgba(255, 255, 255, 0.1);
     -fx-text-fill: white;
     -fx-font-size: 14px;
     -fx-padding: 8px 15px;
@@ -32,7 +33,7 @@
 }
 
 .nav-button:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-background-color: rgba(102, 59, 123, 0.676);
     -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.3), 10, 0, 0, 2);
 }
 /* Search Field Styles */
@@ -40,13 +41,13 @@
     -fx-background-color: rgba(255,255,255,0.15);
     -fx-background-radius: 20px;
     -fx-text-fill: white;
-    -fx-prompt-text-fill: rgba(255,255,255,0.7);
+    -fx-prompt-text-fill: rgba(47, 30, 30, 0.7);
     -fx-padding: 8px 15px;
-    -fx-font-size: 14px;
+    -fx-font-size: 18px;
 }
 
 .search-field:focused {
-    -fx-background-color: rgba(255,255,255,0.2);
+    -fx-background-color: rgba(246, 239, 239, 0.475);
     -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.3), 10, 0, 0, 0);
 }
 
@@ -58,7 +59,7 @@
 }
 
 .search-button:hover {
-    -fx-background-color: rgba(255,255,255,0.2);
+    -fx-background-color: rgba(108, 38, 90, 0.2);
 }
 
 /* Sidebar Styles */
@@ -70,26 +71,37 @@
 }
 
 .sidebar-header {
-    -fx-font-size: 18px;
+    -fx-font-size: 25px;
     -fx-font-weight: bold;
-    -fx-text-fill: #2196F3;
+    -fx-text-fill: linear-gradient(to right, rgb(220, 66, 220), rgb(171, 65, 171), rgb(212, 104, 36));
     -fx-padding: 10px 0;
 }
 
 .sidebar-button {
     -fx-background-color: transparent;
     -fx-text-fill: #424242;
-    -fx-font-size: 14px;
+    -fx-font-size: 18px;
     -fx-padding: 10px 15px;
     -fx-background-radius: 8px;
     -fx-alignment: center-left;
     -fx-cursor: hand;
     -fx-max-width: infinity;
 }
-
 .sidebar-button:hover {
     -fx-background-color: #f5f5f5;
-    -fx-text-fill: #2196F3;
+    -fx-text-fill: #000000;
+    -fx-border-color: linear-gradient(to right, rgb(202, 99, 202), rgb(171, 65, 171), rgb(224, 124, 61)); /* Change the border color on hover */
+    -fx-border-width: 4px; /* Set the border width */
+    -fx-border-radius: 12px; /* Match the border radius with the button */
+}
+
+.stats-section {
+    -fx-padding: 20px 0;
+}
+
+.stats-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: #757575;
 }
 
 /* Main Content Styles */
@@ -166,50 +178,57 @@
 }
 
 .book-card:hover {
-    -fx-effect: dropshadow(gaussian, rgba(33,150,243,0.3), 15, 0, 0, 0);
-    -fx-translate-y: -2;
+    -fx-effect: dropshadow(gaussian, rgb(184, 110, 209), 10, 0, 0, 2);
+    -fx-translate-y: 0;
 }
 
 .book-title {
-    -fx-font-size: 16px;
+    -fx-font-size: 18px;
     -fx-font-weight: bold;
     -fx-text-fill: #424242;
     -fx-wrap-text: true;
 }
 
 .book-author {
-    -fx-font-size: 14px;
+    -fx-font-size: 16px;
     -fx-text-fill: #757575;
 }
 
 .book-rating {
-    -fx-font-size: 14px;
-    -fx-text-fill: #FFC107;
+    -fx-font-size: 15px;
+    -fx-text-fill: #f1680d;
     -fx-font-weight: bold;
 }
 
 .book-price {
-    -fx-font-size: 16px;
+    -fx-font-size: 17px;
     -fx-text-fill: #2196F3;
     -fx-font-weight: bold;
 }
 
+.book-price:hover {
+    -fx-text-fill: purple;
+}
+
 .cart-button {
-    -fx-background-color: #2196F3;
-    -fx-text-fill: white;
+    -fx-background-color: rgb(255, 255, 255);
+    -fx-text-fill: rgb(0, 0, 0);
     -fx-font-size: 14px;
     -fx-padding: 8px 15px;
     -fx-background-radius: 20px;
     -fx-cursor: hand;
+    -fx-border-color:linear-gradient(to right, rgb(202, 99, 202), rgb(171, 65, 171), rgb(224, 124, 61));
+    -fx-border-width: 2px;
+    -fx-border-radius: 20px;
 }
 
 .cart-button:hover {
-    -fx-background-color: #1976D2;
+    -fx-background-color: linear-gradient(to right, rgb(202, 99, 202), rgb(171, 65, 171), rgb(224, 124, 61));
 }
 
 /* Footer Styles */
 .footer {
-    -fx-background-color: #2196F3;
+    -fx-background-color: linear-gradient(to right, rgb(202, 99, 202), rgb(171, 65, 171), rgb(224, 124, 61));
     -fx-padding: 5px;
 }
 

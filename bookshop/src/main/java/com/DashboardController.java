@@ -2,6 +2,7 @@ package com;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import javafx.scene.control.Button;
 
 public class DashboardController {
@@ -47,18 +48,21 @@ public class DashboardController {
 
     @FXML
     private void goToHome() {
-        LoadPageController.loadScene("home.fxml", "home.css", homeButton);
+        Stage currentStage = (Stage) settingsButton.getScene().getWindow();
+        LoadPageController.loadScene("home.fxml", "home.css", currentStage);
     }
 
     @FXML
     private void goToSettings() {
-        LoadPageController.loadScene("settings.fxml", "settings.css", settingsButton);
+        Stage currentStage = (Stage) settingsButton.getScene().getWindow();
+        LoadPageController.loadScene("settings.fxml", "settings.css", currentStage);
     }
 
     @FXML
     private void logout() {
         HomeController homeController = new HomeController();
         homeController.logout();
-        LoadPageController.loadScene("home.fxml", "home.css", logoutButton);
+        Stage currentStage = (Stage) userNameLabel.getScene().getWindow();
+        LoadPageController.loadScene("home.fxml", "home.css", currentStage);
     }
 }

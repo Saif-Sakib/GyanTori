@@ -9,59 +9,59 @@
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.HomeController" styleClass="root">
 
     <!-- Top Navigation Section - Fixed -->
-    <VBox spacing="15" styleClass="top-section" VBox.vgrow="NEVER">
-        <!-- Main Navigation Bar -->
-        <HBox alignment="CENTER_RIGHT" spacing="15" styleClass="nav-bar">
-            <padding>
-                <Insets left="20" right="20"/>
-            </padding>
-            
-            <!-- Logo Section with Animation -->
-            <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" styleClass="logo-container">
-                <StackPane styleClass="logo-circle">
-                    <ImageView fitHeight="40.0" fitWidth="40.0" styleClass="logo-image">
-                        <Image url="@images/icons/logo.png"/>
-                    </ImageView>
-                </StackPane>
-                <Label text="GyanTori" styleClass="nav-logo"/>
-            </HBox>
-            
-            <!-- Enhanced Search Bar -->
-            <HBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" maxWidth="500" styleClass="search-container">
-                <TextField fx:id="searchField" promptText="Search for your favorite books..." styleClass="search-field" HBox.hgrow="ALWAYS"/>
-                <Button onAction="#performSearch" styleClass="search-button, animated-button">
-                    <graphic>
-                        <ImageView fitHeight="20.0" fitWidth="20.0" styleClass="icon">
-                            <Image url="@images/icons/search.png"/>
-                        </ImageView>
-                    </graphic>
-                </Button>
-            </HBox>
-            
-            <!-- Animated Navigation Buttons -->
-            <HBox spacing="10" alignment="CENTER">
-                <Button styleClass="nav-button, animated-button" text="Cart">
-                    <graphic>
-                        <StackPane styleClass="icon-container">
-                            <ImageView fitHeight="24.0" fitWidth="24.0" styleClass="icon">
-                                <Image url="@images/icons/cart.png"/>
-                            </ImageView>
-                        </StackPane>
-                    </graphic>
-                </Button>
+    <VBox spacing="15" styleClass="top-section">
+            <!-- Main Navigation Bar -->
+            <HBox alignment="CENTER_RIGHT" spacing="15" styleClass="nav-bar">
+                <padding>
+                    <Insets left="20" right="20"/>
+                </padding>
                 
-                <Button fx:id="profileLoginButton" onAction="#handleProfileLogin" styleClass="nav-button, animated-button" text="Login">
-                    <graphic>
-                        <StackPane styleClass="icon-container">
-                            <ImageView fitHeight="24.0" fitWidth="24.0" styleClass="icon">
-                                <Image url="@images/icons/user.png"/>
+                <!-- Logo Section with Animation -->
+                <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" styleClass="logo-container">
+                    <StackPane styleClass="logo-circle">
+                        <ImageView fitHeight="65.0" fitWidth="65.0" styleClass="logo-image">
+                            <Image url="@images/icons/logo.png"/>
+                        </ImageView>
+                    </StackPane>
+                    <Label fx:id="navLogo" text="GyanTori" styleClass="nav-logo"
+                           style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                </HBox>
+                <!-- Enhanced Search Bar -->
+                <HBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" maxWidth="4000" styleClass="search-container">
+                    <TextField fx:id="searchField" promptText="Search for your favorite books..." styleClass="search-field" HBox.hgrow="ALWAYS"/>
+                    <Button onAction="#performSearch" styleClass="search-button, animated-button">
+                        <graphic>
+                            <ImageView fitHeight="20.0" fitWidth="20.0" styleClass="icon">
+                                <Image url="@images/icons/search.png"/>
                             </ImageView>
-                        </StackPane>
-                    </graphic>
-                </Button>
+                        </graphic>
+                    </Button>
+                </HBox>
+                
+                <!-- Animated Navigation Buttons -->
+                <HBox spacing="10" alignment="CENTER">
+                    <Button onAction="#handleCartLoad" styleClass="nav-button, animated-button" text="Cart">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <ImageView fitHeight="24.0" fitWidth="24.0" styleClass="icon">
+                                    <Image url="@images/icons/cart.png"/>
+                                </ImageView>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <Button fx:id="profileLoginButton" onAction="#handleProfileLogin" styleClass="nav-button, animated-button" text="Login">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <ImageView fitHeight="24.0" fitWidth="24.0" styleClass="icon">
+                                    <Image url="@images/icons/user.png"/>
+                                </ImageView>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                </HBox>
             </HBox>
-        </HBox>
-    </VBox>
+        </VBox>
 
     <!-- Main Content Section with Sidebar -->
     <HBox VBox.vgrow="ALWAYS" spacing="20">
@@ -107,7 +107,7 @@
                 <!-- Enhanced Welcome Section -->
                 <StackPane styleClass="welcome-section">
                     <VBox alignment="CENTER_LEFT" spacing="10">
-                        <Label text="Welcome to GyanTori" styleClass="welcome-title"/>
+                        <Label fx:id="pageTitle" text="Welcome to GyanTori" styleClass="welcome-title"/>
                         <Text styleClass="welcome-text" 
                               text="Discover millions of eBooks, audiobooks, magazines &amp; more"/>
                         <HBox spacing="15" styleClass="welcome-buttons">
@@ -145,7 +145,7 @@
                 <VBox styleClass="footer" VBox.vgrow="NEVER">
                     <HBox alignment="CENTER" spacing="50">
                         <padding>
-                            <Insets top="30" right="20" bottom="5" left="20"/>
+                            <Insets top="30" right="5" bottom="5" left="5"/>
                         </padding>
                         
                         <VBox alignment="CENTER" spacing="10" styleClass="footer-section">
@@ -191,7 +191,7 @@
                     <!-- Footer Bottom Bar -->
                     <HBox styleClass="footer-bottom" alignment="CENTER">
                         <padding>
-                            <Insets top="5" right="20" bottom="5" left="20"/>
+                            <Insets top="5" right="5" bottom="5" left="5"/>
                         </padding>
                         <Label text="Terms of Service | Privacy Policy | Cookie Policy" styleClass="footer-links"/>
                     </HBox>

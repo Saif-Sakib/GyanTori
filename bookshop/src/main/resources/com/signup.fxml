@@ -8,7 +8,7 @@
 <HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.SignupController" styleClass="login-root" HBox.hgrow="ALWAYS">
     
     <!-- Left Section -->
-    <VBox styleClass="login-section" HBox.hgrow="ALWAYS">
+    <VBox  styleClass="login-section" HBox.hgrow="ALWAYS">
         <Label text="Create Account" styleClass="login-header"/>
 
         <VBox styleClass="form-container" VBox.vgrow="ALWAYS">
@@ -65,8 +65,6 @@
                     </graphic>
                 </Button>
             </HBox>
-
-            <Region VBox.vgrow="ALWAYS"/>
 
             <HBox styleClass="signup-prompt" HBox.hgrow="NEVER">
                 <Label text="Already have an account?"/>

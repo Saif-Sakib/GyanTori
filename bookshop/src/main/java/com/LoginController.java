@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
@@ -34,7 +35,8 @@ public class LoginController {
         if (DatabaseManager.validateLogin(username, password)) {
             SessionManager.getInstance().setUser(username);
             homeController.setLoggedIn(true);
-            LoadPageController.loadScene("home.fxml", "home.css", loginButton);
+            Stage currentStage = (Stage) loginButton.getScene().getWindow();
+            LoadPageController.loadScene("home.fxml", "home.css", currentStage);
         } else {
             showAlert(AlertType.ERROR, "Error", "Invalid Username or Password!");
         }
@@ -42,7 +44,8 @@ public class LoginController {
 
     @FXML
     private void handleSignUp() {
-        LoadPageController.loadScene("signup.fxml", "login_signup.css", loginButton);
+        Stage currentStage = (Stage) loginButton.getScene().getWindow();
+        LoadPageController.loadScene("signup.fxml", "login_signup.css", currentStage);
     }
 
     private boolean validateInput(String username, String password) {
