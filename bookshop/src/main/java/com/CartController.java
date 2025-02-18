@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.text.DecimalFormat;
 import java.util.Locale;
-
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.input.KeyCode;
@@ -38,6 +37,7 @@ public class CartController {
 
     private final Map<String, CartItem> cartItems = new HashMap<>();
     private final SimpleDoubleProperty subtotal = new SimpleDoubleProperty(0);
+    private final CartService cartService = CartService.getInstance();
     private final SimpleDoubleProperty onlineFee = new SimpleDoubleProperty(58);
     private final SimpleDoubleProperty deliveryFee = new SimpleDoubleProperty(60);
     private final DecimalFormat decimalFormat;
@@ -150,7 +150,7 @@ public class CartController {
         }
     }
 
-    private Node createCartItemNode(CartItem item) {
+    private Node createCartItemNode(CartController.CartItem item) {
         try {
             // Create main container
             HBox itemContainer = new HBox();
@@ -260,12 +260,9 @@ public class CartController {
 
     private void removeItemFromCart(String itemId) {
         try {
-            CartItem removedItem = cartItems.remove(itemId);
-            if (removedItem != null) {
-                cartItemsContainer.getChildren().removeIf(node -> node.getId().equals("item_" + itemId));
-                updateSubtotal();
-                updateCartVisibility();
-            }
+            cartService.removeItem(itemId);
+            //loadCartItems();
+            updateCartVisibility();
         } catch (Exception e) {
             handleException("Remove Item Error", e);
         }

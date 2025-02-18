@@ -1,39 +1,140 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.DashboardController">
-    
-    <!-- Top Bar -->
-    <top>
-        <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-background-color: #333; -fx-padding: 10px;">
-            <Label text="Dashboard" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" />
-            <Region HBox.hgrow="ALWAYS"/>
-            <Label fx:id="userNameLabel" text="User" style="-fx-text-fill: white; -fx-font-size: 16px;" />
-            <Button text="Profile" onAction="#openProfile" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 8px 16px; -fx-border-radius: 5px;"/>
-        </HBox>
-    </top>
+<HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.DashboardController"
+      styleClass="dashboard-container">
 
-    <!-- Sidebar -->
-    <left>
-        <VBox spacing="10" style="-fx-background-color: #222; -fx-padding: 15px; -fx-pref-width: 200px;">
-            <Label text="Welcome," style="-fx-text-fill: white; -fx-font-size: 14px;"/>
-            <Label fx:id="userEmailLabel" text="user@example.com" style="-fx-text-fill: white; -fx-font-size: 14px;"/>
-            <Separator />
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
 
-            <Button fx:id="homeButton" text="Home" onAction="#goToHome" styleClass="sidebar-button"/>
-            <Button fx:id="settingsButton" text="Settings" onAction="#goToSettings" styleClass="sidebar-button"/>
-            <Button fx:id="logoutButton" text="Logout" onAction="#logout" styleClass="sidebar-button"/>
+    <!-- Left Panel - Profile and Stats -->
+    <VBox spacing="15" prefWidth="300" styleClass="left-panel">
+        <!-- Profile Section -->
+        <VBox spacing="10" styleClass="profile-section">
+            <StackPane styleClass="profile-pic-container">
+                <Circle fx:id="profilePicClip" radius="50"/>
+                <ImageView fx:id="profilePic" fitHeight="100" fitWidth="100" preserveRatio="true"/>
+            </StackPane>
+
+            <VBox spacing="5" styleClass="profile-info">
+                <Label fx:id="nameLabel" text="John Doe" styleClass="name-label"/>
+                <Label fx:id="locationLabel" text="New York, USA" styleClass="location-label"/>
+                <Label fx:id="bookHubIdLabel" text="ID: BH123456" styleClass="bookhub-id"/>
+                <Button fx:id="editInfoButton" text="Edit Profile" styleClass="edit-button"/>
+            </VBox>
         </VBox>
-    </left>
 
-    <!-- Main Content Area -->
-    <center>
-        <StackPane fx:id="mainContent" style="-fx-background-color: #f4f4f4; -fx-padding: 20px;">
-            <Label text="Welcome to your Dashboard" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-        </StackPane>
-    </center>
+        <!-- Quick Stats -->
+        <VBox spacing="10" styleClass="stats-container">
+            <Label text="Profile Overview" styleClass="section-header"/>
+            <GridPane hgap="20" vgap="10">
+                <Label text="Total Uploads:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <Label fx:id="totalUploadsLabel" text="0" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-</BorderPane>
+                <Label text="Total Borrowed:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <Label fx:id="totalBorrowedLabel" text="0" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Buyer Rating:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <Label fx:id="buyerRatingLabel" text="4.5/5" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            </GridPane>
+        </VBox>
+
+        <!-- Footer -->
+        <Region VBox.vgrow="ALWAYS"/>
+        <VBox spacing="10" styleClass="footer-section">
+            <Button fx:id="homeButton" onAction="#handleHome" text="Home" styleClass="home-button"/>
+            <Button fx:id="logoutButton" onAction="#handleLogout" text="Logout" styleClass="logout-button"/>
+            <Label fx:id="lastUpdateLabel" text="Last updated: " styleClass="update-label"/>
+        </VBox>
+    </VBox>
+
+    <!-- Right Panel - Main Content -->
+    <TabPane HBox.hgrow="ALWAYS" styleClass="content-tabs">
+        <!-- Uploaded Books Tab -->
+        <Tab text="Uploaded Books" closable="false">
+            <VBox spacing="10">
+                <Label text="Your Uploaded Books" styleClass="section-header"/>
+                <TableView fx:id="uploadedBooksTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="uploadedTitleColumn" text="Book Title">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="title" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="uploadDateColumn" text="Upload Date">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="uploadDate" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="priceColumn" text="Price">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="price" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="totalPurchasesColumn" text="Total Purchases">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="totalPurchases" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="revenueColumn" text="Revenue">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="revenue" />
+                            </cellValueFactory>
+                        </TableColumn>
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+
+        <!-- Borrowed Books Tab -->
+        <Tab text="Borrowed Books" closable="false">
+            <VBox spacing="10">
+                <Label text="Your Borrowed Books" styleClass="section-header"/>
+                <TableView fx:id="borrowedBooksTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="borrowedTitleColumn" text="Book Title">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="title" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="sellerNameColumn" text="Seller Name">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="sellerName" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="borrowDateColumn" text="Borrow Date">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="borrowDate" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="daysRemainingColumn" text="Days Remaining">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="daysRemaining" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="statusColumn" text="Status">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="status" />
+                            </cellValueFactory>
+                        </TableColumn>
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+
+        <!-- Reviews Tab -->
+        <Tab text="Buyer Reviews" closable="false">
+            <VBox spacing="10">
+                <Label text="Your Reviews" styleClass="section-header"/>
+                <ListView fx:id="reviewsList" VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </Tab>
+    </TabPane>
+</HBox>

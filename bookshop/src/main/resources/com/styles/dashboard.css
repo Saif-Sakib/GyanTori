@@ -1,12 +1,127 @@
-.sidebar-button {
-    -fx-background-color: #444;
-    -fx-text-fill: white;
-    -fx-padding: 10px;
-    -fx-font-size: 14px;
-    -fx-border-radius: 5px;
-    -fx-background-radius: 5px;
+/* General Styles */
+.dashboard-container {
+    -fx-background-color: linear-gradient(to right, #2c3e50, #4ca1af);
 }
 
-.sidebar-button:hover {
-    -fx-background-color: #666;
+/* Left Panel */
+.left-panel {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-background-radius: 10px;
+    -fx-padding: 20px;
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-border-radius: 10px;
+}
+
+.profile-section {
+    -fx-alignment: center;
+}
+
+.profile-pic-container {
+    -fx-padding: 10px;
+}
+
+.profile-info .name-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+
+.profile-info .location-label, .bookhub-id {
+    -fx-text-fill: #d1d1d1;
+}
+
+.edit-button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px 10px;
+    -fx-font-weight: bold;
+    -fx-transition: all 0.3s ease;
+}
+
+.edit-button:hover {
+    -fx-background-color: #2980b9;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* Stats Section */
+.stats-container {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-background-radius: 10px;
+    -fx-padding: 15px;
+}
+
+.section-header {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+
+/* Footer */
+
+.home-button {
+    -fx-background-color: #4CAF50; /* Green */
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.home-button:hover {
+    -fx-background-color: #45a049;
+}
+
+.logout-button {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px 10px;
+    -fx-transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+    -fx-background-color: #c0392b;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* Right Panel */
+.content-tabs {
+    -fx-tab-min-width: 120px;
+    -fx-tab-max-width: 120px;
+    -fx-tab-min-height: 40px;
+    -fx-tab-max-height: 40px;
+    -fx-background-color: transparent;
+}
+
+.tab .tab-label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.tab:selected {
+    -fx-background-color: #3498db;
+}
+
+/* Table Styles */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-radius: 5px;
+}
+
+.table-column {
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+/* List View */
+.list-view {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-border-radius: 5px;
+    -fx-padding: 5px;
 }

@@ -1,0 +1,403 @@
+package com;
+
+import javafx.application.Platform;
+import javafx.beans.property.*;
+import javafx.concurrent.Task;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+import javafx.util.Callback;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class DashboardController {
+    private static final Logger LOGGER = Logger.getLogger(DashboardController.class.getName());
+
+    // Profile Elements
+    @FXML
+    private ImageView profilePicture;
+    @FXML
+    private ImageView largePicture;
+    @FXML
+    private Label userNameLabel;
+    @FXML
+    private Label fullNameLabel;
+    @FXML
+    private Label locationLabel;
+    @FXML
+    private Label bookHubIdLabel;
+
+    // Statistics Labels
+    @FXML
+    private Label uploadedCountLabel;
+    @FXML
+    private Label borrowedCountLabel;
+    @FXML
+    private Label earningsLabel;
+
+    // Tables (columns defined programmatically)
+    @FXML
+    private TableView<UploadedBook> uploadedBooksTable;
+    @FXML
+    private TableView<BorrowedBook> borrowedBooksTable;
+    @FXML
+    private ListView<Review> reviewsList;
+
+    // Navigation Buttons
+    @FXML
+    private Button homeButton;
+    @FXML
+    private Button uploadedBooksButton;
+    @FXML
+    private Button borrowedBooksButton;
+    @FXML
+    private Button reviewsButton;
+    @FXML
+    private Button settingsButton;
+    @FXML
+    private Button logoutButton;
+
+    @FXML
+    private void initialize() {
+        try {
+            setupUI();
+            loadDataAsync();
+        } catch (Exception e) {
+            handleCriticalError("Initialization Error", "Failed to initialize dashboard", e);
+        }
+    }
+
+    private void setupUI() {
+        try {
+            setupNavigationHandlers();
+            setupProfileImages();
+            setupTables();
+        } catch (Exception e) {
+            handleCriticalError("UI Setup Error", "Failed to setup UI components", e);
+        }
+    }
+
+    private void setupNavigationHandlers() {
+        try {
+            homeButton.setOnAction(e -> safeNavigateTo("home.fxml"));
+            uploadedBooksButton.setOnAction(e -> safeNavigateTo("uploaded-books.fxml"));
+            borrowedBooksButton.setOnAction(e -> safeNavigateTo("borrowed-books.fxml"));
+            reviewsButton.setOnAction(e -> safeNavigateTo("reviews.fxml"));
+            settingsButton.setOnAction(e -> safeNavigateTo("settings.fxml"));
+            logoutButton.setOnAction(e -> safeLogout());
+        } catch (Exception e) {
+            handleCriticalError("Navigation Setup Error", "Failed to setup navigation handlers", e);
+        }
+    }
+
+    private void setupProfileImages() {
+        try {
+            Image defaultImage = loadImageResource("/images/default-profile.png");
+            profilePicture.setImage(defaultImage);
+            largePicture.setImage(defaultImage);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Profile image load failure", e);
+            Platform.runLater(() -> {
+                profilePicture.setVisible(false);
+                ((StackPane) profilePicture.getParent()).getChildren().add(
+                        new Label("Profile Image\nNot Available"));
+            });
+        }
+    }
+
+    private Image loadImageResource(String path) throws Exception {
+        Image image = new Image(getClass().getResourceAsStream(path));
+        if (image.isError()) {
+            throw new Exception("Failed to load image: " + path);
+        }
+        return image;
+    }
+
+    private void setupTables() {
+        try {
+            setupUploadedBooksTable();
+            setupBorrowedBooksTable();
+            setupReviewsList();
+        } catch (Exception e) {
+            handleCriticalError("Table Setup Error", "Failed to initialize tables", e);
+        }
+    }
+
+    private void setupUploadedBooksTable() {
+        try {
+            TableColumn<UploadedBook, String> titleCol = createTableColumn("Book Title", "title", 200);
+            TableColumn<UploadedBook, LocalDate> dateCol = createDateColumn("Upload Date", "uploadDate");
+            TableColumn<UploadedBook, Number> priceCol = createCurrencyColumn("Price", "price");
+            TableColumn<UploadedBook, Number> borrowedCol = createTableColumn("Times Borrowed", "timesBorrowed", 120);
+            TableColumn<UploadedBook, Number> earningsCol = createCurrencyColumn("Total Earnings", "totalEarnings");
+
+            uploadedBooksTable.getColumns().setAll(titleCol, dateCol, priceCol, borrowedCol, earningsCol);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to setup uploaded books table", e);
+        }
+    }
+
+    private void setupBorrowedBooksTable() {
+        try {
+            TableColumn<BorrowedBook, String> titleCol = createTableColumn("Book Title", "title", 200);
+            TableColumn<BorrowedBook, String> sellerCol = createTableColumn("Seller Name", "sellerName", 150);
+            TableColumn<BorrowedBook, LocalDate> borrowDateCol = createDateColumn("Borrow Date", "borrowDate");
+            TableColumn<BorrowedBook, LocalDate> dueDateCol = createDateColumn("Due Date", "dueDate");
+            TableColumn<BorrowedBook, Number> daysCol = createTableColumn("Days Remaining", "daysRemaining", 120);
+            TableColumn<BorrowedBook, Number> priceCol = createCurrencyColumn("Price", "price");
+
+            borrowedBooksTable.getColumns().setAll(titleCol, sellerCol, borrowDateCol, dueDateCol, daysCol, priceCol);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to setup borrowed books table", e);
+        }
+    }
+
+    private void setupReviewsList() {
+        reviewsList.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(Review item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%s - %d/5 Stars", item.getReviewText(), item.getRating()));
+                }
+            }
+        });
+    }
+
+    private <S, T> TableColumn<S, T> createTableColumn(String title, String property, double width) {
+        TableColumn<S, T> col = new TableColumn<>(title);
+        col.setCellValueFactory(new PropertyValueFactory<>(property));
+        col.setPrefWidth(width);
+        return col;
+    }
+
+    private <S> TableColumn<S, LocalDate> createDateColumn(String title, String property) {
+        TableColumn<S, LocalDate> col = new TableColumn<>(title);
+        col.setCellValueFactory(new PropertyValueFactory<>(property));
+        col.setCellFactory(getDateCellFactory());
+        return col;
+    }
+
+    private <S> TableColumn<S, Number> createCurrencyColumn(String title, String property) {
+        TableColumn<S, Number> col = new TableColumn<>(title);
+        col.setCellValueFactory(new PropertyValueFactory<>(property));
+        col.setCellFactory(getCurrencyCellFactory());
+        return col;
+    }
+
+    private <S> Callback<TableColumn<S, LocalDate>, TableCell<S, LocalDate>> getDateCellFactory() {
+        return column -> new TableCell<>() {
+            private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            @Override
+            protected void updateItem(LocalDate item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "" : formatter.format(item));
+            }
+        };
+    }
+
+    private <S> Callback<TableColumn<S, Number>, TableCell<S, Number>> getCurrencyCellFactory() {
+        return column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Number item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "" : String.format("$%.2f", item.doubleValue()));
+            }
+        };
+    }
+
+    private void loadDataAsync() {
+        Task<Void> loadTask = new Task<>() {
+            @Override
+            protected Void call() {
+                try {
+                    loadUserData();
+                    loadBooksData();
+                    loadReviewsData();
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "Data loading failed", e);
+                    throw new RuntimeException("Data loading failed", e);
+                }
+                return null;
+            }
+        };
+
+        loadTask.setOnSucceeded(e -> LOGGER.info("Data loaded successfully"));
+        loadTask.setOnFailed(e -> {
+            Throwable ex = loadTask.getException();
+            showErrorAlert("Data Loading Error",
+                    "Failed to load data: " + ex.getCause().getMessage());
+        });
+
+        new Thread(loadTask).start();
+    }
+
+    private void loadUserData() {
+        SessionManager session = SessionManager.getInstance();
+        Platform.runLater(() -> {
+            try {
+                userNameLabel.setText(session.getUserName());
+                fullNameLabel.setText(session.getFullName());
+                locationLabel.setText(session.getUserLocation());
+                bookHubIdLabel.setText("BookHub ID: #" + session.getUserId());
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "User data loading failed", e);
+            }
+        });
+    }
+
+    private void loadBooksData() {
+        Platform.runLater(() -> {
+            try {
+                uploadedCountLabel.setText(BookService.getUploadCount() + " Books");
+                borrowedCountLabel.setText(BookService.getBorrowedCount() + " Books");
+                earningsLabel.setText(String.format("$%.2f", BookService.getTotalEarnings()));
+
+                uploadedBooksTable.getItems().setAll(BookService.getUploadedBooks());
+                borrowedBooksTable.getItems().setAll(BookService.getBorrowedBooks());
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Books data loading failed", e);
+            }
+        });
+    }
+
+    private void loadReviewsData() {
+        Platform.runLater(() -> {
+            try {
+                reviewsList.getItems().setAll(BookService.getRecentReviews());
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Reviews loading failed", e);
+            }
+        });
+    }
+
+    private void safeNavigateTo(String fxmlPath) {
+        try {
+            Stage stage = (Stage) homeButton.getScene().getWindow();
+            NavigationService.navigateTo(fxmlPath, stage);
+        } catch (Exception e) {
+            handleCriticalError("Navigation Error", "Failed to navigate to " + fxmlPath, e);
+        }
+    }
+
+    private void safeLogout() {
+        try {
+            SessionManager.clearSession();
+            safeNavigateTo("login.fxml");
+        } catch (Exception e) {
+            handleCriticalError("Logout Error", "Failed to logout", e);
+        }
+    }
+
+    private void handleCriticalError(String title, String message, Throwable e) {
+        LOGGER.log(Level.SEVERE, message, e);
+        Platform.runLater(() -> {
+            showErrorAlert(title, message + ": " + e.getMessage());
+            System.exit(1);
+        });
+    }
+
+    private void showErrorAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    // Model Classes (Should be in separate files)
+    public static class UploadedBook {
+        private final StringProperty title = new SimpleStringProperty();
+        private final ObjectProperty<LocalDate> uploadDate = new SimpleObjectProperty<>();
+        private final DoubleProperty price = new SimpleDoubleProperty();
+        private final IntegerProperty timesBorrowed = new SimpleIntegerProperty();
+        private final DoubleProperty totalEarnings = new SimpleDoubleProperty();
+
+        // Property accessors
+        public StringProperty titleProperty() {
+            return title;
+        }
+
+        public ObjectProperty<LocalDate> uploadDateProperty() {
+            return uploadDate;
+        }
+
+        public DoubleProperty priceProperty() {
+            return price;
+        }
+
+        public IntegerProperty timesBorrowedProperty() {
+            return timesBorrowed;
+        }
+
+        public DoubleProperty totalEarningsProperty() {
+            return totalEarnings;
+        }
+    }
+
+    public static class BorrowedBook {
+        private final StringProperty title = new SimpleStringProperty();
+        private final StringProperty sellerName = new SimpleStringProperty();
+        private final ObjectProperty<LocalDate> borrowDate = new SimpleObjectProperty<>();
+        private final ObjectProperty<LocalDate> dueDate = new SimpleObjectProperty<>();
+        private final IntegerProperty daysRemaining = new SimpleIntegerProperty();
+        private final DoubleProperty price = new SimpleDoubleProperty();
+
+        // Property accessors
+        public StringProperty titleProperty() {
+            return title;
+        }
+
+        public StringProperty sellerNameProperty() {
+            return sellerName;
+        }
+
+        public ObjectProperty<LocalDate> borrowDateProperty() {
+            return borrowDate;
+        }
+
+        public ObjectProperty<LocalDate> dueDateProperty() {
+            return dueDate;
+        }
+
+        public IntegerProperty daysRemainingProperty() {
+            return daysRemaining;
+        }
+
+        public DoubleProperty priceProperty() {
+            return price;
+        }
+    }
+
+    public static class Review {
+        private final StringProperty reviewText = new SimpleStringProperty();
+        private final IntegerProperty rating = new SimpleIntegerProperty();
+        private final StringProperty reviewer = new SimpleStringProperty();
+
+        @Override
+        public String toString() {
+            return String.format("%s - %d/5 stars", reviewText.get(), rating.get());
+        }
+
+        // Property accessors
+        public StringProperty reviewTextProperty() {
+            return reviewText;
+        }
+
+        public IntegerProperty ratingProperty() {
+            return rating;
+        }
+
+        public StringProperty reviewerProperty() {
+            return reviewer;
+        }
+    }
+}

@@ -21,6 +21,7 @@ import javafx.util.Duration;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;import java.util.Objects;
+import java.util.logging.Level;
 
 public class HomeController {
 
@@ -34,6 +35,8 @@ public class HomeController {
     private Button profileLoginButton;
     @FXML
     private Label navLogo;
+
+    private final CartService cartService = CartService.getInstance();
 
     private static boolean isLoggedIn = false;
 
@@ -292,8 +295,7 @@ public class HomeController {
             showAlert(Alert.AlertType.INFORMATION, "Login Required","Please login to add books to your cart.");
             return;
         }
-        CartController cartController = new CartController();
-        cartController.addItemToCart(book.Id, book.title, book.price, book.imageUrl);
+        cartService.addItem(book.Id, book.title, book.price, book.imageUrl);
         showAlert(Alert.AlertType.INFORMATION, "Success",String.format("%s has been added to your cart!", book.title));
     }
 
@@ -314,10 +316,15 @@ public class HomeController {
     }
 
     public void logout() {
-        isLoggedIn = false;
-        updateProfileButton();
-        SessionManager.getInstance().clearSession();
-        showAlert(Alert.AlertType.INFORMATION, "Logged Out","You have been successfully logged out.");
+        try {
+            isLoggedIn = false;
+            updateProfileButton();
+            SessionManager.getInstance().clearSession();
+            showAlert(Alert.AlertType.INFORMATION, "Logged Out", "You have been successfully logged out.");
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Logout Error", "Failed to process logout.");
+        }
+        
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {
