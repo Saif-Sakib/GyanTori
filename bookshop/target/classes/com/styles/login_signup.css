@@ -1,49 +1,118 @@
+/* Previous styles remain the same until form-container */
+
+.form-container {
+    -fx-spacing: 15;
+    -fx-max-width: 350;
+    -fx-alignment: top-center;
+    -fx-animation: fadeIn 0.5s ease-out;
+}
+
+.input-field {
+    -fx-pref-height: 45;
+    -fx-background-color: rgba(248,248,242,0.1);
+    -fx-background-radius: 8;
+    -fx-padding: 10 15;
+    -fx-font-size: 14;
+    -fx-text-fill: #f8f8f2;
+    -fx-prompt-text-fill: #f8f8f2aa;
+    -fx-transition: all 0.3s ease;
+    -fx-opacity: 1 !important; /* Force opacity to be visible */
+}
+
+.input-field:focused {
+    -fx-background-color: rgba(248,248,242,0.15);
+    -fx-effect: dropshadow(gaussian, rgba(189,147,249,0.3), 8, 0, 0, 0);
+    -fx-translate-y: -1;
+}
+
+/* Remove the previous animation that was hiding form elements */
+.form-container * {
+    -fx-opacity: 1;
+    -fx-translate-y: 0;
+}
+
+/* Add a gentler fade-in animation for the entire form */
+@keyframes fadeIn {
+    0% {
+        -fx-opacity: 0;
+    }
+    100% {
+        -fx-opacity: 1;
+    }
+}
+
+/* Rest of the styles remain the same as before */
 .login-root {
-    -fx-background-color: #f5f5f5;
+    -fx-background-color: #2a2d3e;
     -fx-fill-width: true;
     -fx-fill-height: true;
 }
 
+.brand-logo {
+    -fx-blend-mode: multiply; /* Basic multiplied blending */
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.15), 15, 0, 0, 0);
+    -fx-opacity: 0.95;
+    -fx-transition: all 0.3s ease;
+    -fx-background-color: transparent;
+    -fx-preserve-ratio: true;
+}
+
+.brand-logo ImageView {
+    -fx-background-color: transparent;
+    -fx-viewport-color: transparent;
+    -fx-blend-mode: multiply;
+}
+
+.brand-logo:hover {
+    -fx-opacity: 1;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-blend-mode: multiply;
+}
+
+/* Also update the brand section to ensure transparency */
 .brand-section {
     -fx-alignment: center;
     -fx-spacing: 50;
-    -fx-padding: 200;
-    -fx-background-color: #7fa7a3;
+    -fx-padding: 200;  
+    -fx-background-color: #1f2233;
     -fx-pref-width: 50%;
     -fx-max-width: infinity;
-}
-
-.brand-logo {
-    -fx-blend-mode: multiply;
-    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.2), 10, 0, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 5, 0);
 }
 
 .brand-name {
     -fx-font-size: 100px;
     -fx-font-weight: bold;
-    -fx-text-fill: linear-gradient(to right, magenta, purple, red);
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 1);
+    -fx-text-fill: linear-gradient(to right, #ff79c6, #bd93f9, #ff5555);
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.1), 10, 0, 0, 2);
+    -fx-transition: all 0.3s ease;
 }
 
+.brand-name:hover {
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.2), 15, 0, 0, 3);
+}
 
 .brand-tagline {
     -fx-font-size: 20;
-    -fx-text-fill: purple, rgb(56, 41, 103), rgb(192, 59, 192);
+    -fx-text-fill: #bd93f9;
     -fx-font-style: italic;
+    -fx-opacity: 0.9;
 }
 
 .brand-description {
     -fx-font-size: 15;
-    -fx-text-fill: rgb(192, 59, 192)a;
+    -fx-text-fill: #f8f8f2;
     -fx-text-alignment: center;
     -fx-max-width: 350;
+    -fx-opacity: 0.8;
 }
 
 .login-section {
     -fx-padding: 50;
     -fx-spacing: 20;
     -fx-alignment: top-center;
-    -fx-background-color:  #74a5a0;
+    -fx-background-color: #282a36;
     -fx-pref-width: 50%;
     -fx-max-width: infinity;
 }
@@ -51,46 +120,25 @@
 .login-header {
     -fx-font-size: 50;
     -fx-font-weight: bold;
-    -fx-text-fill: white;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);
+    -fx-text-fill: #f8f8f2;
+    -fx-effect: dropshadow(gaussian, rgba(189,147,249,0.2), 8, 0, 0, 1);
 }
 
 .login-subheader {
     -fx-font-size: 20;
-    -fx-text-fill: #ffffff90;
+    -fx-text-fill: #f8f8f2aa;
     -fx-padding: 0 0 20 0;
 }
 
-.form-container {
-    -fx-spacing: 15;
-    -fx-max-width: 350;
-    -fx-alignment: top-center;
-}
-
-.below-form{
+.below-form {
     -fx-spacing: 10;
     -fx-alignment: center;
 }
 
 .input-label {
     -fx-font-size: 14;
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: #f8f8f2;
     -fx-font-weight: bold;
-}
-
-.input-field {
-    -fx-pref-height: 45;
-    -fx-background-color: #ffffff20;
-    -fx-background-radius: 8;
-    -fx-padding: 10 15;
-    -fx-font-size: 14;
-    -fx-text-fill: rgb(11, 11, 11);
-    -fx-prompt-text-fill: #ffffffc1;
-}
-
-.input-field:focused {
-    -fx-background-color: #ffffff30;
-    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.3), 5, 0, 0, 0);
 }
 
 .options-container {
@@ -99,43 +147,50 @@
 }
 
 .remember-checkbox {
-    -fx-text-fill: white;
+    -fx-text-fill: #f8f8f2;
 }
 
 .remember-checkbox .box {
-    -fx-background-color: #ffffff20;
+    -fx-background-color: rgba(248,248,242,0.1);
     -fx-background-radius: 4;
+    -fx-transition: all 0.2s ease;
 }
 
 .remember-checkbox:selected .box {
-    -fx-background-color: white;
+    -fx-background-color: #bd93f9;
 }
 
 .forgot-link {
-    -fx-text-fill: white;
+    -fx-text-fill: #f8f8f2;
     -fx-font-weight: bold;
+    -fx-transition: all 0.2s ease;
+}
+
+.forgot-link:hover {
+    -fx-text-fill: #bd93f9;
 }
 
 .login-button {
-    -fx-background-color: white;
-    -fx-text-fill: #6a9ae7;
+    -fx-background-color: #bd93f9;
+    -fx-text-fill: #282a36;
     -fx-font-size: 16;
     -fx-font-weight: bold;
     -fx-pref-height: 45;
     -fx-background-radius: 8;
     -fx-cursor: hand;
     -fx-max-width: infinity;
+    -fx-transition: all 0.3s ease;
 }
 
 .login-button:hover {
-    -fx-background-color: #f0f0f0;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 0);
-    -fx-translate-y: -1;
+    -fx-background-color: #caa5ff;
+    -fx-effect: dropshadow(gaussian, rgba(189,147,249,0.4), 10, 0, 0, 0);
+    -fx-translate-y: -2;
 }
 
 .login-button:pressed {
-    -fx-background-color: #e0e0e0;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0, 0, 0);
+    -fx-background-color: #a77eef;
+    -fx-effect: dropshadow(gaussian, rgba(189,147,249,0.2), 5, 0, 0, 0);
     -fx-translate-y: 1;
 }
 
@@ -145,12 +200,12 @@
 }
 
 .divider .line {
-    -fx-border-color: #ffffff40;
+    -fx-border-color: #f8f8f240;
 }
 
 .divider-text {
     -fx-padding: 0 15;
-    -fx-text-fill: white;
+    -fx-text-fill: #f8f8f2;
 }
 
 .social-login {
@@ -163,13 +218,17 @@
     -fx-min-width: 50;
     -fx-min-height: 50;
     -fx-cursor: hand;
-    -fx-background-color: #ffffff20;
+    -fx-background-color: rgba(248,248,242,0.1);
+    -fx-transition: all 0.3s ease;
+    -fx-blend-mode: multiply;
 }
 
 .social-button:hover {
-    -fx-background-color: #ffffff30;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 0);
-    -fx-translate-y: -1;
+    -fx-background-color: rgba(248,248,242,0.15);
+    -fx-effect: dropshadow(gaussian, rgba(189,147,249,0.3), 10, 0, 0, 0);
+    -fx-translate-y: -2;
+    -fx-rotate: 360;
+    -fx-blend-mode: multiply;
 }
 
 .signup-prompt {
@@ -179,15 +238,16 @@
 }
 
 .signup-prompt Label {
-    -fx-text-fill: white;
+    -fx-text-fill: #f8f8f2;
 }
 
 .signup-link {
-    -fx-text-fill: white;
+    -fx-text-fill: #bd93f9;
     -fx-font-weight: bold;
     -fx-underline: true;
+    -fx-transition: all 0.2s ease;
 }
 
 .signup-link:hover {
-    -fx-text-fill: #f0f0f0;
+    -fx-text-fill: #caa5ff;
 }
