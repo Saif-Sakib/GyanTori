@@ -63,27 +63,27 @@
                 <Label text="Your Uploaded Books" styleClass="section-header"/>
                 <TableView fx:id="uploadedBooksTable" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="uploadedTitleColumn" text="Book Title">
+                        <TableColumn fx:id="uploadedTitleColumn" text="Book Title" styleClass="columnSTY">
                             <cellValueFactory>
                                 <PropertyValueFactory property="title" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="uploadDateColumn" text="Upload Date">
+                        <TableColumn fx:id="uploadDateColumn" text="Upload Date" styleClass="columnSTY">
                             <cellValueFactory>
                                 <PropertyValueFactory property="uploadDate" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="priceColumn" text="Price">
+                        <TableColumn fx:id="priceColumn" text="Price" styleClass="columnSTY">
                             <cellValueFactory>
                                 <PropertyValueFactory property="price" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="totalPurchasesColumn" text="Total Purchases">
+                        <TableColumn fx:id="totalPurchasesColumn" text="Total Purchases" styleClass="columnSTY">
                             <cellValueFactory>
                                 <PropertyValueFactory property="totalPurchases" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="revenueColumn" text="Revenue">
+                        <TableColumn fx:id="revenueColumn" text="Revenue" styleClass="columnSTY">
                             <cellValueFactory>
                                 <PropertyValueFactory property="revenue" />
                             </cellValueFactory>
@@ -99,27 +99,27 @@
                 <Label text="Your Borrowed Books" styleClass="section-header"/>
                 <TableView fx:id="borrowedBooksTable" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="borrowedTitleColumn" text="Book Title">
+                        <TableColumn fx:id="borrowedTitleColumn" text="Book Title" styleClass="columnSTY">
                             <cellValueFactory>
-                                <PropertyValueFactory property="title" />
+                                <PropertyValueFactory property="title"/>
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="sellerNameColumn" text="Seller Name">
+                        <TableColumn fx:id="sellerNameColumn" text="Seller Name" styleClass="columnSTY">
                             <cellValueFactory>
                                 <PropertyValueFactory property="sellerName" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="borrowDateColumn" text="Borrow Date">
+                        <TableColumn fx:id="borrowDateColumn" text="Borrow Date" styleClass="columnSTY">
                             <cellValueFactory>
                                 <PropertyValueFactory property="borrowDate" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="daysRemainingColumn" text="Days Remaining">
+                        <TableColumn fx:id="daysRemainingColumn" text="Days Remaining" styleClass="columnSTY">
                             <cellValueFactory>
                                 <PropertyValueFactory property="daysRemaining" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="statusColumn" text="Status">
+                        <TableColumn fx:id="statusColumn" text="Status" styleClass="columnSTY">
                             <cellValueFactory>
                                 <PropertyValueFactory property="status" />
                             </cellValueFactory>
@@ -133,7 +133,7 @@
         <Tab text="Buyer Reviews" closable="false">
             <VBox spacing="10">
                 <Label text="Your Reviews" styleClass="section-header"/>
-                <ListView fx:id="reviewsList" VBox.vgrow="ALWAYS"/>
+                <ListView fx:id="reviewsList" VBox.vgrow="ALWAYS" styleClass="columnSTY"/>
             </VBox>
         </Tab>
     </TabPane>
