@@ -8,14 +8,18 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.animation.Timeline;
 import javafx.animation.KeyFrame;
 import javafx.util.Duration;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -36,17 +40,19 @@ public class HomeController {
     private Label navLogo;
     @FXML
     private ImageView bannerImage;
+    @FXML
+    private HBox bannerBox;
+    private volatile boolean slideshowRunning = true;
+    private Thread slideshowThread;
+    private int currentImageIndex = 0;
+
     private final List<String> bannerImages = Arrays.asList(
             "/com/images/img1.png",
             "/com/images/img2.png",
             "/com/images/img3.png",
             "/com/images/img4.png",
-            "/com/images/img5.png",
-            "/com/images/img6.png",
-            "/com/images/img7.png"
+            "/com/images/img5.png"
     );
-
-    private int currentImageIndex = 0;
 
     private final CartService cartService = CartService.getInstance();
 
@@ -82,56 +88,131 @@ public class HomeController {
             if (navLogo != null) {
                 animateNavLogo();
             }
-            if (bannerImage != null && !bannerImages.isEmpty()) {
-                // Set the first image immediately
-                bannerImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(bannerImages.get(0)))));
-
-                // Start the slideshow
-                startImageSlideshow();
-            }
+            initBanner();
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Initialization Error", "Failed to initialize application: " + e.getMessage());
         }
     }
 
-    private void startImageSlideshow() {
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> {
-            currentImageIndex = (currentImageIndex + 1) % bannerImages.size();
-            animateImageTransition(bannerImages.get(currentImageIndex));
-        }));
-        timeline.setCycleCount(Timeline.INDEFINITE);
-        timeline.play();
-    }
-
-
-
-    private void animateImageTransition(String imageUrl) {
-        // Move the current image out to the upper right corner
-        TranslateTransition slideOut1 = new TranslateTransition(Duration.seconds(0.5), bannerImage);
-        slideOut1.setFromX(0);
-        slideOut1.setFromY(0);
-        slideOut1.setToX(bannerImage.getFitWidth());
-        slideOut1.setToY(-bannerImage.getFitHeight());
-
-        slideOut1.setOnFinished(event -> {
-            // Set new image
-            bannerImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(imageUrl))));
-
-            // Move the new image in from the lower left corner
-            TranslateTransition slideIn1 = new TranslateTransition(Duration.seconds(0.5), bannerImage);
-            slideIn1.setFromX(-bannerImage.getFitWidth());
-            slideIn1.setFromY(bannerImage.getFitHeight());
-            slideIn1.setToX(0);
-            slideIn1.setToY(0);
-            slideIn1.play();
+    private void initBanner() {
+    if (bannerImage != null && !bannerImages.isEmpty()) {
+       // Disable ratio preservation to allow full stretching
+        bannerImage.setPreserveRatio(false);
+        
+        // Get parent StackPane
+        StackPane parent = (StackPane) bannerImage.getParent();
+        
+        // Bind ImageView size to parent size
+        bannerImage.fitWidthProperty().bind(parent.widthProperty());
+        bannerImage.fitHeightProperty().bind(parent.heightProperty());
+        
+        // Set minimum dimensions if needed
+        parent.setMinWidth(100);  // Adjust these values as needed
+        parent.setMinHeight(50);
+        
+        // Optional: Add resize listeners for additional control
+        parent.widthProperty().addListener((obs, oldVal, newVal) -> {
+            // Ensure image width never exceeds parent width
+            if (bannerImage.getFitWidth() > newVal.doubleValue()) {
+                bannerImage.setFitWidth(newVal.doubleValue());
+            }
+        });
+        
+        parent.heightProperty().addListener((obs, oldVal, newVal) -> {
+            // Ensure image height never exceeds parent height
+            if (bannerImage.getFitHeight() > newVal.doubleValue()) {
+                bannerImage.setFitHeight(newVal.doubleValue());
+            }
         });
 
-        slideOut1.play();
+        try {
+            Image firstImage = loadImage(bannerImages.get(0));
+            if (firstImage != null) {
+                bannerImage.setImage(firstImage);
+                startImageSlideshow();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Failed to load initial banner image: " + e.getMessage());
+        }
     }
+}
 
+private Image loadImage(String imageUrl) {
+    try {
+        InputStream stream = getClass().getResourceAsStream(imageUrl);
+        if (stream != null) {
+            return new Image(stream);
+        }
+        System.err.println("Could not find image resource: " + imageUrl);
+        return null;
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.err.println("Error loading image " + imageUrl + ": " + e.getMessage());
+        return null;
+    }
+}
 
+private void startImageSlideshow() {
+    slideshowThread = new Thread(() -> {
+        while (slideshowRunning) {
+            try {
+                Thread.sleep(3000);
+                
+                if (!slideshowRunning) break;
+                
+                Platform.runLater(() -> {
+                    // Calculate next image index before loading
+                    currentImageIndex = (currentImageIndex + 1) % bannerImages.size();
+                    String nextImageUrl = bannerImages.get(currentImageIndex);
+                    
+                    // Try to load the next image before starting animation
+                    Image nextImage = loadImage(nextImageUrl);
+                    if (nextImage == null) {
+                        // Skip this transition if image couldn't be loaded
+                        return;
+                    }
+                    
+                    // Create and play the slide out animation
+                    TranslateTransition slideOut = new TranslateTransition(Duration.seconds(0.5), bannerImage);
+                    slideOut.setFromX(0);
+                    slideOut.setFromY(0);
+                    slideOut.setToX(bannerImage.getFitWidth());
+                    slideOut.setToY(-bannerImage.getFitHeight());
+                    
+                    slideOut.setOnFinished(event -> {
+                        // Update the image and index
+                        bannerImage.setImage(nextImage);
+                        
+                        // Create and play the slide in animation
+                        TranslateTransition slideIn = new TranslateTransition(Duration.seconds(0.5), bannerImage);
+                        slideIn.setFromX(-bannerImage.getFitWidth());
+                        slideIn.setFromY(bannerImage.getFitHeight());
+                        slideIn.setToX(0);
+                        slideIn.setToY(0);
+                        slideIn.play();
+                    });
+                    
+                    slideOut.play();
+                });
+                
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+    });
+    
+    slideshowThread.setDaemon(true);
+    slideshowThread.start();
+}
 
-
+public void stopSlideshow() {
+    slideshowRunning = false;
+    if (slideshowThread != null) {
+        slideshowThread.interrupt();
+    }
+}
 
     private void updateProfileButton() {
         if (profileLoginButton != null) {
@@ -208,11 +289,13 @@ public class HomeController {
     private void openDashboard(){
         Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
         LoadPageController.loadScene("dashboard.fxml", "dashboard.css", currentStage);
+        stopSlideshow();
     }
 
     private void openSettings() {
         Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
         LoadPageController.loadScene("settings.fxml", "settings.css", currentStage);
+
     }
 
     private void addSearchListener() {
@@ -361,6 +444,7 @@ public class HomeController {
     private void handleCartLoad() {
         Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
         LoadPageController.loadScene("cart.fxml", "cart.css", currentStage);
+        stopSlideshow();
     }
 
     @FXML
@@ -370,6 +454,7 @@ public class HomeController {
         } else {
             Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
             LoadPageController.loadScene("login.fxml", "login_signup.css", currentStage);
+            stopSlideshow();
         }
     }
 

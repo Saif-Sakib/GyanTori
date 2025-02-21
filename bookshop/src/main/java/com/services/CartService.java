@@ -1,3 +1,4 @@
+// CartService.java
 package com.services;
 
 import java.util.HashMap;
@@ -6,9 +7,10 @@ import java.util.Map;
 public class CartService {
     private static CartService instance;
     private final Map<String, CartItem> cartItems = new HashMap<>();
+    private static final int MAX_QUANTITY = 99;
 
     private CartService() {
-    } // Private constructor
+    }
 
     public static CartService getInstance() {
         if (instance == null) {
@@ -18,25 +20,49 @@ public class CartService {
     }
 
     public void addItem(String itemId, String itemName, double price, String imageUrl) {
+        validateItemInput(itemId, itemName, price);
+
         if (cartItems.containsKey(itemId)) {
-            CartItem existingItem = cartItems.get(itemId);
-            existingItem.incrementQuantity();
+            CartItem item = cartItems.get(itemId);
+            if (item.getQuantity() >= MAX_QUANTITY) {
+                throw new IllegalStateException("Maximum quantity limit reached for item: " + itemName);
+            }
+            item.incrementQuantity();
         } else {
             cartItems.put(itemId, new CartItem(itemId, itemName, price, imageUrl));
         }
     }
 
-    public Map<String, CartItem> getCartItems() {
-        return cartItems;
-    }
-
-    public void updateItemQuantity(String itemId, int quantity) {
-        if (cartItems.containsKey(itemId)) {
-            cartItems.get(itemId).setQuantity(quantity);
+    private void validateItemInput(String itemId, String itemName, double price) {
+        if (itemId == null || itemId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Item ID cannot be null or empty");
+        }
+        if (itemName == null || itemName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Item name cannot be null or empty");
+        }
+        if (price < 0) {
+            throw new IllegalArgumentException("Price cannot be negative");
         }
     }
 
+    public Map<String, CartItem> getCartItems() {
+        return new HashMap<>(cartItems); // Return a copy to prevent external modification
+    }
+
+    public void updateItemQuantity(String itemId, int quantity) {
+        if (!cartItems.containsKey(itemId)) {
+            throw new IllegalArgumentException("Item not found in cart: " + itemId);
+        }
+        if (quantity < 1 || quantity > MAX_QUANTITY) {
+            throw new IllegalArgumentException("Invalid quantity. Must be between 1 and " + MAX_QUANTITY);
+        }
+        cartItems.get(itemId).setQuantity(quantity);
+    }
+
     public void removeItem(String itemId) {
+        if (!cartItems.containsKey(itemId)) {
+            throw new IllegalArgumentException("Item not found in cart: " + itemId);
+        }
         cartItems.remove(itemId);
     }
 
@@ -44,7 +70,6 @@ public class CartService {
         cartItems.clear();
     }
 
-    // CartItem inner class
     public static class CartItem {
         private final String id;
         private final String name;
@@ -81,10 +106,16 @@ public class CartService {
         }
 
         public void setQuantity(int quantity) {
+            if (quantity < 1 || quantity > MAX_QUANTITY) {
+                throw new IllegalArgumentException("Invalid quantity. Must be between 1 and " + MAX_QUANTITY);
+            }
             this.quantity = quantity;
         }
 
         public void incrementQuantity() {
+            if (quantity >= MAX_QUANTITY) {
+                throw new IllegalStateException("Maximum quantity limit reached");
+            }
             this.quantity++;
         }
     }
