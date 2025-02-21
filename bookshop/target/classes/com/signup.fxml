@@ -5,85 +5,102 @@
 <?import javafx.scene.layout.*?>
 
 <HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.SignupController" styleClass="login-root" HBox.hgrow="ALWAYS">
-    
+
     <!-- Left Section -->
-    <VBox  styleClass="login-section" HBox.hgrow="ALWAYS">
-        <Label text="Create Account" styleClass="login-header"/>
+    <VBox styleClass="login-section" HBox.hgrow="ALWAYS" minWidth="300">
+        <!-- Top spacer -->
+        <Region VBox.vgrow="ALWAYS"/>
 
-        <VBox styleClass="form-container" VBox.vgrow="ALWAYS">
-            <Label text="FULL NAME" styleClass="input-label"/>
-            <TextField fx:id="fullNameField" 
-                      promptText="Enter your full name"
-                      styleClass="input-field"/>
+        <VBox spacing="20" alignment="CENTER">
+            <Label text="Create Account" styleClass="login-header"/>
 
-            <Label text="EMAIL" styleClass="input-label"/>
-            <TextField fx:id="emailField" 
-                      promptText="Enter your email"
-                      styleClass="input-field"/>
+            <VBox styleClass="form-container" spacing="15">
+                <Label text="FULL NAME" styleClass="input-label"/>
+                <TextField fx:id="fullNameField"
+                           promptText="Enter your full name"
+                           styleClass="input-field"/>
 
-            <Label text="USERNAME" styleClass="input-label"/>
-            <TextField fx:id="usernameField" 
-                      promptText="Choose a username"
-                      styleClass="input-field"/>
+                <Label text="EMAIL" styleClass="input-label"/>
+                <TextField fx:id="emailField"
+                           promptText="Enter your email"
+                           styleClass="input-field"/>
 
-            <Label text="PASSWORD" styleClass="input-label"/>
-            <PasswordField fx:id="passwordField" 
-                         promptText="Create a password"
-                         styleClass="input-field"/>
+                <Label text="USERNAME" styleClass="input-label"/>
+                <TextField fx:id="usernameField"
+                           promptText="Choose a username"
+                           styleClass="input-field"/>
 
-            <Label text="CONFIRM PASSWORD" styleClass="input-label"/>
-            <PasswordField fx:id="confirmPasswordField" 
-                         promptText="Confirm your password"
-                         styleClass="input-field"/>
+                <Label text="PASSWORD" styleClass="input-label"/>
+                <PasswordField fx:id="passwordField"
+                               promptText="Create a password"
+                               styleClass="input-field"/>
 
-            <Button text="SIGN UP" 
-                    fx:id="signupButton"
-                    onAction="#handleSignup"
-                    styleClass="login-button"/>
-    </VBox>
-    <VBox styleClass="below-form" VBox.vgrow="ALWAYS">
-            <HBox styleClass="divider">
-                <Separator HBox.hgrow="ALWAYS"/>
-                <Label text="OR" styleClass="divider-text"/>
-                <Separator HBox.hgrow="ALWAYS"/>
-            </HBox>
+                <Label text="CONFIRM PASSWORD" styleClass="input-label"/>
+                <PasswordField fx:id="confirmPasswordField"
+                               promptText="Confirm your password"
+                               styleClass="input-field"/>
 
-            <HBox styleClass="social-login">
-                <Button styleClass="social-button">
-                    <graphic>
-                        <ImageView fitHeight="25" fitWidth="25">
-                            <Image url="@images/icons/google.png"/>
-                        </ImageView>
-                    </graphic>
-                </Button>
-                <Button styleClass="social-button">
-                    <graphic>
-                        <ImageView fitHeight="25" fitWidth="25">
-                            <Image url="@images/icons/facebook.png"/>
-                        </ImageView>
-                    </graphic>
-                </Button>
-            </HBox>
+                <Button text="SIGN UP"
+                        fx:id="signupButton"
+                        onAction="#handleSignup"
+                        styleClass="login-button"/>
+            </VBox>
 
-            <HBox styleClass="signup-prompt" HBox.hgrow="NEVER">
-                <Label text="Already have an account?"/>
-                <Hyperlink text="Log In" 
-                          onAction="#handleBackToLogin"
-                          styleClass="signup-link"/>
-            </HBox>
+            <VBox styleClass="below-form" spacing="15">
+                <HBox styleClass="divider">
+                    <Separator HBox.hgrow="ALWAYS"/>
+                    <Label text="OR" styleClass="divider-text"/>
+                    <Separator HBox.hgrow="ALWAYS"/>
+                </HBox>
+
+                <HBox styleClass="social-login" alignment="CENTER" spacing="10">
+                    <Button styleClass="social-button">
+                        <graphic>
+                            <ImageView fitHeight="25" fitWidth="25">
+                                <Image url="@images/icons/google.png"/>
+                            </ImageView>
+                        </graphic>
+                    </Button>
+                    <Button styleClass="social-button">
+                        <graphic>
+                            <ImageView fitHeight="25" fitWidth="25">
+                                <Image url="@images/icons/facebook.png"/>
+                            </ImageView>
+                        </graphic>
+                    </Button>
+                </HBox>
+
+                <HBox styleClass="signup-prompt" alignment="CENTER" spacing="5">
+                    <Label text="Already have an account?"/>
+                    <Hyperlink text="Log In"
+                               onAction="#handleBackToLogin"
+                               styleClass="signup-link"/>
+                </HBox>
+            </VBox>
         </VBox>
+
+        <!-- Bottom spacer -->
+        <Region VBox.vgrow="ALWAYS"/>
     </VBox>
 
     <!-- Right Section -->
-    <VBox styleClass="brand-section" HBox.hgrow="ALWAYS">
-        <ImageView styleClass="brand-logo" fitWidth="150" fitHeight="150" preserveRatio="true">
-            <Image url="@images/icons/logo.png"/>
-        </ImageView>
-        
-        <VBox spacing="20" alignment="CENTER" VBox.vgrow="ALWAYS">
-            <Label text="GyanTori" styleClass="brand-name"/>
-            <Label text="Join Our Book Community – Where Stories Come to Life!" styleClass="brand-tagline"/>
-            <Label text="Sign up and open the doors to endless&#10;stories that shares your love for&#10;books!!" styleClass="brand-description" wrapText="true"/>
+    <VBox styleClass="brand-section" HBox.hgrow="ALWAYS" alignment="CENTER">
+        <VBox spacing="30" alignment="CENTER">
+            <ImageView styleClass="brand-logo" fitWidth="150" fitHeight="150" preserveRatio="true">
+                <Image url="@images/icons/logo.png"/>
+            </ImageView>
+
+            <VBox spacing="20" alignment="CENTER">
+                <Label text="GyanTori" styleClass="brand-name"/>
+                <Label text="Join Our Book Community – Where Stories Come to Life!"
+                       styleClass="brand-tagline"
+                       wrapText="true"
+                       alignment="CENTER"/>
+                <Label text="Sign up and open the doors to endless stories that shares your love for books!!"
+                       styleClass="brand-description"
+                       wrapText="true"
+                       alignment="CENTER"/>
+            </VBox>
         </VBox>
     </VBox>
 </HBox>

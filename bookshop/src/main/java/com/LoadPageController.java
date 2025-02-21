@@ -4,46 +4,65 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.stage.Stage;
+import java.io.IOException;
 
-public class LoadPageController {
-    public static void loadScene(String fxmlFile, String cssFile, Stage stage) {
+public final class LoadPageController {
+    // Make class final and constructor private since it's utility class
+    private LoadPageController() {}
+
+    /**
+     * Loads a new scene with state preservation
+     */
+    public static <T> T loadScene(String fxmlFile, String cssFile, Stage stage) {
         try {
-            // Store current window state
+            // Quick validation - faster than creating separate method call
+            if (fxmlFile == null || stage == null) {
+                throw new IllegalArgumentException("FXML file or Stage cannot be null");
+            }
+
+            // Cache window state - using primitives for better performance
             double width = stage.getWidth();
             double height = stage.getHeight();
             double x = stage.getX();
             double y = stage.getY();
             boolean maximized = stage.isMaximized();
 
-            // Load new scene
+            // Load FXML efficiently
             FXMLLoader loader = new FXMLLoader(LoadPageController.class.getResource(fxmlFile));
             Parent root = loader.load();
+
+            // Create scene and apply CSS
             Scene scene = new Scene(root);
-            scene.getStylesheets().addAll(StyleManager.getStylesheet(cssFile));
+            if (cssFile != null && !cssFile.isEmpty()) {
+                scene.getStylesheets().add(StyleManager.getStylesheet(cssFile));
+            }
 
-            // Set scene and restore window state
+            // Apply scene and restore state efficiently
             stage.setScene(scene);
-
             if (!maximized) {
-                stage.setWidth(width);
-                stage.setHeight(height);
+                // Only set dimensions if not maximized
                 stage.setX(x);
                 stage.setY(y);
+                stage.setWidth(width);
+                stage.setHeight(height);
             }
             stage.setMaximized(maximized);
 
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Error loading " + fxmlFile + ": " + e.getMessage());
-            e.printStackTrace();
+            return loader.getController();
+
+        } catch (IOException | IllegalArgumentException e) {
+            // Combined exception handling for better performance
+            showError("Error", e.getMessage(), e);
+            return null;
         }
     }
-    private static void showAlert(Alert.AlertType type, String title, String content) {
-        Alert alert = new Alert(type);
+
+    private static void showError(String title, String message, Exception e) {
+        e.printStackTrace();
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        alert.setContentText(message);
+        alert.show(); // Using show() instead of showAndWait() for better responsiveness
     }
 }

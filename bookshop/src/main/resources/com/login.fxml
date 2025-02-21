@@ -5,40 +5,38 @@
 <?import javafx.scene.layout.*?>
 
 <HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.LoginController" styleClass="login-root" HBox.hgrow="ALWAYS">
-    
+
     <!-- Left Section -->
     <VBox styleClass="brand-section" HBox.hgrow="ALWAYS" alignment="CENTER">
         <ImageView styleClass="brand-logo" fitWidth="150" fitHeight="150" preserveRatio="true">
             <Image url="@images/icons/logo.png"/>
         </ImageView>
         <VBox spacing="20" alignment="CENTER" VBox.vgrow="ALWAYS">
-            <!-- GyanTori: Bigger and Higher -->
             <Label text="GyanTori" styleClass="brand-name"/>
-            
-            <!-- LESS MONEY! and MUCH KNOWLEDGE!!: Bold Italic -->
             <Label text="LESS MONEY!" styleClass="brand-tagline" alignment="CENTER"/>
             <Label text="MUCH KNOWLEDGE!!" styleClass="brand-tagline" alignment="CENTER"/>
-            
-            <!-- Got tired of buying books AGAIN AND AGAIN? : Bold and Bigger -->
             <Label text="Got tired of buying books AGAIN AND AGAIN?" styleClass="brand-description" wrapText="true"/>
         </VBox>
     </VBox>
 
     <!-- Right Section -->
     <VBox styleClass="login-section" HBox.hgrow="ALWAYS">
-     <Label text="Welcome!" styleClass="login-header"/>
-        <Label text="Log in to continue" styleClass="login-subheader"/>
+        <!-- Add a spacer region at the top -->
+        <Region VBox.vgrow="ALWAYS"/>
 
-        <VBox styleClass="form-container" VBox.vgrow="ALWAYS">
+        <VBox styleClass="form-container" alignment="CENTER">
+            <Label text="Welcome!" styleClass="login-header"/>
+            <Label text="Log in to continue" styleClass="login-subheader"/>
+
             <Label text="USERNAME" styleClass="input-label"/>
-            <TextField fx:id="usernameField" 
-                      promptText="Enter your username"
-                      styleClass="input-field"/>
+            <TextField fx:id="usernameField"
+                       promptText="Enter your username"
+                       styleClass="input-field"/>
 
             <Label text="PASSWORD" styleClass="input-label"/>
-            <PasswordField fx:id="passwordField" 
-                         promptText="Enter your password"
-                         styleClass="input-field"/>
+            <PasswordField fx:id="passwordField"
+                           promptText="Enter your password"
+                           styleClass="input-field"/>
 
             <HBox styleClass="options-container">
                 <CheckBox text="Remember me" styleClass="remember-checkbox"/>
@@ -46,7 +44,7 @@
                 <Hyperlink text="Forgot Password?" styleClass="forgot-link"/>
             </HBox>
 
-            <Button text="LOG IN" 
+            <Button text="LOG IN"
                     fx:id="loginButton"
                     onAction="#handleLogin"
                     styleClass="login-button"/>
@@ -74,12 +72,13 @@
                 </Button>
             </HBox>
 
-            <Region VBox.vgrow="ALWAYS"/>
-
             <HBox styleClass="signup-prompt" HBox.hgrow="NEVER">
                 <Label text="Don't have an account?"/>
                 <Hyperlink text="Sign Up" onAction="#handleSignUp" styleClass="signup-link"/>
             </HBox>
         </VBox>
+
+        <!-- Add a spacer region at the bottom -->
+        <Region VBox.vgrow="ALWAYS"/>
     </VBox>
 </HBox>
