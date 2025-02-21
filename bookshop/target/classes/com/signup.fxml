@@ -4,7 +4,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.SignupController" styleClass="login-root" HBox.hgrow="ALWAYS">
+<HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.controllers.SignupController" styleClass="login-root" HBox.hgrow="ALWAYS">
 
     <!-- Left Section -->
     <VBox styleClass="login-section" HBox.hgrow="ALWAYS" minWidth="300">

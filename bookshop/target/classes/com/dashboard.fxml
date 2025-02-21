@@ -7,7 +7,7 @@
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 
 <HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.DashboardController"
+      fx:controller="com.controllers.DashboardController"
       styleClass="dashboard-container">
 
     <padding>
@@ -27,7 +27,7 @@
                 <Label fx:id="nameLabel" text="John Doe" styleClass="name-label"/>
                 <Label fx:id="locationLabel" text="New York, USA" styleClass="location-label"/>
                 <Label fx:id="bookHubIdLabel" text="ID: BH123456" styleClass="bookhub-id"/>
-                <Button fx:id="editInfoButton" text="Edit Profile" styleClass="edit-button"/>
+                <Button fx:id="editInfoButton" onAction="#handleEditInfo" text="Edit Profile" styleClass="edit-button"/>
             </VBox>
         </VBox>
 

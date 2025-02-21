@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.controllers.EditProfileController"
+           styleClass="main-container">
+    
+    <VBox styleClass="content-container" maxWidth="800" spacing="30" alignment="TOP_CENTER">
+        <!-- Header Section -->
+        <HBox styleClass="header-container" alignment="CENTER">
+            <Text text="Edit Profile" styleClass="page-title"/>
+        </HBox>
+        
+        <!-- Main Content -->
+        <HBox spacing="40" alignment="CENTER">
+            <!-- Left Side - Profile Picture -->
+            <VBox spacing="15" alignment="CENTER" styleClass="profile-section">
+                <StackPane>
+                    <Circle fx:id="profileCircle" radius="60" styleClass="profile-circle"/>
+                    <ImageView fx:id="profileImageView" fitHeight="120" fitWidth="120" styleClass="profile-image"/>
+                </StackPane>
+                <Button fx:id="uploadImageButton" text="Change Photo" styleClass="upload-button"/>
+                <Label text="Max size 2MB" styleClass="helper-text"/>
+            </VBox>
+            
+            <!-- Right Side - Form Fields -->
+            <VBox spacing="20" styleClass="form-section" HBox.hgrow="ALWAYS">
+                <!-- Non-editable Fields Section -->
+                <VBox spacing="10" styleClass="readonly-section">
+                    <Label text="Account Information" styleClass="section-header"/>
+                    <GridPane styleClass="readonly-grid" vgap="10" hgap="15">
+                        <Label text="BookHub ID:" styleClass="field-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        <Label fx:id="idLabel" text="BH123456" styleClass="readonly-value" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                        
+                        <Label text="Username:" styleClass="field-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <Label fx:id="usernameLabel" text="sakib" styleClass="readonly-value" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                    </GridPane>
+                </VBox>
+                
+                <!-- Editable Fields Section -->
+                <VBox spacing="15" styleClass="editable-section">
+                    <Label text="Personal Information" styleClass="section-header"/>
+                    
+                    <VBox spacing="5">
+                        <Label text="Full Name" styleClass="field-label"/>
+                        <TextField fx:id="fullNameField" styleClass="text-field"/>
+                    </VBox>
+                    
+                    <VBox spacing="5">
+                        <Label text="Email" styleClass="field-label"/>
+                        <TextField fx:id="emailField" styleClass="text-field"/>
+                    </VBox>
+                    
+                    <VBox spacing="5">
+                        <Label text="Location" styleClass="field-label"/>
+                        <TextField fx:id="locationField" styleClass="text-field"/>
+                    </VBox>
+                </VBox>
+                
+                <!-- Password Section -->
+                <VBox spacing="15" styleClass="password-section">
+                    <Label text="Change Password" styleClass="section-header"/>
+                    
+                    <VBox spacing="5">
+                        <Label text="Current Password" styleClass="field-label"/>
+                        <PasswordField fx:id="currentPasswordField" styleClass="text-field"/>
+                    </VBox>
+                    
+                    <VBox spacing="5">
+                        <Label text="New Password" styleClass="field-label"/>
+                        <PasswordField fx:id="newPasswordField" styleClass="text-field"/>
+                    </VBox>
+                    
+                    <VBox spacing="5">
+                        <Label text="Confirm New Password" styleClass="field-label"/>
+                        <PasswordField fx:id="confirmPasswordField" styleClass="text-field"/>
+                    </VBox>
+                </VBox>
+            </VBox>
+        </HBox>
+        
+        <!-- Buttons Section -->
+        <HBox spacing="20" alignment="CENTER">
+            <Button fx:id="saveButton" text="Save Changes" styleClass="primary-button"/>
+            <Button fx:id="cancelButton" text="Cancel" styleClass="secondary-button"/>
+        </HBox>
+    </VBox>
+</StackPane>

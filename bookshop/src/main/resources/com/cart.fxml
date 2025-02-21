@@ -7,7 +7,7 @@
 <?import javafx.scene.image.Image?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1"
             xmlns="http://javafx.com/javafx/17"
-            fx:controller="com.CartController"
+            fx:controller="com.controllers.CartController"
             styleClass="main-container"
             prefWidth="800.0"
             prefHeight="600.0">
