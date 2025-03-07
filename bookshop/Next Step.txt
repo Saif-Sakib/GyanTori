@@ -1,4 +1,0 @@
-In Home Controller:
-1. Implement search functionality
-2. Implement AddToCart
-3. Update user dashboard

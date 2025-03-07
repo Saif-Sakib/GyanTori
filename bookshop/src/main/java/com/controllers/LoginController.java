@@ -1,7 +1,7 @@
 package com.controllers;
 
 import com.services.SessionManager;
-import com.database.UsersDB;
+import com.database.UsersCollection;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -35,9 +35,9 @@ public class LoginController {
             return;
         }
 
-        if (UsersDB.validateLogin(username, password)) {
+        if (UsersCollection.validateLogin(username, password)) {
             SessionManager.getInstance().setUser(username);
-            homeController.setLoggedIn(true);
+            SessionManager.getInstance().setIsLoggedIn(true);
             Stage currentStage = (Stage) loginButton.getScene().getWindow();
             LoadPageController.loadScene("home.fxml", "home.css", currentStage);
         } else {

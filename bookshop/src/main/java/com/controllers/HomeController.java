@@ -2,6 +2,7 @@ package com.controllers;
 
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -23,8 +24,12 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
 import com.services.CartService;
 import com.services.SessionManager;
+import com.database.BooksDetailsCollection;
+import com.models.Book;
 
 public class HomeController {
 
@@ -45,7 +50,7 @@ public class HomeController {
     private volatile boolean slideshowRunning = true;
     private Thread slideshowThread;
     private int currentImageIndex = 0;
-
+    
     private final List<String> bannerImages = Arrays.asList(
             "/com/images/img1.png",
             "/com/images/img2.png",
@@ -55,36 +60,12 @@ public class HomeController {
     );
 
     private final CartService cartService = CartService.getInstance();
-
-    private static boolean isLoggedIn = false;
-
-    // Book data structure
-    private static class Book {
-        final String Id;
-        final String title;
-        final String author;
-        final String category;
-        final double rating;
-        final double price;
-        final String imageUrl;
-        Book(String Id, String title, String author, String category, double rating, double price, String imageUrl) {
-            this.Id = Id;
-            this.title = title;
-            this.author = author;
-            this.category = category;
-            this.rating = rating;
-            this.price = price;
-            this.imageUrl = imageUrl;
-        }
-    }
-
     @FXML
     public void initialize() {
         try {
             updateProfileButton();
             loadBooks();
             addSearchListener();
-            
             if (navLogo != null) {
                 animateNavLogo();
             }
@@ -216,7 +197,7 @@ public void stopSlideshow() {
 
     private void updateProfileButton() {
         if (profileLoginButton != null) {
-            if (isLoggedIn) {
+            if (SessionManager.getInstance().getIsLoggedIn()) {
                 // Create a dropdown menu
                 ContextMenu menu = new ContextMenu();
 
@@ -310,9 +291,14 @@ public void stopSlideshow() {
 
     @FXML
     public void performSearch() {
-        if (searchField != null) {
-            String query = searchField.getText();
-            performSearch(query);
+        try {
+            String searchTerm = searchField.getText().trim();
+            if (!searchTerm.isEmpty()) {
+                System.out.println("Searching for: " + searchTerm);
+                // Implement search functionality
+            }
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Error performing search", e.getMessage());
         }
     }
 
@@ -327,35 +313,21 @@ public void stopSlideshow() {
 
     private void loadBooks() {
         try {
-                    List<Book> featuredBooksList = Arrays.asList(
-                            new Book("1", "ড্রাকুলা", " ব্রাম স্টোকার", "অতিপ্রাকৃত ও ভৌতিক", 4.8, 591,"/com/images/books/Dracula.png"),
-                            new Book("2", "বৃহৎ বঙ্গ ২য় খণ্ড", " দীনেশচন্দ্র সেন", "প্রাচীন বাংলার ইতিহাস", 4.5, 741,"/com/images/books/Brihot_bongo.png"),
-                            new Book("3", "পথে প্রবাসে", "অন্নদাশঙ্কর রায়", "পশ্চিম বঙ্গের বই: ভ্রমণ ও প্রবাস", 4.6, 205,"/com/images/books/pothe_probashe.png"),
-                            new Book("4", "টিমওয়ার্ক ১০১", " জন সি. ম্যাক্সওয়েল ", "আত্ম-উন্নয়ন ও মেডিটেশন", 3, 165,"/com/images/books/Teamwork_101.png"),
-                            new Book("5", "রিলেশনশিপস ১০১", " জন সি. ম্যাক্সওয়েল ", "আত্ম-উন্নয়ন ও মেডিটেশন", 4.2, 165,"/com/images/books/Relationship_101.png"),
-                            new Book("6", "পদ্মজা", "  ইলমা বেহরোজ ", "সমকালীন উপন্যাস", 4.8, 600, "/com/images/books/Poddoja.png"),
-                            new Book("7", "জীবন যেখানে যেমন", " আরিফ আজাদ ", "ইসলামি গল্প", 5, 210,"/com/images/books/jibon_jekhane_jemon.png"),
-                            new Book("8", "প্যারাডক্সিক্যাল সাজিদ", " আরিফ আজাদ ", "ইসলামি আদর্শ ও মতবাদ", 4.6, 225,"/com/images/books/paradoxical_sajid.png"),
-                            new Book("9", "ড. জেকিল অ্যান্ড মি. হাইড", "  রবার্ট লুই স্টিভেনসন ", "বয়স যখন ১২-১৭: উপন্যাস", 4.2, 113,"/com/images/books/dr_jackyll_and_mr_hyde.png")
-                    );
-        
-                    List<Book> recommendedBooksList = Arrays.asList(
-                            new Book("10", "প্রোগ্রামিংয়ের চৌদ্দগোষ্ঠী", " ঝংকার মাহবুব", "প্রোগ্রামিং বেসিক বই", 4.5, 315,"/com/images/books/PRO_gushti.png"),
-                            new Book("11", "হামাস", " খালেদ হারুব ,  আযযাম তামিমি ,  রাকিবুল হাসান (অনুবাদক)","রাজনৈতিক গবেষণা ও প্রবন্ধ", 5.0, 214, "/com/images/books/Hamas.png"),
-                            new Book("12", "আয়নাঘর", " হুমায়ূন আহমেদ", "অতিপ্রাকৃত ও ভৌতিক", 4.8, 143,"/com/images/books/AynaGhor.png"),
-                            new Book("13", "হায়াতের দিন ফুরোলে", " আরিফ আজাদ", "ইসলামি বই: আত্ম-উন্নয়ন", 4.5, 241,"/com/images/books/Hayat.png"),
-                            new Book("14", "Breaking Dawn", " Stephenie Meyer", "Novel: Horror and Supernatural", 4.3, 863,"/com/images/books/Breaking_Dawn.png"),
-                            new Book("15", "গিট ও গিটহাব ", " জাকির হোসাইন", "ওয়েব ডিজাইন ও ডেভেলপমেন্ট", 4.2, 188,"/com/images/books/Git.png"),
-                            new Book("16", "অপেক্ষা", " হুমায়ূন আহমেদ", "সমকালীন উপন্যাস", 4.2, 300, "/com/images/books/Opekkha.png"),
-                            new Book("17", "দ্য আলকেমিস্ট", " পাওলো কোয়েলহো ,  সুফাই রুমিন তাজিন (অনুবাদক)", "অনুবাদ উপন্যাস", 3.8,195, "/com/images/books/The_Alchemist.png"),
-                            new Book("18", "আরেক ফাল্গুন", " জহির রায়হান", "চিরায়ত উপন্যাস", 4.3, 150,"/com/images/books/Arek_Falgun.png"),
-                            new Book("19", "কাজল চোখের মেয়ে", " সাদাত হোসাইন", "রোমান্টিক কবিতা", 3.5, 180,"/com/images/books/Kajol.png")
-                    );
-
+            // Define and initialize featuredBooksList
+            List<Book> featuredBooksList = BooksDetailsCollection.getBooksBySequence(0, 9).stream()
+                    .sorted((b1, b2) -> Double.compare(b2.getRating(), b1.getRating()))
+                    .collect(Collectors.toList());
+    
+            // Define and initialize recommendedBooksList
+            List<Book> recommendedBooksList = BooksDetailsCollection.getBooksBySequence(9, 18).stream()
+                    .sorted((b1, b2) -> Double.compare(b2.getReviewCount(), b1.getReviewCount()))
+                    .collect(Collectors.toList());
+    
+            // Load the book sections with data from MongoDB
             loadBookSection(featuredBooks, featuredBooksList);
             loadBookSection(recommendedBooks, recommendedBooksList);
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Loading Error","Failed to load books: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Loading Error", "Failed to load books: " + e.getMessage());
         }
     }
 
@@ -371,52 +343,68 @@ public void stopSlideshow() {
     }
 
     private VBox createBookCard(Book book) {
-        VBox card = new VBox(10);
-        card.getStyleClass().add("book-card");
-        card.setAlignment(Pos.CENTER);
+    VBox card = new VBox(10);
+    card.getStyleClass().add("book-card");
+    card.setAlignment(Pos.CENTER);
 
-        // Book Cover Image
-        ImageView coverImage = new ImageView();
+    // Book Cover Image
+    ImageView coverImage = new ImageView();
+    try {
+        Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(book.getImageUrl())));
+        coverImage.setImage(image);
+    } catch (Exception e) {
+        // Load placeholder image if book image is not found
         try {
-            Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(book.imageUrl)));
-            coverImage.setImage(image);
-        } catch (Exception e) {
-            // Load placeholder image if book image is not found
-            try {
-                coverImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/books/placeholder-book.png"))));
-            } catch (Exception ex) {
-                System.err.println("Failed to load placeholder image: " + ex.getMessage());
-            }
+            coverImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/books/placeholder-book.png"))));
+        } catch (Exception ex) {
+            System.err.println("Failed to load placeholder image: " + ex.getMessage());
         }
-        coverImage.setFitHeight(200);
-        coverImage.setFitWidth(140);
-        coverImage.setPreserveRatio(true);
-
-        // Book Details
-        Label titleLabel = new Label(book.title);
-        titleLabel.getStyleClass().add("book-title");
-        titleLabel.setWrapText(true);
-
-        Label authorLabel = new Label(book.author);
-        authorLabel.getStyleClass().add("book-author");
-
-        Label ratingLabel = new Label(String.format("%.1f ★", book.rating));
-        ratingLabel.getStyleClass().add("book-rating");
-
-        Label priceLabel = new Label(String.format("৳ %.2f", book.price));
-        priceLabel.getStyleClass().add("book-price");
-
-        Button addToCartBtn = new Button("Add to Cart");
-        addToCartBtn.getStyleClass().addAll("cart-button", "animated-button");
-        addToCartBtn.setOnAction(e -> handleAddToCart(book));
-
-        card.getChildren().addAll(coverImage, titleLabel, authorLabel, ratingLabel, priceLabel, addToCartBtn);
-
-        // Add hover effect
-        addHoverEffect(card);
-
-        return card;
     }
+    coverImage.setFitHeight(200);
+    coverImage.setFitWidth(140);
+    coverImage.setPreserveRatio(true);
+    
+    // Make the cover image clickable
+    coverImage.setCursor(Cursor.HAND);
+    coverImage.setOnMouseClicked(e -> handleBookSelection(book));
+
+    // Book Details
+    Label titleLabel = new Label(book.getTitle());
+    titleLabel.getStyleClass().add("book-title");
+    titleLabel.setWrapText(true);
+    
+    // Make the title clickable
+    titleLabel.setCursor(Cursor.HAND);
+    titleLabel.setOnMouseClicked(e -> handleBookSelection(book));
+
+    Label authorLabel = new Label(book.getAuthor());
+    authorLabel.getStyleClass().add("book-author");
+
+    Label ratingLabel = new Label(String.format("%.1f ★", book.getRating()));
+    ratingLabel.getStyleClass().add("book-rating");
+
+    Label priceLabel = new Label(String.format("৳ %.2f", book.getCurrentPrice()));
+    priceLabel.getStyleClass().add("book-price");
+
+    Button addToCartBtn = new Button("Add to Cart");
+    addToCartBtn.getStyleClass().addAll("cart-button", "animated-button");
+    addToCartBtn.setOnAction(e -> handleAddToCart(book));
+
+    card.getChildren().addAll(coverImage, titleLabel, authorLabel, ratingLabel, priceLabel, addToCartBtn);
+
+    // Add hover effect
+    addHoverEffect(card);
+
+    return card;
+}
+
+private void handleBookSelection(Book book) {
+    SessionManager.getInstance().setCurrentBookId(book.getId());
+    Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+    LoadPageController.loadScene("bookdetails.fxml", "bookdetails.css", currentStage);
+
+    stopSlideshow();
+}
 
     private void addHoverEffect(VBox card) {
         ScaleTransition scaleIn = new ScaleTransition(Duration.millis(200), card);
@@ -431,13 +419,13 @@ public void stopSlideshow() {
         card.setOnMouseExited(e -> scaleOut.playFromStart());
     }
 
-    private void handleAddToCart(Book book) {
-        if (!isLoggedIn) {
+    public void handleAddToCart(Book book) {
+        if (!SessionManager.getInstance().getIsLoggedIn()) {
             showAlert(Alert.AlertType.INFORMATION, "Login Required","Please login to add books to your cart.");
             return;
         }
-        cartService.addItem(book.Id, book.title, book.price, book.imageUrl);
-        showAlert(Alert.AlertType.INFORMATION, "Success",String.format("%s has been added to your cart!", book.title));
+        cartService.addItem(book.getId(), book.getTitle(), book.getCurrentPrice(), book.getImageUrl());
+        showAlert(Alert.AlertType.INFORMATION, "Success",String.format("%s has been added to your cart!", book.getTitle()));
     }
 
     @FXML
@@ -448,8 +436,8 @@ public void stopSlideshow() {
     }
 
     @FXML
-    private void handleProfileLogin() {
-        if (isLoggedIn) {
+    public void handleProfileLogin() {
+        if (SessionManager.getInstance().getIsLoggedIn()) {
             logout();
         } else {
             Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
@@ -460,7 +448,7 @@ public void stopSlideshow() {
 
     public void logout() {
         try {
-            isLoggedIn = false;
+            SessionManager.getInstance().setIsLoggedIn(false);
             updateProfileButton();
             SessionManager.getInstance().clearSession();
             showAlert(Alert.AlertType.INFORMATION, "Logged Out", "You have been successfully logged out.");
@@ -476,14 +464,5 @@ public void stopSlideshow() {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
-    }
-
-    // Getter and setter for login status
-    public static void setLoggedIn(boolean status) {
-        isLoggedIn = status;
-    }
-
-    public boolean getLoggedIn() {
-        return isLoggedIn;
     }
 }

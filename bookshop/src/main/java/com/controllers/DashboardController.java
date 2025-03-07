@@ -2,9 +2,11 @@ package com.controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -37,6 +39,7 @@ public class DashboardController implements Initializable {
     private static final String DEFAULT_PROFILE_IMAGE = "/com/images/userDP/default-profile.png";
 
     @FXML private ImageView profilePic;
+    @FXML private StackPane profilePicContainer;
     @FXML private Circle profilePicClip;
     @FXML private Label nameLabel;
     @FXML private Label locationLabel;
@@ -373,22 +376,31 @@ public class DashboardController implements Initializable {
             if (imagePath == null || imagePath.isEmpty()) {
                 throw new IllegalArgumentException("Image path cannot be null or empty");
             }
-            
+
             File imageFile = new File(imagePath);
-            if (imageFile.exists()) {
-                    Image newImage = new Image(imageFile.toURI().toString());
-                    profilePic.setImage(newImage);
-                    // Configure the image view
-                    profilePic.setFitHeight(100);
-                    profilePic.setFitWidth(100);
-                    profilePic.setPreserveRatio(true);
-                    profilePic.setSmooth(true);
-                    System.out.println("Profile section initialized successfully");
-                    // Don't set the clip here since it's already set in FXML
-                } else {
-                    throw new IllegalArgumentException("Image not found: " + imagePath);
-                }
-            
+            if (!imageFile.exists()) {
+                throw new IllegalArgumentException("Image not found: " + imagePath);
+            }
+
+            // Center the container
+            profilePicContainer.setAlignment(Pos.CENTER);
+
+            // Load and configure the image
+            Image newImage = new Image(imageFile.toURI().toString());
+            profilePic.setImage(newImage);
+            profilePic.setFitHeight(100);
+            profilePic.setFitWidth(100);
+            profilePic.setPreserveRatio(true);
+            profilePic.setSmooth(true);
+
+            // Create and apply the clip
+            Circle clip = new Circle(
+                    profilePic.getFitWidth() / 2, // centerX (50)
+                    profilePic.getFitHeight() / 2, // centerY (50)
+                    Math.min(profilePic.getFitWidth(), profilePic.getFitHeight()) / 2 // radius (50)
+            );
+            profilePic.setClip(clip);
+
             // Add hover effect
             profilePic.setOnMouseEntered(event -> {
                 ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), profilePic);
@@ -403,6 +415,8 @@ public class DashboardController implements Initializable {
                 scaleTransition.setToY(1.0);
                 scaleTransition.play();
             });
+
+            System.out.println("Profile picture updated successfully");
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error updating profile picture", e);
         }

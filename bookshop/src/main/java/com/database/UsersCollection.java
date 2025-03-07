@@ -13,8 +13,8 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class UsersDB {
-    private static final Logger LOGGER = Logger.getLogger(UsersDB.class.getName());
+public class UsersCollection {
+    private static final Logger LOGGER = Logger.getLogger(UsersCollection.class.getName());
     private static final String COLLECTION_NAME = "users";
     private static final int SALT_LENGTH = 16;
     private static final String HASH_ALGORITHM = "SHA-256";

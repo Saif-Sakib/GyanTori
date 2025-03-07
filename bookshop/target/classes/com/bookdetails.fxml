@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.controllers.BookDetailsController" styleClass="root" fx:id="rootPane">
+
+    <!-- Top Navigation Section - Fixed (Same as home.fxml) -->
+    <VBox spacing="15" styleClass="top-section">
+            <!-- Main Navigation Bar -->
+            <HBox alignment="CENTER_RIGHT" spacing="15" styleClass="nav-bar">
+                <padding>
+                    <Insets left="20" right="20"/>
+                </padding>
+                
+                <!-- Logo Section with Animation -->
+                <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" styleClass="logo-container">
+                    <StackPane styleClass="logo-circle">
+                        <ImageView fitHeight="65.0" fitWidth="65.0" styleClass="logo-image">
+                            <Image url="@images/icons/logo.png"/>
+                        </ImageView>
+                    </StackPane>
+                    <Label fx:id="navLogo" text="GyanTori" styleClass="nav-logo"
+                           style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                </HBox>
+                <!-- Enhanced Search Bar -->
+                <HBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" maxWidth="4000" styleClass="search-container">
+                    <TextField fx:id="searchField" promptText="Search for your favorite books..." styleClass="search-field" HBox.hgrow="ALWAYS"/>
+                    <Button onAction="#performSearch" styleClass="search-button, animated-button">
+                        <graphic>
+                            <ImageView fitHeight="20.0" fitWidth="20.0" styleClass="icon">
+                                <Image url="@images/icons/search.png"/>
+                            </ImageView>
+                        </graphic>
+                    </Button>
+                </HBox>
+                
+                <!-- Animated Navigation Buttons -->
+                <HBox spacing="10" alignment="CENTER">
+                    <Button onAction="#handleCartLoad" styleClass="nav-button, animated-button" text="Cart">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <ImageView fitHeight="24.0" fitWidth="24.0" styleClass="icon">
+                                    <Image url="@images/icons/cart.png"/>
+                                </ImageView>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <Button fx:id="profileLoginButton" onAction="#handleProfileLogin" styleClass="nav-button, animated-button" text="Login">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <ImageView fitHeight="24.0" fitWidth="24.0" styleClass="icon">
+                                    <Image url="@images/icons/user.png"/>
+                                </ImageView>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                </HBox>
+            </HBox>
+        </VBox>
+
+    <!-- Main Content Section with Sidebar -->
+    <HBox VBox.vgrow="ALWAYS" spacing="20">
+        <!-- Enhanced Left Sidebar - Fixed width and scrollable -->
+        <ScrollPane fitToWidth="true" styleClass="sidebar-scroll" hbarPolicy="NEVER" minWidth="250" prefWidth="250" maxWidth="250" HBox.hgrow="NEVER">
+            <VBox spacing="20" styleClass="sidebar">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+
+                <!-- Library Section with Animation -->
+                <VBox spacing="10" styleClass="sidebar-section">
+                    <Label text="My Library" styleClass="sidebar-header"/>
+                    <Button text="🏠 Home" onAction="#navigateToHome" styleClass="sidebar-button, animated-button"/>
+                    <Button text="🔍 Explore" styleClass="sidebar-button, animated-button"/>
+                    <Button text="📖 List a Book" styleClass="sidebar-button, animated-button"/>
+                    <Button text="🔄 Borrow &amp; Share" styleClass="sidebar-button, animated-button"/>
+                    <Button text="🏆 Top Publishers" styleClass="sidebar-button, animated-button"/>
+                    <Button text="🌟 Highly Rated Books" styleClass="sidebar-button, animated-button"/>
+                </VBox>
+
+                <Separator styleClass="custom-separator"/>
+
+                <!-- Categories Section with Icons -->
+                <VBox spacing="10" styleClass="sidebar-section">
+                    <Label text="Categories" styleClass="sidebar-header"/>
+                    <Button text="📚 All Books" styleClass="sidebar-button, animated-button"/>
+                    <Button text="💼 Business" styleClass="sidebar-button, animated-button"/>
+                    <Button text="💻 Technology" styleClass="sidebar-button, animated-button"/>
+                    <Button text="🎨 Arts" styleClass="sidebar-button, animated-button"/>
+                    <Button text="📖 Literature" styleClass="sidebar-button, animated-button"/>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+
+        <!-- Main Content Area for Book Details -->
+        <ScrollPane fitToWidth="true" styleClass="main-content-scroll" HBox.hgrow="ALWAYS">
+            <VBox spacing="30" styleClass="main-content">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+
+                <!-- Breadcrumb Navigation -->
+                <HBox spacing="5" styleClass="breadcrumb">
+                    <Label text="Home" styleClass="breadcrumb-item" onMouseClicked="#navigateToHome"/>
+                    <Label text="›" styleClass="breadcrumb-separator"/>
+                    <Label fx:id="categoryBreadcrumb" text="Category" styleClass="breadcrumb-item" onMouseClicked="#navigateToCategory"/>
+                    <Label text="›" styleClass="breadcrumb-separator"/>
+                    <Label fx:id="bookTitleBreadcrumb" text="Book Title" styleClass="breadcrumb-item, breadcrumb-active"/>
+                </HBox>
+
+                <!-- Book Details Section -->
+                <HBox spacing="30" styleClass="book-details-container">
+                    <!-- Book Cover Image -->
+                    <VBox alignment="TOP_CENTER" spacing="15" styleClass="book-cover-section">
+                        <StackPane styleClass="book-cover-container">
+                            <ImageView fx:id="bookCoverImage" fitHeight="400.0" fitWidth="300.0" styleClass="book-cover">
+                                <Image url="@images/placeholder/bookcover.jpg"/>
+                            </ImageView>
+                            <Label fx:id="discountLabel" text="20% OFF" styleClass="discount-badge"/>
+                        </StackPane>
+                        <Button fx:id="previewButton" text="Preview Book" styleClass="preview-button, animated-button"/>
+                    </VBox>
+
+                    <!-- Book Information -->
+                    <VBox spacing="20" styleClass="book-info-section" HBox.hgrow="ALWAYS">
+                        <!-- Book Title and Author -->
+                        <VBox spacing="5">
+                            <Label fx:id="bookTitle" text="The Great Novel" styleClass="book-title"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="By" styleClass="by-text"/>
+                                <Label fx:id="authorName" text="Jane Author" styleClass="author-name" onMouseClicked="#navigateToAuthor"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Ratings -->
+                        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="ratings-section">
+                            <HBox fx:id="starsContainer" spacing="2">
+                                <ImageView styleClass="star-icon">
+                                    <Image url="@images/icons/star_filled.png"/>
+                                </ImageView>
+                                <ImageView styleClass="star-icon">
+                                    <Image url="@images/icons/star_filled.png"/>
+                                </ImageView>
+                                <ImageView styleClass="star-icon">
+                                    <Image url="@images/icons/star_filled.png"/>
+                                </ImageView>
+                                <ImageView styleClass="star-icon">
+                                    <Image url="@images/icons/star_filled.png"/>
+                                </ImageView>
+                                <ImageView styleClass="star-icon">
+                                    <Image url="@images/icons/star_half.png"/>
+                                </ImageView>
+                            </HBox>
+                            <Label fx:id="ratingValue" text="4.5" styleClass="rating-value"/>
+                            <Label text="|" styleClass="separator"/>
+                            <Label fx:id="reviewCount" text="127 reviews" styleClass="review-count" onMouseClicked="#showReviews"/>
+                        </HBox>
+
+                        <!-- Book Details Table -->
+                        <GridPane hgap="20" vgap="10" styleClass="book-details-grid">
+                            <columnConstraints>
+                                <ColumnConstraints minWidth="120" prefWidth="150" maxWidth="200"/>
+                                <ColumnConstraints hgrow="ALWAYS"/>
+                            </columnConstraints>
+
+                            <Label text="Publisher:" styleClass="detail-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <Label fx:id="publisherValue" text="GyanTori Publications" styleClass="detail-value" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                            <Label text="Publication Date:" styleClass="detail-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                            <Label fx:id="publicationDateValue" text="January 15, 2023" styleClass="detail-value" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                            <Label text="Language:" styleClass="detail-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                            <Label fx:id="languageValue" text="English" styleClass="detail-value" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                            <Label text="Pages:" styleClass="detail-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                            <Label fx:id="pagesValue" text="432" styleClass="detail-value" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                            <Label text="ISBN:" styleClass="detail-label" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                            <Label fx:id="isbnValue" text="978-1234567890" styleClass="detail-value" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                            <Label text="Categories:" styleClass="detail-label" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                            <FlowPane fx:id="categoriesContainer" styleClass="categories-container" hgap="10" vgap="5" GridPane.rowIndex="5" GridPane.columnIndex="1">
+                                <Label text="Fiction" styleClass="category-tag" onMouseClicked="#navigateToCategory"/>
+                                <Label text="Adventure" styleClass="category-tag" onMouseClicked="#navigateToCategory"/>
+                                <Label text="Drama" styleClass="category-tag" onMouseClicked="#navigateToCategory"/>
+                            </FlowPane>
+                        </GridPane>
+
+                        <!-- Price Section -->
+                        <HBox spacing="15" alignment="CENTER_LEFT" styleClass="price-section">
+                            <VBox>
+                                <HBox spacing="10" alignment="BASELINE_LEFT">
+                                    <Label fx:id="currentPrice" text="TK. 450" styleClass="current-price"/>
+                                    <Label fx:id="originalPrice" text="TK. 560" styleClass="original-price"/>
+                                    <Label fx:id="discountPercent" text="(20% off)" styleClass="discount-percent"/>
+                                </HBox>
+                                <Label text="In Stock" styleClass="stock-status"/>
+                            </VBox>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <HBox spacing="15">
+                                <Button fx:id="addToCartButton" text="Add to Cart" styleClass="add-to-cart-button, animated-button" onAction="#addToCart">
+                                    <graphic>
+                                        <ImageView fitHeight="20.0" fitWidth="20.0" styleClass="cart-icon">
+                                            <Image url="@images/icons/cart.png"/>
+                                        </ImageView>
+                                    </graphic>
+                                </Button>
+                                <Button fx:id="buyNowButton" text="Buy Now" styleClass="buy-now-button, animated-button" onAction="#buyNow"/>
+                                <Button fx:id="wishlistButton" styleClass="wishlist-button, animated-button" onAction="#toggleWishlist">
+                                    <graphic>
+                                        <ImageView fitHeight="20.0" fitWidth="20.0" styleClass="wishlist-icon">
+                                            <Image url="@images/icons/heart.png"/>
+                                        </ImageView>
+                                    </graphic>
+                                </Button>
+                            </HBox>
+                        </HBox>
+                    </VBox>
+                </HBox>
+
+                <!-- Book Description -->
+                <VBox spacing="15" styleClass="description-section">
+                    <Label text="Book Description" styleClass="section-title"/>
+                    <TextFlow fx:id="bookDescription" styleClass="book-description">
+                        <Text fx:id="descriptionText" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&#10;&#10;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." styleClass="description-text"/>
+                    </TextFlow>
+                </VBox>
+
+                <!-- Author Information -->
+                <VBox spacing="15" styleClass="author-section">
+                    <Label text="About the Author" styleClass="section-title"/>
+                    <HBox spacing="20" styleClass="author-info">
+                        <ImageView fx:id="authorImage" fitHeight="100.0" fitWidth="100.0" styleClass="author-image">
+                            <Image url="@images/placeholder/author.jpg"/>
+                        </ImageView>
+                        <VBox spacing="10" HBox.hgrow="ALWAYS">
+                            <Label fx:id="authorNameFull" text="Jane Author" styleClass="author-name-full"/>
+                            <TextFlow fx:id="authorBio" styleClass="author-bio">
+                                <Text fx:id="authorBioText" text="Jane Author is an award-winning novelist who has published over 20 books. Her works have been translated into 15 languages and adapted for television and film. She lives in London with her family." styleClass="bio-text"/>
+                            </TextFlow>
+                            <Button text="View All Books by This Author" styleClass="author-books-button, animated-button" onAction="#viewAuthorBooks"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- Customer Reviews Section -->
+                <VBox spacing="15" styleClass="reviews-section">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Customer Reviews" styleClass="section-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Write a Review" styleClass="write-review-button, animated-button" onAction="#writeReview"/>
+                    </HBox>
+                    
+                    <!-- Review Summary -->
+                    <HBox spacing="30" styleClass="review-summary">
+                        <VBox spacing="10" alignment="CENTER" styleClass="average-rating">
+                            <Label fx:id="averageRating" text="4.5" styleClass="average-rating-value"/>
+                            <HBox fx:id="averageStarsContainer" spacing="2" alignment="CENTER">
+                                <ImageView styleClass="star-icon">
+                                    <Image url="@images/icons/star_filled.png"/>
+                                </ImageView>
+                                <ImageView styleClass="star-icon">
+                                    <Image url="@images/icons/star_filled.png"/>
+                                </ImageView>
+                                <ImageView styleClass="star-icon">
+                                    <Image url="@images/icons/star_filled.png"/>
+                                </ImageView>
+                                <ImageView styleClass="star-icon">
+                                    <Image url="@images/icons/star_filled.png"/>
+                                </ImageView>
+                                <ImageView styleClass="star-icon">
+                                    <Image url="@images/icons/star_half.png"/>
+                                </ImageView>
+                            </HBox>
+                            <Label fx:id="totalReviewCount" text="127 reviews" styleClass="total-review-count"/>
+                        </VBox>
+                        
+                        <VBox spacing="5" HBox.hgrow="ALWAYS" styleClass="rating-bars">
+                            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="rating-bar-row">
+                                <Label text="5★" styleClass="star-label"/>
+                                <ProgressBar progress="0.75" styleClass="rating-progress-bar" HBox.hgrow="ALWAYS"/>
+                                <Label text="75%" styleClass="rating-percent"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="rating-bar-row">
+                                <Label text="4★" styleClass="star-label"/>
+                                <ProgressBar progress="0.15" styleClass="rating-progress-bar" HBox.hgrow="ALWAYS"/>
+                                <Label text="15%" styleClass="rating-percent"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="rating-bar-row">
+                                <Label text="3★" styleClass="star-label"/>
+                                <ProgressBar progress="0.05" styleClass="rating-progress-bar" HBox.hgrow="ALWAYS"/>
+                                <Label text="5%" styleClass="rating-percent"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="rating-bar-row">
+                                <Label text="2★" styleClass="star-label"/>
+                                <ProgressBar progress="0.03" styleClass="rating-progress-bar" HBox.hgrow="ALWAYS"/>
+                                <Label text="3%" styleClass="rating-percent"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="rating-bar-row">
+                                <Label text="1★" styleClass="star-label"/>
+                                <ProgressBar progress="0.02" styleClass="rating-progress-bar" HBox.hgrow="ALWAYS"/>
+                                <Label text="2%" styleClass="rating-percent"/>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                    
+                    <!-- Review List -->
+                    <VBox spacing="15" styleClass="review-list">
+                        <!-- Sample Review 1 -->
+                        <VBox styleClass="review-item">
+                            <HBox spacing="10" styleClass="review-header">
+                                <ImageView fitHeight="40.0" fitWidth="40.0" styleClass="reviewer-avatar">
+                                    <Image url="@images/placeholder/user1.jpg"/>
+                                </ImageView>
+                                <VBox>
+                                    <Label text="John Smith" styleClass="reviewer-name"/>
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <HBox spacing="2" styleClass="review-stars">
+                                            <ImageView styleClass="star-icon-small">
+                                                <Image url="@images/icons/star_filled.png"/>
+                                            </ImageView>
+                                            <ImageView styleClass="star-icon-small">
+                                                <Image url="@images/icons/star_filled.png"/>
+                                            </ImageView>
+                                            <ImageView styleClass="star-icon-small">
+                                                <Image url="@images/icons/star_filled.png"/>
+                                            </ImageView>
+                                            <ImageView styleClass="star-icon-small">
+                                                <Image url="@images/icons/star_filled.png"/>
+                                            </ImageView>
+                                            <ImageView styleClass="star-icon-small">
+                                                <Image url="@images/icons/star_filled.png"/>
+                                            </ImageView>
+                                        </HBox>
+                                        <Label text="Verified Purchase" styleClass="verified-badge"/>
+                                        <Label text="March 15, 2023" styleClass="review-date"/>
+                                    </HBox>
+                                </VBox>
+                            </HBox>
+                            <VBox styleClass="review-content">
+                                <Label text="A masterpiece!" styleClass="review-title"/>
+                                <Label text="This book is absolutely amazing! The character development is outstanding, and the plot keeps you engaged from start to finish. I couldn't put it down and finished it in just two days. Highly recommended for all fiction lovers." wrapText="true" styleClass="review-text"/>
+                            </VBox>
+                        </VBox>
+                        
+                        <!-- Sample Review 2 -->
+                        <VBox styleClass="review-item">
+                            <HBox spacing="10" styleClass="review-header">
+                                <ImageView fitHeight="40.0" fitWidth="40.0" styleClass="reviewer-avatar">
+                                    <Image url="@images/placeholder/user2.jpg"/>
+                                </ImageView>
+                                <VBox>
+                                    <Label text="Sarah Johnson" styleClass="reviewer-name"/>
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <HBox spacing="2" styleClass="review-stars">
+                                            <ImageView styleClass="star-icon-small">
+                                                <Image url="@images/icons/star_filled.png"/>
+                                            </ImageView>
+                                            <ImageView styleClass="star-icon-small">
+                                                <Image url="@images/icons/star_filled.png"/>
+                                            </ImageView>
+                                            <ImageView styleClass="star-icon-small">
+                                                <Image url="@images/icons/star_filled.png"/>
+                                            </ImageView>
+                                            <ImageView styleClass="star-icon-small">
+                                                <Image url="@images/icons/star_filled.png"/>
+                                            </ImageView>
+                                            <ImageView styleClass="star-icon-small">
+                                                <Image url="@images/icons/star_empty.png"/>
+                                            </ImageView>
+                                        </HBox>
+                                        <Label text="Verified Purchase" styleClass="verified-badge"/>
+                                        <Label text="February 28, 2023" styleClass="review-date"/>
+                                    </HBox>
+                                </VBox>
+                            </HBox>
+                            <VBox styleClass="review-content">
+                                <Label text="Great book with minor flaws" styleClass="review-title"/>
+                                <Label text="I enjoyed reading this book. The author has a unique writing style that draws you in. The middle section dragged a bit, but overall it was a worthwhile read. The ending was particularly satisfying." wrapText="true" styleClass="review-text"/>
+                            </VBox>
+                        </VBox>
+                        
+                        <!-- View More Reviews Button -->
+                        <Button text="View All Reviews" styleClass="view-all-reviews-button, animated-button" onAction="#viewAllReviews"/>
+                    </VBox>
+                </VBox>
+
+                <!-- Similar Books Section -->
+                <VBox spacing="15">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="You May Also Like" styleClass="section-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="View All" styleClass="view-all-button, animated-button"/>
+                    </HBox>
+                    <ScrollPane styleClass="books-scroll-pane" hbarPolicy="NEVER">
+                        <HBox fx:id="similarBooks" spacing="20" styleClass="books-container"/>
+                    </ScrollPane>
+                </VBox>
+
+                <!-- Footer (Same as home.fxml) -->
+                <VBox styleClass="footer" VBox.vgrow="NEVER">
+                    <HBox alignment="CENTER" spacing="50">
+                        <padding>
+                            <Insets top="30" right="5" bottom="5" left="5"/>
+                        </padding>
+                        
+                        <VBox alignment="CENTER" spacing="10" styleClass="footer-section">
+                            <Label text="About GyanTori" styleClass="footer-header"/>
+                            <Label text="Your Gateway to Knowledge" styleClass="footer-text"/>
+                            <Label text="© 2023 GyanTori" styleClass="footer-copyright"/>
+                        </VBox>
+                        
+                        <VBox alignment="CENTER" spacing="10" styleClass="footer-section">
+                            <Label text="Contact" styleClass="footer-header"/>
+                            <Label text="support@gyantori.com" styleClass="footer-text"/>
+                            <Label text="+1 (555) 123-4567" styleClass="footer-text"/>
+                        </VBox>
+                        
+                        <VBox alignment="CENTER" spacing="10" styleClass="footer-section">
+                            <Label text="Follow Us" styleClass="footer-header"/>
+                            <HBox spacing="15" alignment="CENTER" styleClass="social-buttons">
+                                <Button styleClass="social-button, animated-button">
+                                    <graphic>
+                                        <ImageView fitHeight="20" fitWidth="20" styleClass="icon">
+                                            <Image url="@images/icons/facebook.png"/>
+                                        </ImageView>
+                                    </graphic>
+                                </Button>
+                                <Button styleClass="social-button, animated-button">
+                                    <graphic>
+                                        <ImageView fitHeight="20" fitWidth="20" styleClass="icon">
+                                            <Image url="@images/icons/x.png"/>
+                                        </ImageView>
+                                    </graphic>
+                                </Button>
+                                <Button styleClass="social-button, animated-button">
+                                    <graphic>
+                                        <ImageView fitHeight="20" fitWidth="20" styleClass="icon">
+                                            <Image url="@images/icons/LinkedIn.png"/>
+                                        </ImageView>
+                                    </graphic>
+                                </Button>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                    
+                    <!-- Footer Bottom Bar -->
+                    <HBox styleClass="footer-bottom" alignment="CENTER">
+                        <padding>
+                            <Insets top="5" right="5" bottom="5" left="5"/>
+                        </padding>
+                        <Label text="Terms of Service | Privacy Policy | Cookie Policy" styleClass="footer-links"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </HBox>
+</VBox>

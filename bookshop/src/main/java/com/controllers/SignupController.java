@@ -1,6 +1,6 @@
 package com.controllers;
 
-import com.database.UsersDB;
+import com.database.UsersCollection;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -32,7 +32,7 @@ public class SignupController {
             String username = usernameField.getText().trim();
             String password = passwordField.getText();
 
-            if (UsersDB.registerUser(fullName, email, username, password)) {
+            if (UsersCollection.registerUser(fullName, email, username, password)) {
                 showAlert(AlertType.INFORMATION, "Success", "Account created successfully!");
                 Stage currentStage = (Stage) signupButton.getScene().getWindow();
                 LoadPageController.loadScene("login.fxml", "login_signup.css", currentStage);

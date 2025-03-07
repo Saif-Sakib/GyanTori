@@ -6,7 +6,7 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
 
-<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.controllers.HomeController" styleClass="root">
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.controllers.HomeController" styleClass="root" fx:id="rootPane">
 
     <!-- Top Navigation Section - Fixed -->
     <VBox spacing="15" styleClass="top-section">

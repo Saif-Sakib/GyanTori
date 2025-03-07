@@ -18,7 +18,7 @@
     <VBox spacing="15" prefWidth="300" styleClass="left-panel">
         <!-- Profile Section -->
         <VBox spacing="10" styleClass="profile-section">
-            <StackPane styleClass="profile-pic-container">
+            <StackPane fx:id="profilePicContainer" styleClass="profile-pic-container">
                 <Circle fx:id="profilePicClip" radius="50"/>
                 <ImageView fx:id="profilePic" fitHeight="100" fitWidth="100" preserveRatio="true"/>
             </StackPane>

@@ -13,6 +13,8 @@ public class SessionManager {
     private static final String FILE_PATH = "session.properties";
     private static SessionManager instance;
     private String userName;
+    private String currentBookId;
+    private boolean isLoggedIn;
     private List<String> cartItems; // Using List for dynamic sizing
 
     private SessionManager() {
@@ -32,8 +34,26 @@ public class SessionManager {
         saveSession();
     }
 
+    public void setCurrentBookId(String book) {
+        this.currentBookId = book;
+        saveSession();
+    }
+
+    public void setIsLoggedIn(Boolean isLoggedIn) {
+        this.isLoggedIn = isLoggedIn;
+        saveSession();
+    }
+
     public String getUserName() {
         return userName;
+    }
+
+    public String getCurrentBookId() {
+        return currentBookId;
+    }
+
+    public boolean getIsLoggedIn() {
+        return isLoggedIn;
     }
 
     // Cart management methods

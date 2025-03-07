@@ -1,18 +1,7 @@
 package com.controllers;
 
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import com.database.DatabaseManager;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Updates;
-import com.services.SessionManager;
-import org.bson.Document;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,9 +12,26 @@ import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.io.File;
-import java.io.IOException;
-import com.database.UsersDB;
+
+import org.bson.Document;
+
+import com.database.DatabaseManager;
+import com.database.UsersCollection;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import com.services.SessionManager;
+
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 public class EditProfileController implements Initializable {
     private static final Logger LOGGER = Logger.getLogger(EditProfileController.class.getName());
@@ -204,12 +210,12 @@ public class EditProfileController implements Initializable {
 
             // Handle password update if provided
             if (!newPasswordField.getText().isEmpty()) {
-                if (!UsersDB.validateLogin(currentUsername, currentPasswordField.getText())) {
+                if (!UsersCollection.validateLogin(currentUsername, currentPasswordField.getText())) {
                     return;
                 }
                 
-                byte[] salt = UsersDB.generateSalt();
-                String hashedPassword = UsersDB.hashPassword(newPasswordField.getText(), salt);
+                byte[] salt = UsersCollection.generateSalt();
+                String hashedPassword = UsersCollection.hashPassword(newPasswordField.getText(), salt);
                 
                 updates.append("password_hash", hashedPassword)
                        .append("salt", Base64.getEncoder().encodeToString(salt));

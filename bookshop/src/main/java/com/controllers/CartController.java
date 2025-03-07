@@ -1,12 +1,17 @@
 package com.controllers;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Locale;
 import javafx.application.Platform;
@@ -15,6 +20,8 @@ import javafx.scene.input.KeyCode;
 import com.services.CartService;
 
 public class CartController {
+    @FXML
+    private Button returnButton;
     @FXML
     private VBox cartItemsContainer;
     @FXML
@@ -61,6 +68,16 @@ public class CartController {
                 handlePromoCode();
             }
         });
+    }
+
+    @FXML
+    private void handleReturn() {
+        try {
+            Stage stage = (Stage) checkoutButton.getScene().getWindow();
+            LoadPageController.loadScene("home.fxml", "home.css", stage);
+        } catch (Exception e) {
+            handleError("Failed to return to home page", e);
+        }
     }
 
     private void setupBindings() {
@@ -156,7 +173,7 @@ public class CartController {
         }
     }
 
-    private void handleCheckout() {
+    public void handleCheckout() {
         if (cartService.getCartItems().isEmpty()) {
             showAlert("Empty Cart", "Please add items before checkout.", Alert.AlertType.WARNING);
             return;
