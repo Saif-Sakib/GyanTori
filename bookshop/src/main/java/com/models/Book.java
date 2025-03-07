@@ -1,7 +1,19 @@
 package com.models;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
 public class Book {
-    private String Id;
+    // MongoDB ID
+    private String _id;
+    // Application ID
+    private String id;
+
+    // Book metadata
     private String title;
     private String author;
     private String publisher;
@@ -10,19 +22,276 @@ public class Book {
     private int pages;
     private String isbn;
     private String[] categories;
-    private double originalPrice;
-    private double currentPrice;
-    private double discount;
-    private double rating;
-    private int reviewCount;
     private String description;
     private String imageUrl;
 
-    public Book(){
+    // Price information
+    private double originalPrice;
+    private double currentPrice;
+    private double discount;
 
+    // Review information
+    private double rating;
+    private int reviewCount;
+
+    // Transaction information
+    private String sellerId;
+    private String uploadDate;
+    private int totalPurchases;
+    private String holderId;
+    private String borrowDate;
+    private String returnDate;
+    private List<Review> buyerReviews;
+    private boolean featured;
+
+    // Inner class for buyer reviews
+    public static class Review {
+        private String reviewerId;
+        private String comment;
+        private double rating;
+        private LocalDate reviewDate;
+
+        // Default constructor for serialization
+        public Review() {
+        }
+
+        public Review(String reviewerId, String comment, double rating, LocalDate reviewDate) {
+            this.reviewerId = reviewerId;
+            this.comment = comment;
+            this.rating = rating;
+            this.reviewDate = reviewDate;
+        }
+
+        public String getReviewerId() {
+            return reviewerId;
+        }
+
+        public void setReviewerId(String reviewerId) {
+            this.reviewerId = reviewerId;
+        }
+
+        public double getRating() {
+            return rating;
+        }
+
+        public void setRating(double rating) {
+            this.rating = rating;
+        }
+
+        public LocalDate getReviewDate() {
+            return reviewDate;
+        }
+
+        public void setReviewDate(LocalDate reviewDate) {
+            this.reviewDate = reviewDate;
+        }
+
+        public String getComment() {
+            return comment;
+        }
+
+        public void setComment(String comment) {
+            this.comment = comment;
+        }
+
+        @Override
+        public String toString() {
+            return "Review{" +
+                    "reviewerId='" + reviewerId + '\'' +
+                    ", comment='" + comment + '\'' +
+                    ", rating=" + rating +
+                    ", reviewDate=" + reviewDate +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            Review review = (Review) o;
+            return Double.compare(review.rating, rating) == 0 &&
+                    Objects.equals(reviewerId, review.reviewerId) &&
+                    Objects.equals(comment, review.comment) &&
+                    Objects.equals(reviewDate, review.reviewDate);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(reviewerId, comment, rating, reviewDate);
+        }
     }
 
-    // Constructor
+    // Default constructor for serialization
+    public Book() {
+        this.buyerReviews = new ArrayList<>();
+    }
+
+    public Book(String id, String title, String author, String imageUrl, double originalPrice, double currentPrice,
+            double rating, int reviewCount) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.imageUrl = imageUrl;
+        this.originalPrice = originalPrice;
+        this.currentPrice = currentPrice;
+        this.rating = rating;
+        this.reviewCount = reviewCount;
+    }
+
+    // Builder pattern for constructing Book objects
+    public static class Builder {
+        private final Book book;
+
+        public Builder() {
+            book = new Book();
+        }
+
+        public Builder id(String id) {
+            book.id = id;
+            return this;
+        }
+
+        public Builder _id(String _id) {
+            book._id = _id;
+            return this;
+        }
+
+        public Builder title(String title) {
+            book.title = title;
+            return this;
+        }
+
+        public Builder author(String author) {
+            book.author = author;
+            return this;
+        }
+
+        public Builder publisher(String publisher) {
+            book.publisher = publisher;
+            return this;
+        }
+
+        public Builder publicationDate(String publicationDate) {
+            book.publicationDate = publicationDate;
+            return this;
+        }
+
+        public Builder language(String language) {
+            book.language = language;
+            return this;
+        }
+
+        public Builder pages(int pages) {
+            book.pages = pages;
+            return this;
+        }
+
+        public Builder isbn(String isbn) {
+            book.isbn = isbn;
+            return this;
+        }
+
+        public Builder categories(String[] categories) {
+            book.categories = categories;
+            return this;
+        }
+
+        public Builder originalPrice(double originalPrice) {
+            book.originalPrice = originalPrice;
+            return this;
+        }
+
+        public Builder currentPrice(double currentPrice) {
+            book.currentPrice = currentPrice;
+            return this;
+        }
+
+        public Builder discount(double discount) {
+            book.discount = discount;
+            return this;
+        }
+
+        public Builder rating(double rating) {
+            book.rating = rating;
+            return this;
+        }
+
+        public Builder reviewCount(int reviewCount) {
+            book.reviewCount = reviewCount;
+            return this;
+        }
+
+        public Builder description(String description) {
+            book.description = description;
+            return this;
+        }
+
+        public Builder imageUrl(String imageUrl) {
+            book.imageUrl = imageUrl;
+            return this;
+        }
+
+        public Builder sellerId(String sellerId) {
+            book.sellerId = sellerId;
+            return this;
+        }
+
+        public Builder uploadDate(String uploadDate) {
+            book.uploadDate = uploadDate;
+            return this;
+        }
+
+        public Builder totalPurchases(int totalPurchases) {
+            book.totalPurchases = totalPurchases;
+            return this;
+        }
+
+        public Builder holderId(String holderId) {
+            book.holderId = holderId;
+            return this;
+        }
+
+        public Builder borrowDate(String borrowDate) {
+            book.borrowDate = borrowDate;
+            return this;
+        }
+
+        public Builder returnDate(String returnDate) {
+            book.returnDate = returnDate;
+            return this;
+        }
+
+        public Builder buyerReviews(List<Review> buyerReviews) {
+            book.buyerReviews = new ArrayList<>(buyerReviews);
+            return this;
+        }
+
+        public Builder featured(boolean featured) {
+            book.featured = featured;
+            return this;
+        }
+
+        public Book build() {
+            return book;
+        }
+    }
+
+    // Minimal constructor for listing views
+    public Book(String id, String title, String author, String[] categories, double rating, double price,
+            String imageUrl) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.categories = categories;
+        this.rating = rating;
+        this.currentPrice = price;
+        this.imageUrl = imageUrl;
+        this.buyerReviews = new ArrayList<>();
+    }
+
+    // For backward compatibility
     public Book(String title, String author, String publisher, String publicationDate, String language, int pages,
             String isbn, String[] categories, double originalPrice, double currentPrice, double discount,
             double rating, int reviewCount, String description) {
@@ -40,25 +309,24 @@ public class Book {
         this.rating = rating;
         this.reviewCount = reviewCount;
         this.description = description;
-    }
-
-    public Book(String Id, String title, String author, String[] categories, double rating, double price, String imageUrl) {
-        this.Id = Id;
-        this.title = title;
-        this.author = author;
-        this.categories = categories;
-        this.rating = rating;
-        this.currentPrice = price;
-        this.imageUrl = imageUrl;
+        this.buyerReviews = new ArrayList<>();
     }
 
     // Getters and setters
     public String getId() {
-        return Id;
+        return id;
     }
 
-    public void setId(String Id) {
-        this.Id = Id;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String get_id() {
+        return _id;
+    }
+
+    public void set_id(String _id) {
+        this._id = _id;
     }
 
     public String getTitle() {
@@ -181,11 +449,106 @@ public class Book {
         this.imageUrl = imageUrl;
     }
 
-    // toString method for easy printing
+    public String getSellerId() {
+        return sellerId;
+    }
+
+    public void setSellerId(String sellerId) {
+        this.sellerId = sellerId;
+    }
+
+    public String getUploadDate() {
+        return uploadDate;
+    }
+
+    public void setUploadDate(String uploadDate) {
+        this.uploadDate = uploadDate;
+    }
+
+    public int getTotalPurchases() {
+        return totalPurchases;
+    }
+
+    public void setTotalPurchases(int totalPurchases) {
+        this.totalPurchases = totalPurchases;
+    }
+
+    public String getHolderId() {
+        return holderId;
+    }
+
+    public void setHolderId(String holderId) {
+        this.holderId = holderId;
+    }
+
+    public String getBorrowDate() {
+        return borrowDate;
+    }
+
+    public void setBorrowDate(String borrowDate) {
+        this.borrowDate = borrowDate;
+    }
+
+    public String getReturnDate() {
+        return returnDate;
+    }
+
+    public void setReturnDate(String returnDate) {
+        this.returnDate = returnDate;
+    }
+
+    public List<Review> getBuyerReviews() {
+        return Collections.unmodifiableList(buyerReviews);
+    }
+
+    public void setBuyerReviews(List<Review> buyerReviews) {
+        this.buyerReviews = new ArrayList<>(buyerReviews);
+    }
+
+    public boolean isFeatured() {
+        return featured;
+    }
+
+    public void setFeatured(boolean featured) {
+        this.featured = featured;
+    }
+
+    // Helper methods
+    public void addReview(Review review) {
+        if (this.buyerReviews == null) {
+            this.buyerReviews = new ArrayList<>();
+        }
+        this.buyerReviews.add(review);
+        recalculateRating();
+    }
+
+    public void removeReview(String reviewerId) {
+        if (this.buyerReviews != null) {
+            this.buyerReviews.removeIf(review -> review.getReviewerId().equals(reviewerId));
+            recalculateRating();
+        }
+    }
+
+    private void recalculateRating() {
+        if (buyerReviews == null || buyerReviews.isEmpty()) {
+            this.rating = 0;
+            this.reviewCount = 0;
+            return;
+        }
+
+        double sum = 0;
+        for (Review review : buyerReviews) {
+            sum += review.getRating();
+        }
+        this.rating = sum / buyerReviews.size();
+        this.reviewCount = buyerReviews.size();
+    }
+
     @Override
     public String toString() {
         return "Book{" +
-                "Id='" + Id + '\'' +
+                "_id='" + _id + '\'' +
+                ", id='" + id + '\'' +
                 ", title='" + title + '\'' +
                 ", author='" + author + '\'' +
                 ", publisher='" + publisher + '\'' +
@@ -193,14 +556,66 @@ public class Book {
                 ", language='" + language + '\'' +
                 ", pages=" + pages +
                 ", isbn='" + isbn + '\'' +
-                ", categories=" + (categories != null ? String.join(", ", categories) : "null") +
+                ", categories=" + (categories != null ? Arrays.toString(categories) : "null") +
+                ", description='"
+                + (description != null ? description.substring(0, Math.min(50, description.length())) + "..." : "null")
+                + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
                 ", originalPrice=" + originalPrice +
                 ", currentPrice=" + currentPrice +
                 ", discount=" + discount +
                 ", rating=" + rating +
                 ", reviewCount=" + reviewCount +
-                ", description='" + description + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
+                ", sellerId='" + sellerId + '\'' +
+                ", uploadDate='" + uploadDate + '\'' +
+                ", totalPurchases=" + totalPurchases +
+                ", holderId='" + holderId + '\'' +
+                ", borrowDate='" + borrowDate + '\'' +
+                ", returnDate='" + returnDate + '\'' +
+                ", reviewCount=" + (buyerReviews != null ? buyerReviews.size() : 0) +
+                ", featured=" + featured +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        Book book = (Book) o;
+        return pages == book.pages &&
+                Double.compare(book.originalPrice, originalPrice) == 0 &&
+                Double.compare(book.currentPrice, currentPrice) == 0 &&
+                Double.compare(book.discount, discount) == 0 &&
+                Double.compare(book.rating, rating) == 0 &&
+                reviewCount == book.reviewCount &&
+                totalPurchases == book.totalPurchases &&
+                featured == book.featured &&
+                Objects.equals(_id, book._id) &&
+                Objects.equals(id, book.id) &&
+                Objects.equals(title, book.title) &&
+                Objects.equals(author, book.author) &&
+                Objects.equals(publisher, book.publisher) &&
+                Objects.equals(publicationDate, book.publicationDate) &&
+                Objects.equals(language, book.language) &&
+                Objects.equals(isbn, book.isbn) &&
+                Arrays.equals(categories, book.categories) &&
+                Objects.equals(description, book.description) &&
+                Objects.equals(imageUrl, book.imageUrl) &&
+                Objects.equals(sellerId, book.sellerId) &&
+                Objects.equals(uploadDate, book.uploadDate) &&
+                Objects.equals(holderId, book.holderId) &&
+                Objects.equals(borrowDate, book.borrowDate) &&
+                Objects.equals(returnDate, book.returnDate);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(_id, id, title, author, publisher, publicationDate, language, pages, isbn,
+                originalPrice, currentPrice, discount, rating, reviewCount, description, imageUrl,
+                sellerId, uploadDate, totalPurchases, holderId, borrowDate, returnDate, featured);
+        result = 31 * result + Arrays.hashCode(categories);
+        return result;
     }
 }

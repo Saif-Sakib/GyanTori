@@ -11,40 +11,46 @@ import java.io.IOException;
 import com.services.StyleManager;
 
 public final class LoadPageController {
-    // Make class final and constructor private since it's utility class
-    private LoadPageController() {}
+    private LoadPageController() {
+    }
 
     /**
-     * Loads a new scene with state preservation
+     * Loads a new scene with state preservation.
      */
     public static <T> T loadScene(String fxmlFile, String cssFile, Stage stage) {
         try {
-            // Quick validation - faster than creating separate method call
             if (fxmlFile == null || stage == null) {
                 throw new IllegalArgumentException("FXML file or Stage cannot be null");
             }
 
-            // Cache window state - using primitives for better performance
+            // Store window state
             double width = stage.getWidth();
             double height = stage.getHeight();
             double x = stage.getX();
             double y = stage.getY();
             boolean maximized = stage.isMaximized();
 
-            // Load FXML efficiently
+            // Load FXML dynamically
             FXMLLoader loader = new FXMLLoader(LoadPageController.class.getResource("/com/" + fxmlFile));
             Parent root = loader.load();
 
-            // Create scene and apply CSS
-            Scene scene = new Scene(root);
+            // Try using setRoot() if Scene already exists
+            Scene scene = stage.getScene();
+            if (scene != null) {
+                scene.setRoot(root); // Faster than recreating Scene
+            } else {
+                scene = new Scene(root);
+                stage.setScene(scene);
+            }
+
+            // Apply CSS only if provided
             if (cssFile != null && !cssFile.isEmpty()) {
+                scene.getStylesheets().clear();
                 scene.getStylesheets().add(StyleManager.getStylesheet(cssFile));
             }
 
-            // Apply scene and restore state efficiently
-            stage.setScene(scene);
+            // Restore window state
             if (!maximized) {
-                // Only set dimensions if not maximized
                 stage.setX(x);
                 stage.setY(y);
                 stage.setWidth(width);
@@ -55,7 +61,6 @@ public final class LoadPageController {
             return loader.getController();
 
         } catch (IOException | IllegalArgumentException e) {
-            // Combined exception handling for better performance
             showError("Error", e.getMessage(), e);
             return null;
         }
@@ -66,6 +71,6 @@ public final class LoadPageController {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setContentText(message);
-        alert.show(); // Using show() instead of showAndWait() for better responsiveness
+        alert.show();
     }
 }

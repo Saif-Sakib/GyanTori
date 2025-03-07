@@ -73,6 +73,56 @@ public class BooksDetailsCollection {
         return null;
     }
 
+    // Get books by seller ID
+    public static List<Book> getBooksBySellerId(String id) {
+        List<Book> bookList = new ArrayList<>();
+        MongoCursor<Document> cursor = null;
+
+        try {
+            FindIterable<Document> iterable = books.find(Filters.eq("sellerId", id));
+
+            cursor = iterable.iterator();
+            while (cursor.hasNext()) {
+                Document doc = cursor.next();
+                Book book = convertDocumentToBook(doc);
+                bookList.add(book);
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error getting books by sequence", e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return bookList;
+    }
+
+    // Get books by holder ID
+    public static List<Book> getBooksByHolderId(String id) {
+        List<Book> bookList = new ArrayList<>();
+        MongoCursor<Document> cursor = null;
+
+        try {
+            FindIterable<Document> iterable = books.find(Filters.eq("holderId", id));
+
+            cursor = iterable.iterator();
+            while (cursor.hasNext()) {
+                Document doc = cursor.next();
+                Book book = convertDocumentToBook(doc);
+                bookList.add(book);
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error getting books by sequence", e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return bookList;
+    }
+
     // Helper function to check if the ID is a valid ObjectId
     private static boolean isValidObjectId(String id) {
         return id != null && id.matches("^[0-9a-fA-F]{24}$");

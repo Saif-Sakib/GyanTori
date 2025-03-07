@@ -101,7 +101,7 @@
 .search-field {
   -fx-background-color: rgba(255, 255, 255, 0.15);
   -fx-background-radius: 20px;
-  -fx-text-fill: white;
+  -fx-text-fill: black;
   -fx-prompt-text-fill: rgba(47, 30, 30, 0.7);
   -fx-padding: 8px 15px;
   -fx-font-size: 18px;
@@ -184,6 +184,25 @@
 .custom-separator {
   -fx-padding: 5 0;
   -fx-opacity: 0.3;
+}
+
+
+/* Search results styling */
+.no-results-message {
+    -fx-font-size: 18px;
+    -fx-text-fill: #888;
+    -fx-font-style: italic;
+    -fx-padding: 20;
+}
+
+/* For the search results section header */
+.section-header {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+    -fx-padding: 5 0 10 0;
+    -fx-border-color: transparent transparent #ddd transparent;
+    -fx-border-width: 0 0 1 0;
 }
 
 /* Main Content Area */

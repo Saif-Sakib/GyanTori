@@ -2,34 +2,40 @@ package com.controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert.AlertType;
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
+import com.database.BooksDetailsCollection;
 import com.database.DatabaseManager;
+import com.models.Book;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
-import java.util.logging.Level;
 import com.services.SessionManager;
 import javafx.scene.image.Image;
 
 import java.io.File;
-import java.io.InputStream;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.animation.ScaleTransition;
 import javafx.util.Duration;
@@ -37,23 +43,39 @@ import javafx.util.Duration;
 public class DashboardController implements Initializable {
     private static final Logger LOGGER = Logger.getLogger(DashboardController.class.getName());
     private static final String DEFAULT_PROFILE_IMAGE = "/com/images/userDP/default-profile.png";
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM d, yyyy");
 
-    @FXML private ImageView profilePic;
-    @FXML private StackPane profilePicContainer;
-    @FXML private Circle profilePicClip;
-    @FXML private Label nameLabel;
-    @FXML private Label locationLabel;
-    @FXML private Label bookHubIdLabel;
-    @FXML private Button homeButton;
-    @FXML private Button editInfoButton;
-    @FXML private Label totalUploadsLabel;
-    @FXML private Label totalBorrowedLabel;
-    @FXML private Label buyerRatingLabel;
-    @FXML private TableView<UploadedBook> uploadedBooksTable;
-    @FXML private TableView<BorrowedBook> borrowedBooksTable;
-    @FXML private ListView<Review> reviewsList;
-    @FXML private Button logoutButton;
-    @FXML private Label lastUpdateLabel;
+    @FXML
+    private ImageView profilePic;
+    @FXML
+    private StackPane profilePicContainer;
+    @FXML
+    private Label nameLabel;
+    @FXML
+    private Label locationLabel;
+    @FXML
+    private Label bookHubIdLabel;
+    @FXML
+    private Button homeButton;
+    @FXML
+    private Button editInfoButton;
+    @FXML
+    private Label totalUploadsLabel;
+    @FXML
+    private Label totalBorrowedLabel;
+    @FXML
+    private Label buyerRatingLabel;
+    @FXML
+    private TableView<UploadedBook> uploadedBooksTable;
+    @FXML
+    private TableView<BorrowedBook> borrowedBooksTable;
+    @FXML
+    private ListView<Review> reviewsList;
+    @FXML
+    private Button logoutButton;
+    @FXML
+    private Label lastUpdateLabel;
+
     @FXML
     private TableColumn<UploadedBook, String> uploadedTitleColumn;
     @FXML
@@ -98,8 +120,10 @@ public class DashboardController implements Initializable {
             this.revenue = price * totalPurchases;
         }
 
-        public String getTitle() { return title; }
-        
+        public String getTitle() {
+            return title;
+        }
+
         public LocalDate getUploadDate() {
             return uploadDate;
         }
@@ -121,31 +145,38 @@ public class DashboardController implements Initializable {
         private final String title;
         private final String sellerName;
         private final LocalDate borrowDate;
+        private final LocalDate returnDate;
         private final int daysRemaining;
         private final String status;
 
-        public BorrowedBook(String title, String sellerName, LocalDate borrowDate, int daysRemaining, String status) {
-            if (title == null || sellerName == null || borrowDate == null || status == null) {
-                throw new IllegalArgumentException("Title, seller name, borrow date, and status cannot be null");
-            }
-            if (daysRemaining < 0) {
-                throw new IllegalArgumentException("Days remaining cannot be negative");
+        public BorrowedBook(String title, String sellerName, LocalDate borrowDate, LocalDate returnDate,
+                int daysRemaining, String status) {
+            if (title == null || sellerName == null || borrowDate == null || returnDate == null || status == null) {
+                throw new IllegalArgumentException(
+                        "Title, seller name, borrow date, return date, and status cannot be null");
             }
             this.title = title;
             this.sellerName = sellerName;
             this.borrowDate = borrowDate;
-            this.daysRemaining = daysRemaining;
+            this.returnDate = returnDate;
+            this.daysRemaining = Math.max(0, daysRemaining); // Ensure non-negative
             this.status = status;
         }
 
-        public String getTitle() { return title; }
-        
+        public String getTitle() {
+            return title;
+        }
+
         public String getSellerName() {
             return sellerName;
         }
 
         public LocalDate getBorrowDate() {
             return borrowDate;
+        }
+
+        public LocalDate getReturnDate() {
+            return returnDate;
         }
 
         public int getDaysRemaining() {
@@ -162,264 +193,380 @@ public class DashboardController implements Initializable {
         private final int rating;
         private final String comment;
         private final LocalDate reviewDate;
+        private final String bookTitle;
 
-        public Review(String reviewerName, int rating, String comment, LocalDate reviewDate) {
-            if (reviewerName == null || comment == null || reviewDate == null) {
-                throw new IllegalArgumentException("Reviewer name, comment, and review date cannot be null");
-            }
-            if (rating < 1 || rating > 5) {
-                throw new IllegalArgumentException("Rating must be between 1 and 5");
-            }
-            this.reviewerName = reviewerName;
-            this.rating = rating;
-            this.comment = comment;
-            this.reviewDate = reviewDate;
+        public Review(String reviewerName, int rating, String comment, LocalDate reviewDate, String bookTitle) {
+            this.reviewerName = reviewerName != null ? reviewerName : "Anonymous";
+            this.rating = (rating >= 1 && rating <= 5) ? rating : 1;
+            this.comment = comment != null ? comment : "No comment provided";
+            this.reviewDate = reviewDate != null ? reviewDate : LocalDate.now();
+            this.bookTitle = bookTitle != null ? bookTitle : "Unknown Book";
         }
 
-        @Override
-        public String toString() {
-            try {
-                return reviewerName + " (" + rating + "★) - " + reviewDate + "\n" + comment;
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Error formatting review string", e);
-                return "Error displaying review";
-            }
+        public String getReviewerName() {
+            return reviewerName;
+        }
+
+        public int getRating() {
+            return rating;
+        }
+
+        public String getComment() {
+            return comment;
+        }
+
+        public String getBookTitle() {
+            return bookTitle;
+        }
+
+        public LocalDate getReviewDate() {
+            return reviewDate;
         }
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("Initializing dashboard controller...");
-        // Verify FXML injection
-        if (uploadedBooksTable == null || borrowedBooksTable == null) {
-            throw new IllegalStateException("Tables not properly injected from FXML");
-        }
+        LOGGER.info("Initializing dashboard controller...");
+
         try {
-            SessionManager sessionManager = SessionManager.getInstance();
-            String userName = sessionManager.getUserName();
+            String userName = SessionManager.getInstance().getUserName();
             setupTables();
             setProfileInfo(userName);
-            setupTableInfo(userName);
-            setStatistics(userName);
-            // Verify data loaded
+            loadUserData(userName);
+            setupReviewsList();
             updateLastUpdateLabel();
-            System.out.println("Initialization completed successfully");
+
+            LOGGER.info("Dashboard initialization completed successfully");
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error initializing dashboard", e);
-            e.printStackTrace();
             showError("Initialization Error", "Failed to initialize dashboard: " + e.getMessage());
         }
     }
 
+    private void setupReviewsList() {
+        reviewsList.setCellFactory(param -> new ListCell<Review>() {
+            @Override
+            protected void updateItem(Review review, boolean empty) {
+                super.updateItem(review, empty);
+
+                if (empty || review == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+
+                VBox container = new VBox(5);
+                container.setPadding(new Insets(10));
+                container.getStyleClass().add("review-cell");
+
+                // Header with name and date
+                HBox header = new HBox(10);
+                Label nameLabel = new Label(review.getReviewerName());
+                nameLabel.setStyle("-fx-font-weight: bold;");
+
+                Label dateLabel = new Label(review.getReviewDate().format(DATE_FORMATTER));
+                dateLabel.setStyle("-fx-text-fill: #666;");
+
+                header.getChildren().addAll(nameLabel, dateLabel);
+
+                // Book title
+                Label bookLabel = new Label("Book: " + review.getBookTitle());
+                bookLabel.setStyle("-fx-font-style: italic;");
+
+                // Rating stars
+                HBox stars = new HBox(2);
+                stars.setAlignment(Pos.CENTER_LEFT);
+
+                for (int i = 0; i < 5; i++) {
+                    Label star = new Label(i < review.getRating() ? "★" : "☆");
+                    star.setStyle(i < review.getRating() ? "-fx-text-fill: gold; -fx-font-size: 14px;"
+                            : "-fx-text-fill: #ccc; -fx-font-size: 14px;");
+                    stars.getChildren().add(star);
+                }
+
+                // Comment
+                Label commentLabel = new Label(review.getComment());
+                commentLabel.setWrapText(true);
+
+                container.getChildren().addAll(header, bookLabel, stars, commentLabel);
+                setGraphic(container);
+                setText(null);
+            }
+        });
+
+        reviewsList.getStyleClass().add("reviews-list");
+    }
+
     private void setupTables() {
+        // Setup Uploaded Books Table
+        uploadedTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+        uploadDateColumn.setCellValueFactory(new PropertyValueFactory<>("uploadDate"));
+        priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+        totalPurchasesColumn.setCellValueFactory(new PropertyValueFactory<>("totalPurchases"));
+        revenueColumn.setCellValueFactory(new PropertyValueFactory<>("revenue"));
+
+        // Setup Borrowed Books Table
+        borrowedTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+        sellerNameColumn.setCellValueFactory(new PropertyValueFactory<>("sellerName"));
+        borrowDateColumn.setCellValueFactory(new PropertyValueFactory<>("borrowDate"));
+        daysRemainingColumn.setCellValueFactory(new PropertyValueFactory<>("daysRemaining"));
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+
+        // Make tables responsive
+        uploadedBooksTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        borrowedBooksTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+    }
+
+    private void loadUserData(String userName) {
         try {
-            System.out.println("Setting up tables...");
+            if (userName == null || userName.isEmpty()) {
+                throw new IllegalArgumentException("Username cannot be null or empty");
+            }
 
-            // Debug print initial state
-            System.out.println("Initial uploaded books columns: " + uploadedBooksTable.getColumns().size());
-            System.out.println("Initial borrowed books columns: " + borrowedBooksTable.getColumns().size());
+            MongoCollection<Document> users = DatabaseManager.getDatabase().getCollection("users");
+            Document user = users.find(Filters.eq("username", userName)).first();
 
-            // Setup Uploaded Books Table
-            uploadedTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
-            uploadDateColumn.setCellValueFactory(new PropertyValueFactory<>("uploadDate"));
-            priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
-            totalPurchasesColumn.setCellValueFactory(new PropertyValueFactory<>("totalPurchases"));
-            revenueColumn.setCellValueFactory(new PropertyValueFactory<>("revenue"));
+            if (user == null) {
+                showError("Data Error", "User not found.");
+                return;
+            }
 
-            // Setup Borrowed Books Table
-            borrowedTitleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
-            sellerNameColumn.setCellValueFactory(new PropertyValueFactory<>("sellerName"));
-            borrowDateColumn.setCellValueFactory(new PropertyValueFactory<>("borrowDate"));
-            daysRemainingColumn.setCellValueFactory(new PropertyValueFactory<>("daysRemaining"));
-            statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
-            // Make sure columns take up the full width of the table
-            uploadedBooksTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-            borrowedBooksTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+            // Get user ID
+            String userId = getStringId(user, "id");
 
-            // Set a minimum width for the tables
-            uploadedBooksTable.setMinWidth(600);
-            borrowedBooksTable.setMinWidth(600);
-            System.out.println("Tables setup completed successfully");
+            // Load uploaded books, borrowed books, and statistics
+            loadUploadedBooks(userId);
+            loadBorrowedBooks(userId);
+            loadUserStatistics(user);
 
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error setting up tables", e);
-            e.printStackTrace(); // Add stack trace for debugging
-            showError("Setup Error", "Failed to setup tables properly: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error loading user data", e);
+            showError("Data Error", "Failed to load user data: " + e.getMessage());
         }
     }
 
-    private void setupTableInfo(String userName) {
-    try {
-        if (userName == null || userName.isEmpty()) {
-            throw new IllegalArgumentException("Username cannot be null or empty");
-        }
+    private void loadUploadedBooks(String userId) {
+        try {
+            // Get books sorted by review count (high to low)
+            List<Book> uploadedBooks = BooksDetailsCollection.getBooksBySellerId(userId).stream()
+                    .sorted((b1, b2) -> Double.compare(b2.getReviewCount(), b1.getReviewCount()))
+                    .collect(Collectors.toList());
 
-        MongoCollection<Document> users = DatabaseManager.getDatabase().getCollection("users");
+            ObservableList<UploadedBook> uploadedBooksObservable = FXCollections.observableArrayList();
 
-        // Fetch user details from DB based on username
-        Document user = users.find(Filters.eq("username", userName)).first();
+            // Convert Book objects to UploadedBook objects
+            for (Book book : uploadedBooks) {
+                // Safe date parsing with fallback
+                LocalDate uploadDate;
+                try {
+                    String uploadDateStr = book.getUploadDate();
+                    uploadDate = (uploadDateStr == null || uploadDateStr.isEmpty()) ? LocalDate.now()
+                            : LocalDate.parse(uploadDateStr);
+                } catch (Exception e) {
+                    LOGGER.log(Level.WARNING, "Invalid date format for book: " + book.getTitle(), e);
+                    uploadDate = LocalDate.now();
+                }
 
-        if (user == null) {
-            showError("Data Error", "User not found.");
-            return;
-        }
-
-        // Fetch uploaded books
-        ObservableList<UploadedBook> uploadedBooks = FXCollections.observableArrayList();
-        List<Document> uploadedBooksList = (List<Document>) user.get("uploaded_books");
-
-        if (uploadedBooksList != null) {
-            for (Document book : uploadedBooksList) {
-                uploadedBooks.add(new UploadedBook(
-                        book.getString("title"),
-                        book.getDate("upload_date").toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
-                        book.getDouble("price"),
-                        book.getInteger("total_purchases")
-                ));
+                uploadedBooksObservable.add(new UploadedBook(
+                        book.getTitle(),
+                        uploadDate,
+                        book.getCurrentPrice(),
+                        book.getTotalPurchases()));
             }
+
+            uploadedBooksTable.setItems(uploadedBooksObservable);
+
+            // Load reviews for these books
+            loadReviews(uploadedBooks);
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error loading uploaded books", e);
+            showError("Data Error", "Failed to load uploaded books: " + e.getMessage());
         }
-
-        uploadedBooksTable.setItems(uploadedBooks);
-
-        // Fetch borrowed books
-        ObservableList<BorrowedBook> borrowedBooks = FXCollections.observableArrayList();
-        List<Document> borrowedBooksList = (List<Document>) user.get("borrowed_books");
-
-        if (borrowedBooksList != null) {
-            for (Document book : borrowedBooksList) {
-                borrowedBooks.add(new BorrowedBook(
-                        book.getString("title"),
-                        book.getString("seller_id"),
-                        book.getDate("borrow_date").toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
-                        book.getInteger("return_date"),
-                        book.getString("status")
-                ));
-            }
-        }
-
-        borrowedBooksTable.setItems(borrowedBooks);
-
-    } catch (Exception e) {
-        LOGGER.log(Level.SEVERE, "Error fetching table information", e);
-        showError("Data Error", "Failed to load book data.");
     }
-}
+
+    private void loadBorrowedBooks(String userId) {
+        try {
+            List<Book> borrowedBooks = BooksDetailsCollection.getBooksByHolderId(userId);
+            ObservableList<BorrowedBook> borrowedBooksObservable = FXCollections.observableArrayList();
+
+            for (Book book : borrowedBooks) {
+                // Get seller name
+                String sellerName = getSafeSellerName(book.getSellerId());
+
+                // Safe date parsing with fallbacks
+                LocalDate borrowDate = parseDate(book.getBorrowDate(), LocalDate.now().minusDays(30));
+                LocalDate returnDate = parseDate(book.getReturnDate(), LocalDate.now().plusDays(14));
+
+                // Calculate days remaining and status
+                long daysRemaining = ChronoUnit.DAYS.between(LocalDate.now(), returnDate);
+                String status = (daysRemaining > 0) ? "Active" : "Overdue";
+
+                borrowedBooksObservable.add(new BorrowedBook(
+                        book.getTitle(),
+                        sellerName,
+                        borrowDate,
+                        returnDate,
+                        (int) daysRemaining,
+                        status));
+            }
+
+            borrowedBooksTable.setItems(borrowedBooksObservable);
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error loading borrowed books", e);
+            showError("Data Error", "Failed to load borrowed books: " + e.getMessage());
+        }
+    }
+
+    private void loadReviews(List<Book> books) {
+        try {
+            ObservableList<Review> reviewsObservable = FXCollections.observableArrayList();
+
+            for (Book book : books) {
+                String bookTitle = book.getTitle();
+
+                if (book.getBuyerReviews() == null || book.getBuyerReviews().isEmpty()) {
+                    continue;
+                }
+
+                for (Book.Review bookReview : book.getBuyerReviews()) {
+                    if (bookReview == null)
+                        continue;
+
+                    String reviewerName = getSafeReviewerName(bookReview.getReviewerId());
+                    int rating = safeRating(bookReview.getRating());
+                    String comment = bookReview.getComment() != null ? bookReview.getComment() : "No comment provided";
+                    LocalDate reviewDate = bookReview.getReviewDate() != null ? bookReview.getReviewDate()
+                            : LocalDate.now();
+
+                    reviewsObservable.add(new Review(
+                            reviewerName, rating, comment, reviewDate, bookTitle));
+                }
+            }
+
+            // Add placeholder if no reviews found
+            if (reviewsObservable.isEmpty()) {
+                reviewsObservable.add(new Review(
+                        "No Reviews Yet",
+                        0,
+                        "No reviews have been posted for your books yet.",
+                        LocalDate.now(),
+                        "N/A"));
+            }
+
+            reviewsList.setItems(reviewsObservable);
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error loading reviews", e);
+        }
+    }
+
+    private void loadUserStatistics(Document user) {
+        try {
+            // Extract statistics from user document with safe handling
+            int uploads = user.containsKey("uploaded_books") ? ((List<?>) user.get("uploaded_books")).size() : 0;
+
+            int borrowed = user.containsKey("borrowed_books") ? ((List<?>) user.get("borrowed_books")).size() : 0;
+
+            Double ratingObj = user.getDouble("rating");
+            double rating = (ratingObj != null) ? ratingObj : 0.0;
+
+            // Update UI
+            totalUploadsLabel.setText(String.valueOf(uploads));
+            totalBorrowedLabel.setText(String.valueOf(borrowed));
+            buyerRatingLabel.setText(String.format("%.1f", rating));
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error loading statistics", e);
+        }
+    }
 
     private void setProfileInfo(String userName) {
-    try {
-        if (userName == null || userName.isEmpty()) {
-            throw new IllegalArgumentException("User ID cannot be null or empty");
-        }
-
-        MongoCollection<Document> users = DatabaseManager.getDatabase().getCollection("users");
-
-        // Fetch user details from DB based on ID
-        Document user = users.find(Filters.eq("username", userName)).first();
-
-        if (user == null) {
-            showError("Profile Error", "User not found.");
-            return;
-        }
-
-        // Extract fields from the document (handling possible missing values)
-        String name = user.getString("full_name");
-        String location = user.containsKey("location") ? user.getString("location") : "Not Set";
-        String id = user.getString("id");
-        String dp = user.containsKey("imgPath")?user.getString("imgPath"): DEFAULT_PROFILE_IMAGE;
-        // Set the labels
-        nameLabel.setText(name != null ? name : "Unknown");
-        locationLabel.setText(location);
-        bookHubIdLabel.setText("ID: " + id);
-        updateProfilePicture(dp);
-    } catch (Exception e) {
-        LOGGER.log(Level.SEVERE, "Error fetching profile information", e);
-        showError("Profile Error", "Failed to load profile information.");
-    }
-}
-
-
-    private void setStatistics(String userName) {
-    try {
-        MongoCollection<Document> users = DatabaseManager.getDatabase().getCollection("users");
-        Document user = users.find(Filters.eq("username", userName.toLowerCase())).first();
-
-        if (user == null) {
-            throw new IllegalArgumentException("User not found in database");
-        }
-
-        // Extract values from the user document
-        int uploads = user.containsKey("uploaded_books") ? ((List<Document>) user.get("uploaded_books")).size() : 0;
-        int borrowed = user.containsKey("borrowed_books") ? ((List<Document>) user.get("borrowed_books")).size() : 0;
-        double rating = (user.getDouble("rating")!=null) ? user.getDouble("rating") : 0.0;
-        System.out.println("userName");
-        // Set labels with retrieved values
-        totalUploadsLabel.setText(String.valueOf(uploads));
-        totalBorrowedLabel.setText(String.valueOf(borrowed));
-        buyerRatingLabel.setText(String.format("%.1f", rating));
-
-    } catch (Exception e) {
-        LOGGER.log(Level.SEVERE, "Error setting statistics", e);
-        showError("Statistics Error", "Failed to update statistics.");
-    }
-}
-
-    private void updateLastUpdateLabel() {
         try {
-            lastUpdateLabel.setText("Last updated: " + LocalDate.now());
+            MongoCollection<Document> users = DatabaseManager.getDatabase().getCollection("users");
+            Document user = users.find(Filters.eq("username", userName)).first();
+
+            if (user == null) {
+                showError("Profile Error", "User not found.");
+                return;
+            }
+
+            // Extract user info with null checks
+            String name = user.getString("full_name");
+            String location = user.containsKey("location") ? user.getString("location") : "Not Set";
+            String id = user.getString("id");
+            String imagePath = user.containsKey("imgPath") ? user.getString("imgPath") : DEFAULT_PROFILE_IMAGE;
+
+            // Update UI
+            nameLabel.setText(name != null ? name : "Unknown");
+            locationLabel.setText(location);
+            bookHubIdLabel.setText("ID: " + id);
+            updateProfilePicture(imagePath);
+
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error updating last update label", e);
+            LOGGER.log(Level.SEVERE, "Error setting profile info", e);
+            showError("Profile Error", "Failed to load profile information.");
         }
     }
 
     public void updateProfilePicture(String imagePath) {
         try {
-            if (imagePath == null || imagePath.isEmpty()) {
-                throw new IllegalArgumentException("Image path cannot be null or empty");
+            // Use default image if path is invalid
+            Image newImage;
+            try {
+                if (imagePath == null || imagePath.isEmpty()) {
+                    throw new IllegalArgumentException("Image path is empty");
+                }
+
+                File imageFile = new File(imagePath);
+                if (!imageFile.exists()) {
+                    throw new IllegalArgumentException("Image not found");
+                }
+
+                newImage = new Image(imageFile.toURI().toString());
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, "Using default profile image", e);
+                newImage = new Image(getClass().getResourceAsStream(DEFAULT_PROFILE_IMAGE));
             }
 
-            File imageFile = new File(imagePath);
-            if (!imageFile.exists()) {
-                throw new IllegalArgumentException("Image not found: " + imagePath);
-            }
-
-            // Center the container
+            // Apply the image with circular clip
             profilePicContainer.setAlignment(Pos.CENTER);
-
-            // Load and configure the image
-            Image newImage = new Image(imageFile.toURI().toString());
             profilePic.setImage(newImage);
             profilePic.setFitHeight(100);
             profilePic.setFitWidth(100);
             profilePic.setPreserveRatio(true);
-            profilePic.setSmooth(true);
 
-            // Create and apply the clip
-            Circle clip = new Circle(
-                    profilePic.getFitWidth() / 2, // centerX (50)
-                    profilePic.getFitHeight() / 2, // centerY (50)
-                    Math.min(profilePic.getFitWidth(), profilePic.getFitHeight()) / 2 // radius (50)
-            );
+            // Create circular clip
+            Circle clip = new Circle(50, 50, 50);
             profilePic.setClip(clip);
 
             // Add hover effect
-            profilePic.setOnMouseEntered(event -> {
-                ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), profilePic);
-                scaleTransition.setToX(1.1);
-                scaleTransition.setToY(1.1);
-                scaleTransition.play();
-            });
+            addHoverEffect(profilePic);
 
-            profilePic.setOnMouseExited(event -> {
-                ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), profilePic);
-                scaleTransition.setToX(1.0);
-                scaleTransition.setToY(1.0);
-                scaleTransition.play();
-            });
-
-            System.out.println("Profile picture updated successfully");
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error updating profile picture", e);
         }
+    }
+
+    private void addHoverEffect(ImageView imageView) {
+        imageView.setOnMouseEntered(event -> {
+            ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), imageView);
+            scaleTransition.setToX(1.1);
+            scaleTransition.setToY(1.1);
+            scaleTransition.play();
+        });
+
+        imageView.setOnMouseExited(event -> {
+            ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), imageView);
+            scaleTransition.setToX(1.0);
+            scaleTransition.setToY(1.0);
+            scaleTransition.play();
+        });
+    }
+
+    private void updateLastUpdateLabel() {
+        lastUpdateLabel.setText("Last updated: " + LocalDate.now().format(DATE_FORMATTER));
     }
 
     @FXML
@@ -428,26 +575,93 @@ public class DashboardController implements Initializable {
             Stage currentStage = (Stage) editInfoButton.getScene().getWindow();
             LoadPageController.loadScene("editProfile.fxml", "editProfile.css", currentStage);
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error handling edit info", e);
-            showError("Edit Error", "Failed to open edit profile dialog.");
+            LOGGER.log(Level.SEVERE, "Error navigating to edit profile", e);
+            showError("Navigation Error", "Failed to open edit profile screen.");
         }
     }
 
     @FXML
     private void handleHome() {
-        Stage currentStage = (Stage) homeButton.getScene().getWindow();
-        LoadPageController.loadScene("home.fxml", "home.css", currentStage);
+        try {
+            Stage currentStage = (Stage) homeButton.getScene().getWindow();
+            LoadPageController.loadScene("home.fxml", "home.css", currentStage);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error navigating to home", e);
+            showError("Navigation Error", "Failed to navigate to home screen.");
+        }
     }
 
     @FXML
     private void handleLogout() {
         try {
-            HomeController homeController = new HomeController();
-            homeController.logout();
+            new HomeController().logout();
             handleHome();
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error handling logout", e);
+            LOGGER.log(Level.SEVERE, "Error during logout", e);
             showError("Logout Error", "Failed to process logout.");
+        }
+    }
+
+    // Helper methods
+
+    private String getSafeSellerName(String sellerId) {
+        if (sellerId == null || sellerId.isEmpty()) {
+            return "Unknown";
+        }
+
+        try {
+            MongoCollection<Document> users = DatabaseManager.getDatabase().getCollection("users");
+            Document seller = users.find(Filters.eq("id", sellerId)).first();
+            return (seller != null && seller.getString("name") != null) ? seller.getString("name") : sellerId;
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Error fetching seller name", e);
+            return sellerId;
+        }
+    }
+
+    private String getSafeReviewerName(String reviewerId) {
+        if (reviewerId == null || reviewerId.isEmpty()) {
+            return "Anonymous";
+        }
+
+        try {
+            MongoCollection<Document> users = DatabaseManager.getDatabase().getCollection("users");
+            Document reviewer = users.find(Filters.eq("id", reviewerId)).first();
+            return (reviewer != null && reviewer.getString("name") != null) ? reviewer.getString("name") : reviewerId;
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Error fetching reviewer name", e);
+            return reviewerId;
+        }
+    }
+
+    private int safeRating(double rawRating) {
+        int rating = (int) Math.round(rawRating);
+        return Math.max(1, Math.min(5, rating));
+    }
+
+    private LocalDate parseDate(String dateStr, LocalDate defaultDate) {
+        if (dateStr == null || dateStr.isEmpty()) {
+            return defaultDate;
+        }
+
+        try {
+            return LocalDate.parse(dateStr);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Invalid date format: " + dateStr, e);
+            return defaultDate;
+        }
+    }
+
+    private String getStringId(Document doc, String fieldName) {
+        Object idObj = doc.get(fieldName);
+        if (idObj == null) {
+            return "";
+        } else if (idObj instanceof String) {
+            return (String) idObj;
+        } else if (idObj instanceof ObjectId) {
+            return ((ObjectId) idObj).toHexString();
+        } else {
+            return idObj.toString();
         }
     }
 

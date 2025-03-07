@@ -101,7 +101,7 @@
 .search-field {
   -fx-background-color: rgba(255, 255, 255, 0.15);
   -fx-background-radius: 20px;
-  -fx-text-fill: white;
+  -fx-text-fill: black;
   -fx-prompt-text-fill: rgba(47, 30, 30, 0.7);
   -fx-padding: 8px 15px;
   -fx-font-size: 18px;

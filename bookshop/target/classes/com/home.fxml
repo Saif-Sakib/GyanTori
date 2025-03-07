@@ -109,6 +109,12 @@
     <ImageView fx:id="bannerImage"/>
 </StackPane>
 
+                <VBox spacing="15">
+                    <ScrollPane styleClass="books-scroll-pane" hbarPolicy="NEVER">
+                        <HBox fx:id="searchResultsContainer" spacing="20" styleClass="books-container"/>
+                    </ScrollPane>
+                </VBox>
+
                 <!-- Featured Books Section with Horizontal Scroll -->
                 <VBox spacing="15">
                     <HBox alignment="CENTER_LEFT" spacing="10">

@@ -30,6 +30,7 @@ import com.services.CartService;
 import com.services.SessionManager;
 import com.database.BooksDetailsCollection;
 import com.models.Book;
+import com.services.SearchImplementation; // Add this import statement
 
 public class HomeController {
 
@@ -47,153 +48,179 @@ public class HomeController {
     private ImageView bannerImage;
     @FXML
     private HBox bannerBox;
+    @FXML
+    private HBox searchResultsContainer; // New container for search results
+    @FXML
+    private Button searchButton; // Added search button
+
     private volatile boolean slideshowRunning = true;
     private Thread slideshowThread;
     private int currentImageIndex = 0;
-    
+
     private final List<String> bannerImages = Arrays.asList(
             "/com/images/img1.png",
             "/com/images/img2.png",
             "/com/images/img3.png",
             "/com/images/img4.png",
-            "/com/images/img5.png"
-    );
+            "/com/images/img5.png",
+            "/com/images/img6.png");
 
     private final CartService cartService = CartService.getInstance();
+    private SearchImplementation searchImplementation; // Search implementation object
+
     @FXML
     public void initialize() {
         try {
+            // Initialize the search results container
+            if (searchResultsContainer != null) {
+                searchResultsContainer.setVisible(false);
+                searchResultsContainer.setManaged(false);
+
+                // Initialize the search implementation
+                searchImplementation = new SearchImplementation(this, searchResultsContainer);
+            }
+
             updateProfileButton();
             loadBooks();
             addSearchListener();
+
             if (navLogo != null) {
                 animateNavLogo();
             }
+
             initBanner();
+
+            // Initialize search button click handler
+            if (searchButton != null) {
+                searchButton.setOnAction(e -> performSearch());
+            }
+
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Initialization Error", "Failed to initialize application: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Initialization Error",
+                    "Failed to initialize application: " + e.getMessage());
         }
     }
 
     private void initBanner() {
-    if (bannerImage != null && !bannerImages.isEmpty()) {
-       // Disable ratio preservation to allow full stretching
-        bannerImage.setPreserveRatio(false);
-        
-        // Get parent StackPane
-        StackPane parent = (StackPane) bannerImage.getParent();
-        
-        // Bind ImageView size to parent size
-        bannerImage.fitWidthProperty().bind(parent.widthProperty());
-        bannerImage.fitHeightProperty().bind(parent.heightProperty());
-        
-        // Set minimum dimensions if needed
-        parent.setMinWidth(100);  // Adjust these values as needed
-        parent.setMinHeight(50);
-        
-        // Optional: Add resize listeners for additional control
-        parent.widthProperty().addListener((obs, oldVal, newVal) -> {
-            // Ensure image width never exceeds parent width
-            if (bannerImage.getFitWidth() > newVal.doubleValue()) {
-                bannerImage.setFitWidth(newVal.doubleValue());
-            }
-        });
-        
-        parent.heightProperty().addListener((obs, oldVal, newVal) -> {
-            // Ensure image height never exceeds parent height
-            if (bannerImage.getFitHeight() > newVal.doubleValue()) {
-                bannerImage.setFitHeight(newVal.doubleValue());
-            }
-        });
+        if (bannerImage != null && !bannerImages.isEmpty()) {
+            // Disable ratio preservation to allow full stretching
+            bannerImage.setPreserveRatio(false);
 
-        try {
-            Image firstImage = loadImage(bannerImages.get(0));
-            if (firstImage != null) {
-                bannerImage.setImage(firstImage);
-                startImageSlideshow();
+            // Get parent StackPane
+            StackPane parent = (StackPane) bannerImage.getParent();
+
+            // Bind ImageView size to parent size
+            bannerImage.fitWidthProperty().bind(parent.widthProperty());
+            bannerImage.fitHeightProperty().bind(parent.heightProperty());
+
+            // Set minimum dimensions if needed
+            parent.setMinWidth(100); // Adjust these values as needed
+            parent.setMinHeight(50);
+
+            // Optional: Add resize listeners for additional control
+            parent.widthProperty().addListener((obs, oldVal, newVal) -> {
+                // Ensure image width never exceeds parent width
+                if (bannerImage.getFitWidth() > newVal.doubleValue()) {
+                    bannerImage.setFitWidth(newVal.doubleValue());
+                }
+            });
+
+            parent.heightProperty().addListener((obs, oldVal, newVal) -> {
+                // Ensure image height never exceeds parent height
+                if (bannerImage.getFitHeight() > newVal.doubleValue()) {
+                    bannerImage.setFitHeight(newVal.doubleValue());
+                }
+            });
+
+            try {
+                Image firstImage = loadImage(bannerImages.get(0));
+                if (firstImage != null) {
+                    bannerImage.setImage(firstImage);
+                    startImageSlideshow();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.err.println("Failed to load initial banner image: " + e.getMessage());
             }
+        }
+    }
+
+    private Image loadImage(String imageUrl) {
+        try {
+            InputStream stream = getClass().getResourceAsStream(imageUrl);
+            if (stream != null) {
+                return new Image(stream);
+            }
+            System.err.println("Could not find image resource: " + imageUrl);
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Failed to load initial banner image: " + e.getMessage());
+            System.err.println("Error loading image " + imageUrl + ": " + e.getMessage());
+            return null;
         }
     }
-}
 
-private Image loadImage(String imageUrl) {
-    try {
-        InputStream stream = getClass().getResourceAsStream(imageUrl);
-        if (stream != null) {
-            return new Image(stream);
-        }
-        System.err.println("Could not find image resource: " + imageUrl);
-        return null;
-    } catch (Exception e) {
-        e.printStackTrace();
-        System.err.println("Error loading image " + imageUrl + ": " + e.getMessage());
-        return null;
-    }
-}
+    private void startImageSlideshow() {
+        slideshowThread = new Thread(() -> {
+            while (slideshowRunning) {
+                try {
+                    Thread.sleep(3000);
 
-private void startImageSlideshow() {
-    slideshowThread = new Thread(() -> {
-        while (slideshowRunning) {
-            try {
-                Thread.sleep(3000);
-                
-                if (!slideshowRunning) break;
-                
-                Platform.runLater(() -> {
-                    // Calculate next image index before loading
-                    currentImageIndex = (currentImageIndex + 1) % bannerImages.size();
-                    String nextImageUrl = bannerImages.get(currentImageIndex);
-                    
-                    // Try to load the next image before starting animation
-                    Image nextImage = loadImage(nextImageUrl);
-                    if (nextImage == null) {
-                        // Skip this transition if image couldn't be loaded
-                        return;
-                    }
-                    
-                    // Create and play the slide out animation
-                    TranslateTransition slideOut = new TranslateTransition(Duration.seconds(0.5), bannerImage);
-                    slideOut.setFromX(0);
-                    slideOut.setFromY(0);
-                    slideOut.setToX(bannerImage.getFitWidth());
-                    slideOut.setToY(-bannerImage.getFitHeight());
-                    
-                    slideOut.setOnFinished(event -> {
-                        // Update the image and index
-                        bannerImage.setImage(nextImage);
-                        
-                        // Create and play the slide in animation
-                        TranslateTransition slideIn = new TranslateTransition(Duration.seconds(0.5), bannerImage);
-                        slideIn.setFromX(-bannerImage.getFitWidth());
-                        slideIn.setFromY(bannerImage.getFitHeight());
-                        slideIn.setToX(0);
-                        slideIn.setToY(0);
-                        slideIn.play();
+                    if (!slideshowRunning)
+                        break;
+
+                    Platform.runLater(() -> {
+                        // Calculate next image index before loading
+                        currentImageIndex = (currentImageIndex + 1) % bannerImages.size();
+                        String nextImageUrl = bannerImages.get(currentImageIndex);
+
+                        // Try to load the next image before starting animation
+                        Image nextImage = loadImage(nextImageUrl);
+                        if (nextImage == null) {
+                            // Skip this transition if image couldn't be loaded
+                            return;
+                        }
+
+                        // Create and play the slide out animation
+                        TranslateTransition slideOut = new TranslateTransition(Duration.seconds(0.5), bannerImage);
+                        slideOut.setFromX(0);
+                        slideOut.setFromY(0);
+                        slideOut.setToX(bannerImage.getFitWidth());
+                        slideOut.setToY(-bannerImage.getFitHeight());
+
+                        slideOut.setOnFinished(event -> {
+                            // Update the image and index
+                            bannerImage.setImage(nextImage);
+
+                            // Create and play the slide in animation
+                            TranslateTransition slideIn = new TranslateTransition(Duration.seconds(0.5), bannerImage);
+                            slideIn.setFromX(-bannerImage.getFitWidth());
+                            slideIn.setFromY(bannerImage.getFitHeight());
+                            slideIn.setToX(0);
+                            slideIn.setToY(0);
+                            slideIn.play();
+                        });
+
+                        slideOut.play();
                     });
-                    
-                    slideOut.play();
-                });
-                
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
-        }
-    });
-    
-    slideshowThread.setDaemon(true);
-    slideshowThread.start();
-}
 
-public void stopSlideshow() {
-    slideshowRunning = false;
-    if (slideshowThread != null) {
-        slideshowThread.interrupt();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        });
+
+        slideshowThread.setDaemon(true);
+        slideshowThread.start();
     }
-}
+
+    public void stopSlideshow() {
+        slideshowRunning = false;
+        if (slideshowThread != null) {
+            slideshowThread.interrupt();
+        }
+    }
 
     private void updateProfileButton() {
         if (profileLoginButton != null) {
@@ -241,33 +268,33 @@ public void stopSlideshow() {
     }
 
     private void animateNavLogo() {
-    if (navLogo == null) return; // Avoid null pointer exceptions
+        if (navLogo == null)
+            return; // Avoid null pointer exceptions
 
-    // Fade effect
-    FadeTransition fade = new FadeTransition(Duration.seconds(3), navLogo);
-    fade.setFromValue(0.0);
-    fade.setToValue(3.0);
+        // Fade effect
+        FadeTransition fade = new FadeTransition(Duration.seconds(3), navLogo);
+        fade.setFromValue(0.0);
+        fade.setToValue(3.0);
 
-    // Scale effect (slight bounce)
-    ScaleTransition scale = new ScaleTransition(Duration.seconds(1), navLogo);
-    scale.setFromX(0.8);
-    scale.setFromY(0.8);
-    scale.setToX(1.1);
-    scale.setToY(1.1);
-    scale.setAutoReverse(true);
+        // Scale effect (slight bounce)
+        ScaleTransition scale = new ScaleTransition(Duration.seconds(1), navLogo);
+        scale.setFromX(0.8);
+        scale.setFromY(0.8);
+        scale.setToX(1.1);
+        scale.setToY(1.1);
+        scale.setAutoReverse(true);
 
-    // Translate effect (left to right)
-    TranslateTransition translate = new TranslateTransition(Duration.seconds(2), navLogo);
-    translate.setFromX(-100);
-    translate.setToX(0);
+        // Translate effect (left to right)
+        TranslateTransition translate = new TranslateTransition(Duration.seconds(2), navLogo);
+        translate.setFromX(-100);
+        translate.setToX(0);
 
-    // Combine animations
-    ParallelTransition parallelTransition = new ParallelTransition(fade, scale, translate);
-    parallelTransition.play();
-    
-}
+        // Combine animations
+        ParallelTransition parallelTransition = new ParallelTransition(fade, scale, translate);
+        parallelTransition.play();
+    }
 
-    private void openDashboard(){
+    private void openDashboard() {
         Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
         LoadPageController.loadScene("dashboard.fxml", "dashboard.css", currentStage);
         stopSlideshow();
@@ -276,14 +303,30 @@ public void stopSlideshow() {
     private void openSettings() {
         Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
         LoadPageController.loadScene("settings.fxml", "settings.css", currentStage);
-
     }
 
     private void addSearchListener() {
         if (searchField != null) {
+            // Add a key press event listener to detect Enter key
+            searchField.setOnKeyPressed(event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
+                    performSearch();
+                }
+            });
+
+            // Enable live search after typing 3+ characters
             searchField.textProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue != null && newValue.length() >= 3) {
-                    performSearch(newValue);
+                    // Only perform live search if we've changed by at least 3 characters to avoid
+                    // too many searches
+                    if (oldValue == null || Math.abs(oldValue.length() - newValue.length()) >= 3) {
+                        performSearch();
+                    }
+                } else if (newValue == null || newValue.isEmpty()) {
+                    // Clear results when search field is empty
+                    if (searchImplementation != null) {
+                        searchImplementation.clearResults();
+                    }
                 }
             });
         }
@@ -295,20 +338,27 @@ public void stopSlideshow() {
             String searchTerm = searchField.getText().trim();
             if (!searchTerm.isEmpty()) {
                 System.out.println("Searching for: " + searchTerm);
-                // Implement search functionality
+
+                // Use the search implementation class to perform the search
+                if (searchImplementation != null) {
+                    searchImplementation.performSearch(searchTerm);
+                } else {
+                    System.err.println("Search implementation is not initialized");
+                    showAlert(Alert.AlertType.ERROR, "Search Error", "Search implementation is not initialized");
+                }
+            } else {
+                // Handle empty search term
+                System.out.println("Please enter a search term");
+                if (searchImplementation != null) {
+                    searchImplementation.clearResults();
+                }
+                showAlert(Alert.AlertType.INFORMATION, "Search", "Please enter a search term");
             }
         } catch (Exception e) {
+            System.err.println("Error performing search: " + e.getMessage());
+            e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error performing search", e.getMessage());
         }
-    }
-
-    private void performSearch(String query) {
-        if (query == null || query.trim().isEmpty()) {
-            return;
-        }
-        // Implement search functionality
-        System.out.println("Searching for: " + query.trim());
-        // You would typically call your search service here
     }
 
     private void loadBooks() {
@@ -317,12 +367,12 @@ public void stopSlideshow() {
             List<Book> featuredBooksList = BooksDetailsCollection.getBooksBySequence(0, 9).stream()
                     .sorted((b1, b2) -> Double.compare(b2.getRating(), b1.getRating()))
                     .collect(Collectors.toList());
-    
+
             // Define and initialize recommendedBooksList
             List<Book> recommendedBooksList = BooksDetailsCollection.getBooksBySequence(9, 18).stream()
                     .sorted((b1, b2) -> Double.compare(b2.getReviewCount(), b1.getReviewCount()))
                     .collect(Collectors.toList());
-    
+
             // Load the book sections with data from MongoDB
             loadBookSection(featuredBooks, featuredBooksList);
             loadBookSection(recommendedBooks, recommendedBooksList);
@@ -342,69 +392,71 @@ public void stopSlideshow() {
         }
     }
 
-    private VBox createBookCard(Book book) {
-    VBox card = new VBox(10);
-    card.getStyleClass().add("book-card");
-    card.setAlignment(Pos.CENTER);
+    // Make createBookCard public so it can be used by SearchImplementation
+    public VBox createBookCard(Book book) {
+        VBox card = new VBox(10);
+        card.getStyleClass().add("book-card");
+        card.setAlignment(Pos.CENTER);
 
-    // Book Cover Image
-    ImageView coverImage = new ImageView();
-    try {
-        Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(book.getImageUrl())));
-        coverImage.setImage(image);
-    } catch (Exception e) {
-        // Load placeholder image if book image is not found
+        // Book Cover Image
+        ImageView coverImage = new ImageView();
         try {
-            coverImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/books/placeholder-book.png"))));
-        } catch (Exception ex) {
-            System.err.println("Failed to load placeholder image: " + ex.getMessage());
+            Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(book.getImageUrl())));
+            coverImage.setImage(image);
+        } catch (Exception e) {
+            // Load placeholder image if book image is not found
+            try {
+                coverImage.setImage(new Image(
+                        Objects.requireNonNull(getClass().getResourceAsStream("/images/books/placeholder-book.png"))));
+            } catch (Exception ex) {
+                System.err.println("Failed to load placeholder image: " + ex.getMessage());
+            }
         }
+        coverImage.setFitHeight(200);
+        coverImage.setFitWidth(140);
+        coverImage.setPreserveRatio(true);
+
+        // Make the cover image clickable
+        coverImage.setCursor(Cursor.HAND);
+        coverImage.setOnMouseClicked(e -> handleBookSelection(book));
+
+        // Book Details
+        Label titleLabel = new Label(book.getTitle());
+        titleLabel.getStyleClass().add("book-title");
+        titleLabel.setWrapText(true);
+
+        // Make the title clickable
+        titleLabel.setCursor(Cursor.HAND);
+        titleLabel.setOnMouseClicked(e -> handleBookSelection(book));
+
+        Label authorLabel = new Label(book.getAuthor());
+        authorLabel.getStyleClass().add("book-author");
+
+        Label ratingLabel = new Label(String.format("%.1f ★", book.getRating()));
+        ratingLabel.getStyleClass().add("book-rating");
+
+        Label priceLabel = new Label(String.format("৳ %.2f", book.getCurrentPrice()));
+        priceLabel.getStyleClass().add("book-price");
+
+        Button addToCartBtn = new Button("Add to Cart");
+        addToCartBtn.getStyleClass().addAll("cart-button", "animated-button");
+        addToCartBtn.setOnAction(e -> handleAddToCart(book));
+
+        card.getChildren().addAll(coverImage, titleLabel, authorLabel, ratingLabel, priceLabel, addToCartBtn);
+
+        // Add hover effect
+        addHoverEffect(card);
+
+        return card;
     }
-    coverImage.setFitHeight(200);
-    coverImage.setFitWidth(140);
-    coverImage.setPreserveRatio(true);
-    
-    // Make the cover image clickable
-    coverImage.setCursor(Cursor.HAND);
-    coverImage.setOnMouseClicked(e -> handleBookSelection(book));
 
-    // Book Details
-    Label titleLabel = new Label(book.getTitle());
-    titleLabel.getStyleClass().add("book-title");
-    titleLabel.setWrapText(true);
-    
-    // Make the title clickable
-    titleLabel.setCursor(Cursor.HAND);
-    titleLabel.setOnMouseClicked(e -> handleBookSelection(book));
+    private void handleBookSelection(Book book) {
+        SessionManager.getInstance().setCurrentBookId(book.getId());
+        Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+        LoadPageController.loadScene("bookdetails.fxml", "bookdetails.css", currentStage);
 
-    Label authorLabel = new Label(book.getAuthor());
-    authorLabel.getStyleClass().add("book-author");
-
-    Label ratingLabel = new Label(String.format("%.1f ★", book.getRating()));
-    ratingLabel.getStyleClass().add("book-rating");
-
-    Label priceLabel = new Label(String.format("৳ %.2f", book.getCurrentPrice()));
-    priceLabel.getStyleClass().add("book-price");
-
-    Button addToCartBtn = new Button("Add to Cart");
-    addToCartBtn.getStyleClass().addAll("cart-button", "animated-button");
-    addToCartBtn.setOnAction(e -> handleAddToCart(book));
-
-    card.getChildren().addAll(coverImage, titleLabel, authorLabel, ratingLabel, priceLabel, addToCartBtn);
-
-    // Add hover effect
-    addHoverEffect(card);
-
-    return card;
-}
-
-private void handleBookSelection(Book book) {
-    SessionManager.getInstance().setCurrentBookId(book.getId());
-    Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
-    LoadPageController.loadScene("bookdetails.fxml", "bookdetails.css", currentStage);
-
-    stopSlideshow();
-}
+        stopSlideshow();
+    }
 
     private void addHoverEffect(VBox card) {
         ScaleTransition scaleIn = new ScaleTransition(Duration.millis(200), card);
@@ -421,11 +473,12 @@ private void handleBookSelection(Book book) {
 
     public void handleAddToCart(Book book) {
         if (!SessionManager.getInstance().getIsLoggedIn()) {
-            showAlert(Alert.AlertType.INFORMATION, "Login Required","Please login to add books to your cart.");
+            showAlert(Alert.AlertType.INFORMATION, "Login Required", "Please login to add books to your cart.");
             return;
         }
         cartService.addItem(book.getId(), book.getTitle(), book.getCurrentPrice(), book.getImageUrl());
-        showAlert(Alert.AlertType.INFORMATION, "Success",String.format("%s has been added to your cart!", book.getTitle()));
+        showAlert(Alert.AlertType.INFORMATION, "Success",
+                String.format("%s has been added to your cart!", book.getTitle()));
     }
 
     @FXML
@@ -455,7 +508,6 @@ private void handleBookSelection(Book book) {
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Logout Error", "Failed to process logout.");
         }
-        
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {
