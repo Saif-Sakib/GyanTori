@@ -32,7 +32,7 @@ AnchorPane.bottomAnchor="20.0">
     <ImageView fitHeight="32.0" fitWidth="32.0">
         <Image url="@images/cart-icon.png"/>
     </ImageView>
-    <Label text="Your Shopping Cart" styleClass="cart-title"/>
+    <Label text="Your Shopping Cart" styleClass="cart-title" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: purple;" alignment="CENTER_LEFT"/>
     <Region HBox.hgrow="ALWAYS"/>
 </HBox>
 <!-- Empty Cart Message (Initially Hidden) -->
@@ -40,49 +40,47 @@ AnchorPane.bottomAnchor="20.0">
     <ImageView fitHeight="120.0" fitWidth="120.0">
         <Image url="@images/empty-cart.png"/>
     </ImageView>
-    <Label text="Your cart is empty" styleClass="empty-cart-label"/>
+    <Label text="Your cart is empty!" styleClass="empty-cart-label" style="-fx-font-size: 22px; -fx-text-fill: white;"/>
     <Button onAction="#loadHome" text="Continue Shopping" styleClass="continue-shopping-btn"/>
 </VBox>
 <!-- Cart Items Section -->
-        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="cart-scroll">
-            <VBox fx:id="cartItemsContainer" spacing="15.0">
-                <padding>
-                    <Insets top="15.0" right="15.0" bottom="15.0" left="15.0"/>
-                </padding>
-            </VBox>
-        </ScrollPane>
-        
-        <!-- Cart Summary Section -->
-        <VBox spacing="15.0" styleClass="summary-container">
-            <Label text="Order Summary" styleClass="summary-title"/>
-            <GridPane hgap="10.0" vgap="8.0">
-                <Label text="Subtotal:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <Label fx:id="subtotalLabel" text="0 TK" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                <Label text="Online Fee:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                <Label fx:id="onlineFeeLabel" text="0 TK" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                <Label text="Delivery Fee:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                <Label fx:id="deliveryFeeLabel" text="0 TK" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-                <Separator GridPane.rowIndex="3" GridPane.columnSpan="2"/>
-                <Label text="Total:" styleClass="total-text"
-                       GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                <Label fx:id="totalLabel" text="0 TK" styleClass="total-amount"
-                       GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-            </GridPane>
-            
-            <!-- Promo Code Section -->
-            <HBox spacing="10.0" alignment="CENTER_LEFT">
-                <TextField fx:id="promoCodeField" promptText="Enter promo code"
-                          styleClass="promo-input" HBox.hgrow="ALWAYS"/>
-                <Button text="Apply" fx:id="applyPromoButton" styleClass="promo-button"/>
-            </HBox>
-        </VBox>
-        
-        <!-- Action Buttons -->
-        <HBox spacing="15.0" alignment="CENTER">
-            <Button text="Save for Later" fx:id="saveButton" styleClass="secondary-button"/>
-            <Button text="Order as a Gift" fx:id="giftButton" styleClass="gift-button"/>
-            <Button text="Proceed to Checkout" fx:id="checkoutButton"
-                    styleClass="checkout-button" defaultButton="true"/>
-        </HBox>
+<ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="cart-scroll">
+    <VBox fx:id="cartItemsContainer" spacing="15.0">
+        <padding>
+            <Insets top="15.0" right="15.0" bottom="15.0" left="15.0"/>
+        </padding>
+    </VBox>
+</ScrollPane>
+
+<!-- Cart Summary Section -->
+<VBox spacing="15.0" styleClass="summary-container">
+    <Label text="Order Summary" styleClass="summary-title"/>
+    <GridPane hgap="10.0" vgap="8.0">
+        <Label text="Subtotal:" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+        <Label fx:id="subtotalLabel" text="0 TK" GridPane.rowIndex="0" GridPane.columnIndex="1" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+        <Label text="Online Fee:" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+        <Label fx:id="onlineFeeLabel" text="0 TK" GridPane.rowIndex="1" GridPane.columnIndex="1" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+        <Label text="Delivery Fee:" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+        <Label fx:id="deliveryFeeLabel" text="0 TK" GridPane.rowIndex="2" GridPane.columnIndex="1" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+        <Separator GridPane.rowIndex="3" GridPane.columnSpan="2"/>
+        <Label text="Total:" styleClass="total-text" GridPane.rowIndex="4" GridPane.columnIndex="0" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+        <Label fx:id="totalLabel" text="0 TK" styleClass="total-amount" GridPane.rowIndex="4" GridPane.columnIndex="1" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+    </GridPane>
+
+    <!-- Promo Code Section -->
+    <HBox spacing="10.0" alignment="CENTER_LEFT">
+        <TextField fx:id="promoCodeField" promptText="Enter promo code"
+                  styleClass="promo-input" HBox.hgrow="ALWAYS"/>
+        <Button text="Apply" fx:id="applyPromoButton" styleClass="promo-button"/>
+    </HBox>
+</VBox>
+
+<!-- Action Buttons -->
+<HBox spacing="15.0" alignment="CENTER">
+    <Button text="Save for Later" fx:id="saveButton" styleClass="secondary-button"/>
+    <Button text="Order as a Gift" fx:id="giftButton" styleClass="gift-button"/>
+    <Button text="Proceed to Checkout" fx:id="checkoutButton"
+            styleClass="checkout-button" defaultButton="true"/>
+</HBox>
 </VBox>
 </AnchorPane>

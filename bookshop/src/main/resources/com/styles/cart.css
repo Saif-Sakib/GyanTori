@@ -13,7 +13,9 @@
 
 /* Enhanced Root Styling */
 .root {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #f5f7fa, #c3cfe2);
+    -fx-background-color: linear-gradient(from 100% 100% to 0% 0%, rgb(213, 138, 213),
+    rgb(172, 91, 172),
+    rgb(224, 124, 61));
     -fx-font-family: "Segoe UI", "Arial", sans-serif;
 }
 
@@ -59,21 +61,41 @@
 
 /* Enhanced Buttons */
 .button {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, -primary-color, -secondary-color);
-    -fx-text-fill: -white;
+    -fx-background-color: -white;
+    -fx-border-color: linear-gradient(
+        to right,
+        rgb(155, 18, 155),
+        rgb(143, 44, 143),
+        rgb(224, 124, 61)
+      );
+    -fx-border-width: 3px;
+    -fx-text-fill: -black;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-padding: 12px 24px;
     -fx-background-radius: 25px;
+    -fx-border-radius: 25px;
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(106,17,203,0.25), 8, 0, 0, 1);
 }
 
 .button:hover {
-    -fx-scale-x: 1.02;
-    -fx-scale-y: 1.02;
+    -fx-background-color: -white;
+    -fx-border-color: linear-gradient(
+        to right,
+        rgb(227, 63, 227),
+        rgb(143, 44, 143),
+        rgb(160, 71, 16)
+      );
+    -fx-text-fill: linear-gradient(
+        to right,
+        rgb(105, 10, 105),
+        rgb(146, 27, 146),
+        rgb(123, 56, 14)
+      );
     -fx-effect: dropshadow(gaussian, rgba(106,17,203,0.35), 12, 0, 0, 2);
 }
+
 
 .button:pressed {
     -fx-scale-x: 0.98;
@@ -82,7 +104,7 @@
 }
 
 .secondary-button {
-    -fx-background-color: -text-secondary;
+    -fx-background-color: white;
 }
 
 .gift-button {
@@ -122,7 +144,7 @@
 }
 
 .cart-scroll > .scroll-bar:vertical > .thumb {
-    -fx-background-color: rgba(106,17,203,0.3);
+    -fx-background-color: rgba(214, 104, 26, 0.3);
     -fx-background-radius: 10px;
 }
 
@@ -136,7 +158,7 @@
 
 .return-button {
     -fx-background-color: transparent;
-    -fx-text-fill: #666666;
+    -fx-text-fill: #1a1313;
     -fx-font-size: 14px;
     -fx-padding: 8px 12px;
     -fx-border-radius: 4px;
@@ -145,8 +167,13 @@
 }
 
 .return-button:hover {
-    -fx-background-color: #f0f0f0;
-    -fx-text-fill: #333333;
+    -fx-background-color: linear-gradient(
+        to right,
+        rgb(220, 66, 220),
+        rgb(171, 65, 171),
+        rgb(212, 104, 36)
+      );;
+    -fx-text-fill: #131111;
 }
 
 .return-button:pressed {
