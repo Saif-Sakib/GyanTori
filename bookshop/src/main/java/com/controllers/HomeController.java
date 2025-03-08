@@ -9,7 +9,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -26,13 +25,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.services.CartService;
-import com.services.SessionManager;
 import com.database.BooksDetailsCollection;
 import com.models.Book;
-import com.services.SearchImplementation; // Add this import statement
+import com.services.SearchImplementation;
+import com.services.SessionManager;
 
-public class HomeController {
+public class HomeController extends CommonController {
 
     @FXML
     private TextField searchField;
@@ -41,17 +39,15 @@ public class HomeController {
     @FXML
     private HBox recommendedBooks;
     @FXML
-    private Button profileLoginButton;
-    @FXML
     private Label navLogo;
     @FXML
     private ImageView bannerImage;
     @FXML
     private HBox bannerBox;
     @FXML
-    private HBox searchResultsContainer; // New container for search results
+    private HBox searchResultsContainer;
     @FXML
-    private Button searchButton; // Added search button
+    private Button searchButton;
 
     private volatile boolean slideshowRunning = true;
     private Thread slideshowThread;
@@ -65,8 +61,7 @@ public class HomeController {
             "/com/images/img5.png",
             "/com/images/img6.png");
 
-    private final CartService cartService = CartService.getInstance();
-    private SearchImplementation searchImplementation; // Search implementation object
+    private SearchImplementation searchImplementation;
 
     @FXML
     public void initialize() {
@@ -80,7 +75,7 @@ public class HomeController {
                 searchImplementation = new SearchImplementation(this, searchResultsContainer);
             }
 
-            updateProfileButton();
+            updateProfileButton(); // Using the method from CommonHome
             loadBooks();
             addSearchListener();
 
@@ -222,51 +217,6 @@ public class HomeController {
         }
     }
 
-    private void updateProfileButton() {
-        if (profileLoginButton != null) {
-            if (SessionManager.getInstance().getIsLoggedIn()) {
-                // Create a dropdown menu
-                ContextMenu menu = new ContextMenu();
-
-                // Add menu items
-                CustomMenuItem dashboard = new CustomMenuItem(new Label("Dashboard"));
-                CustomMenuItem settings = new CustomMenuItem(new Label("Settings"));
-                CustomMenuItem logout = new CustomMenuItem(new Label("Logout"));
-
-                // Set action handlers for each menu item
-                dashboard.setOnAction(e -> openDashboard());
-                settings.setOnAction(e -> openSettings());
-                logout.setOnAction(e -> logout());
-
-                // Add items to menu
-                menu.getItems().addAll(dashboard, settings, logout);
-
-                // Style the context menu
-                menu.setStyle(
-                        "-fx-background-color: rgba(255, 255, 255, 0.1); -fx-text-fill: white; -fx-padding: 5px; -fx-background-radius: 10px; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0, 0, 3);");
-                menu.getItems().forEach(item -> {
-                    item.setStyle(
-                            "-fx-background-color: #444; -fx-text-fill: white; -fx-padding: 5px; -fx-background-radius: 5px; -fx-cursor: hand;");
-
-                    ((CustomMenuItem) item).getContent().setOnMouseEntered(event -> item
-                            .setStyle("-fx-background-color: #555; -fx-text-fill: #ddd; -fx-background-radius: 5px;"));
-
-                    ((CustomMenuItem) item).getContent().setOnMouseExited(event -> item
-                            .setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-background-radius: 5px;"));
-                });
-
-                // Style the profile login button
-                profileLoginButton.setText("Profile");
-                profileLoginButton.setOnAction(e -> menu.show(profileLoginButton, javafx.geometry.Side.BOTTOM, 0, 0));
-
-            } else {
-                // Styling for the login button when not logged in
-                profileLoginButton.setText("Login");
-                profileLoginButton.setOnAction(e -> handleProfileLogin());
-            }
-        }
-    }
-
     private void animateNavLogo() {
         if (navLogo == null)
             return; // Avoid null pointer exceptions
@@ -292,17 +242,6 @@ public class HomeController {
         // Combine animations
         ParallelTransition parallelTransition = new ParallelTransition(fade, scale, translate);
         parallelTransition.play();
-    }
-
-    private void openDashboard() {
-        Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
-        LoadPageController.loadScene("dashboard.fxml", "dashboard.css", currentStage);
-        stopSlideshow();
-    }
-
-    private void openSettings() {
-        Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
-        LoadPageController.loadScene("settings.fxml", "settings.css", currentStage);
     }
 
     private void addSearchListener() {
@@ -392,129 +331,31 @@ public class HomeController {
         }
     }
 
-    // Make createBookCard public so it can be used by SearchImplementation
-    public VBox createBookCard(Book book) {
-        VBox card = new VBox(10);
-        card.getStyleClass().add("book-card");
-        card.setAlignment(Pos.CENTER);
-
-        // Book Cover Image
-        ImageView coverImage = new ImageView();
-        try {
-            Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(book.getImageUrl())));
-            coverImage.setImage(image);
-        } catch (Exception e) {
-            // Load placeholder image if book image is not found
-            try {
-                coverImage.setImage(new Image(
-                        Objects.requireNonNull(getClass().getResourceAsStream("/images/books/placeholder-book.png"))));
-            } catch (Exception ex) {
-                System.err.println("Failed to load placeholder image: " + ex.getMessage());
-            }
-        }
-        coverImage.setFitHeight(200);
-        coverImage.setFitWidth(140);
-        coverImage.setPreserveRatio(true);
-
-        // Make the cover image clickable
-        coverImage.setCursor(Cursor.HAND);
-        coverImage.setOnMouseClicked(e -> handleBookSelection(book));
-
-        // Book Details
-        Label titleLabel = new Label(book.getTitle());
-        titleLabel.getStyleClass().add("book-title");
-        titleLabel.setWrapText(true);
-
-        // Make the title clickable
-        titleLabel.setCursor(Cursor.HAND);
-        titleLabel.setOnMouseClicked(e -> handleBookSelection(book));
-
-        Label authorLabel = new Label(book.getAuthor());
-        authorLabel.getStyleClass().add("book-author");
-
-        Label ratingLabel = new Label(String.format("%.1f ★", book.getRating()));
-        ratingLabel.getStyleClass().add("book-rating");
-
-        Label priceLabel = new Label(String.format("৳ %.2f", book.getCurrentPrice()));
-        priceLabel.getStyleClass().add("book-price");
-
-        Button addToCartBtn = new Button("Add to Cart");
-        addToCartBtn.getStyleClass().addAll("cart-button", "animated-button");
-        addToCartBtn.setOnAction(e -> handleAddToCart(book));
-
-        card.getChildren().addAll(coverImage, titleLabel, authorLabel, ratingLabel, priceLabel, addToCartBtn);
-
-        // Add hover effect
-        addHoverEffect(card);
-
-        return card;
+    public void addToCart(Book book) {
+        super.handleAddToCart(book);
     }
 
-    private void handleBookSelection(Book book) {
-        SessionManager.getInstance().setCurrentBookId(book.getId());
-        Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
-        LoadPageController.loadScene("bookdetails.fxml", "bookdetails.css", currentStage);
-
-        stopSlideshow();
-    }
-
-    private void addHoverEffect(VBox card) {
-        ScaleTransition scaleIn = new ScaleTransition(Duration.millis(200), card);
-        scaleIn.setToX(1.05);
-        scaleIn.setToY(1.05);
-
-        ScaleTransition scaleOut = new ScaleTransition(Duration.millis(200), card);
-        scaleOut.setToX(1.0);
-        scaleOut.setToY(1.0);
-
-        card.setOnMouseEntered(e -> scaleIn.playFromStart());
-        card.setOnMouseExited(e -> scaleOut.playFromStart());
-    }
-
-    public void handleAddToCart(Book book) {
-        if (!SessionManager.getInstance().getIsLoggedIn()) {
-            showAlert(Alert.AlertType.INFORMATION, "Login Required", "Please login to add books to your cart.");
-            return;
-        }
-        cartService.addItem(book.getId(), book.getTitle(), book.getCurrentPrice(), book.getImageUrl());
-        showAlert(Alert.AlertType.INFORMATION, "Success",
-                String.format("%s has been added to your cart!", book.getTitle()));
-    }
-
+    // Override handleCartLoad and handleProfileLogin from parent class
+    // to make sure slideshow is stopped when navigating away
+    @Override
     @FXML
-    private void handleCartLoad() {
-        Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
-        LoadPageController.loadScene("cart.fxml", "cart.css", currentStage);
+    public void handleCartLoad() {
         stopSlideshow();
+        super.handleCartLoad();
     }
 
+    @Override
     @FXML
     public void handleProfileLogin() {
-        if (SessionManager.getInstance().getIsLoggedIn()) {
-            logout();
-        } else {
-            Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
-            LoadPageController.loadScene("login.fxml", "login_signup.css", currentStage);
+        if (!SessionManager.getInstance().getIsLoggedIn()) {
             stopSlideshow();
         }
+        super.handleProfileLogin();
     }
 
-    public void logout() {
-        try {
-            SessionManager.getInstance().setIsLoggedIn(false);
-            updateProfileButton();
-            SessionManager.getInstance().clearSession();
-            showAlert(Alert.AlertType.INFORMATION, "Logged Out", "You have been successfully logged out.");
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Logout Error", "Failed to process logout.");
-        }
-    }
-
-    private void showAlert(Alert.AlertType type, String title, String content) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+    @Override
+    protected void openDashboard() {
+        stopSlideshow();
+        super.openDashboard();
     }
 }

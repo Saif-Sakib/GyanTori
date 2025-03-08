@@ -6,7 +6,7 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
 
-<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.controllers.HomeController" styleClass="root" fx:id="rootPane">
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.controllers.ExploreController" styleClass="root" fx:id="rootPane">
 
     <!-- Top Navigation Section - Fixed -->
     <VBox spacing="15" styleClass="top-section">
@@ -99,43 +99,150 @@
         <!-- Main Content Area with Smooth Scrolling -->
         <ScrollPane fitToWidth="true" styleClass="main-content-scroll" HBox.hgrow="ALWAYS">
             <VBox spacing="30" styleClass="main-content">
-                <padding>
-                    <Insets top="20" right="20" bottom="20" left="20"/>
-                </padding>
-
-                <!-- Enhanced Welcome Section -->
-                <StackPane VBox.vgrow="ALWAYS">
-    <ImageView fx:id="bannerImage"/>
-</StackPane>
-
-                <VBox spacing="15">
-                    <ScrollPane styleClass="books-scroll-pane" hbarPolicy="NEVER">
-                        <HBox fx:id="searchResultsContainer" spacing="20" styleClass="books-container"/>
-                    </ScrollPane>
-                </VBox>
-
-                <!-- Featured Books Section with Horizontal Scroll -->
-                <VBox spacing="15">
-                    <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label text="Featured Books" styleClass="section-title"/>
+                
+                <!-- Advanced Search and Sorting Panel -->
+                <VBox styleClass="advanced-search-panel">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+                    
+                    <HBox spacing="15" alignment="CENTER">
+                        <Label text="Advanced Search" styleClass="section-title"/>
                         <Region HBox.hgrow="ALWAYS"/>
-                        <Button text="View All" styleClass="view-all-button, animated-button"/>
+                        <Button fx:id="toggleAdvancedSearchBtn" text="Show Filters" onAction="#toggleAdvancedSearch" styleClass="toggle-button, animated-button"/>
                     </HBox>
-                    <ScrollPane styleClass="books-scroll-pane" hbarPolicy="NEVER">
-                        <HBox fx:id="featuredBooks" spacing="20" styleClass="books-container"/>
-                    </ScrollPane>
+                    
+                    <!-- Advanced Search Filters -->
+                    <VBox fx:id="advancedSearchFilters" visible="false" managed="false" spacing="15" styleClass="advanced-filters">
+                        <padding>
+                            <Insets top="15" right="0" bottom="0" left="0"/>
+                        </padding>
+                        
+                        <!-- Filter Row 1 -->
+                        <HBox spacing="20">
+                            <!-- Author Filter -->
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Author" styleClass="filter-label"/>
+                                <TextField fx:id="authorFilterField" promptText="Search by author" styleClass="filter-field"/>
+                            </VBox>
+                            
+                            <!-- Language Filter -->
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Language" styleClass="filter-label"/>
+                                <ComboBox fx:id="languageFilterCombo" promptText="Select language" styleClass="filter-combo" HBox.hgrow="ALWAYS"/>
+                            </VBox>
+                            
+                            <!-- Publisher Filter -->
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Publisher" styleClass="filter-label"/>
+                                <TextField fx:id="publisherFilterField" promptText="Search by publisher" styleClass="filter-field"/>
+                            </VBox>
+                        </HBox>
+                        
+                        <!-- Filter Row 2 -->
+                        <HBox spacing="20">
+                            <!-- Category Filter -->
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Category" styleClass="filter-label"/>
+                                <ComboBox fx:id="categoryFilterCombo" promptText="Select category" styleClass="filter-combo" HBox.hgrow="ALWAYS"/>
+                            </VBox>
+                            
+                            <!-- Price Range -->
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Price Range" styleClass="filter-label"/>
+                                <HBox spacing="10">
+                                    <TextField fx:id="minPriceField" promptText="Min" styleClass="price-field" HBox.hgrow="ALWAYS"/>
+                                    <Label text="to" styleClass="to-label"/>
+                                    <TextField fx:id="maxPriceField" promptText="Max" styleClass="price-field" HBox.hgrow="ALWAYS"/>
+                                </HBox>
+                            </VBox>
+                            
+                            <!-- Rating Filter -->
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Min Rating" styleClass="filter-label"/>
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <Slider fx:id="ratingSlider" min="0" max="5" value="0" majorTickUnit="1" minorTickCount="0" 
+                                            showTickMarks="true" showTickLabels="true" snapToTicks="true" HBox.hgrow="ALWAYS"/>
+                                    <Label fx:id="ratingValueLabel" text="0.0+" styleClass="rating-label"/>
+                                </HBox>
+                            </VBox>
+                        </HBox>
+                        
+                        <!-- Filter Row 3 -->
+                        <HBox spacing="20">
+                            <!-- Publication Date Range -->
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Publication Date" styleClass="filter-label"/>
+                                <HBox spacing="10">
+                                    <DatePicker fx:id="fromDatePicker" promptText="From" styleClass="date-picker" HBox.hgrow="ALWAYS"/>
+                                    <Label text="to" styleClass="to-label"/>
+                                    <DatePicker fx:id="toDatePicker" promptText="To" styleClass="date-picker" HBox.hgrow="ALWAYS"/>
+                                </HBox>
+                            </VBox>
+                            
+                            <!-- Availability Filter -->
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Availability" styleClass="filter-label"/>
+                                <ComboBox fx:id="availabilityFilterCombo" promptText="Any availability" styleClass="filter-combo" HBox.hgrow="ALWAYS"/>
+                            </VBox>
+                            
+                            <!-- Discount Filter -->
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Discount" styleClass="filter-label"/>
+                                <CheckBox fx:id="discountFilterCheck" text="Show only discounted books" styleClass="filter-checkbox"/>
+                            </VBox>
+                        </HBox>
+                        
+                        <!-- Filter Buttons -->
+                        <HBox spacing="15" alignment="CENTER_RIGHT">
+                            <Button fx:id="clearFiltersBtn" text="Clear Filters" onAction="#clearFilters" styleClass="clear-button, animated-button"/>
+                            <Button fx:id="applyFiltersBtn" text="Apply Filters" onAction="#applyFilters" styleClass="apply-button, animated-button"/>
+                        </HBox>
+                    </VBox>
                 </VBox>
-
-                <!-- Recommended Books Section -->
-                <VBox spacing="15">
-                    <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label text="Recommended For You" styleClass="section-title"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Button text="View All" styleClass="view-all-button, animated-button"/>
+                
+                <!-- Sort Controls -->
+                <HBox spacing="15" styleClass="sort-controls">
+                    <padding>
+                        <Insets left="20" right="20"/>
+                    </padding>
+                    
+                    <Label text="Sort by:" styleClass="sort-label"/>
+                    <ComboBox fx:id="sortByCombo" promptText="Relevance" styleClass="sort-combo"/>
+                    
+                    <Label text="Order:" styleClass="sort-label"/>
+                    <ComboBox fx:id="sortOrderCombo" promptText="Descending" styleClass="sort-combo"/>
+                    
+                    <Region HBox.hgrow="ALWAYS"/>
+                    
+                    <Label fx:id="resultCountLabel" text="Showing 0 books" styleClass="result-count"/>
+                </HBox>
+                
+                <!-- Results Panel -->
+                <VBox spacing="15" styleClass="results-panel">
+                    <padding>
+                        <Insets left="20" right="20"/>
+                    </padding>
+                    
+                    <Label text="Browse Books" styleClass="section-title"/>
+                    
+                    <!-- Books Grid -->
+                    <TilePane fx:id="booksGridPane" hgap="15" vgap="25" prefColumns="4" styleClass="books-grid"/>
+                    
+                    <!-- Pagination -->
+                    <HBox alignment="CENTER" styleClass="pagination-container">
+                        <Pagination fx:id="booksPagination" styleClass="books-pagination"/>
                     </HBox>
-                    <ScrollPane styleClass="books-scroll-pane" hbarPolicy="NEVER">
-                        <HBox fx:id="recommendedBooks" spacing="20" styleClass="books-container"/>
-                    </ScrollPane>
+                    
+                    <!-- No Results Message -->
+                    <VBox fx:id="noResultsBox" visible="false" alignment="CENTER" spacing="10" styleClass="no-results">
+                        <ImageView fitHeight="80" fitWidth="80">
+                            <Image url="@images/icons/no-results.png"/>
+                        </ImageView>
+                        <Label text="No books found" styleClass="no-results-title"/>
+                        <Label text="Try adjusting your search or filters to find what you're looking for." styleClass="no-results-text"/>
+                        <Button text="Clear All Filters" onAction="#clearFilters" styleClass="clear-button, animated-button"/>
+                    </VBox>
                 </VBox>
 
                 <!-- Footer moved inside main content VBox -->

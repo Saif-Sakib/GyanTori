@@ -35,21 +35,26 @@ AnchorPane.bottomAnchor="20.0">
     <Label text="Your Shopping Cart" styleClass="cart-title" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: purple;" alignment="CENTER_LEFT"/>
     <Region HBox.hgrow="ALWAYS"/>
 </HBox>
-<!-- Empty Cart Message (Initially Hidden) -->
-<VBox fx:id="emptyCartContainer" alignment="CENTER" spacing="15.0" visible="false">
-    <ImageView fitHeight="120.0" fitWidth="120.0">
-        <Image url="@images/empty-cart.png"/>
-    </ImageView>
-    <Label text="Your cart is empty!" styleClass="empty-cart-label" style="-fx-font-size: 22px; -fx-text-fill: white;"/>
-    <Button onAction="#loadHome" text="Continue Shopping" styleClass="continue-shopping-btn"/>
-</VBox>
 <!-- Cart Items Section -->
-<ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="cart-scroll">
-    <VBox fx:id="cartItemsContainer" spacing="15.0">
-        <padding>
-            <Insets top="15.0" right="15.0" bottom="15.0" left="15.0"/>
-        </padding>
-    </VBox>
+<ScrollPane fx:id="cartScrollPane" fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="cart-scroll" prefHeight="300.0">
+    <content>
+        <StackPane alignment="CENTER">
+            <!-- Empty Cart Message -->
+            <VBox fx:id="emptyCartContainer" alignment="CENTER" spacing="15.0">
+                <ImageView fitHeight="120.0" fitWidth="120.0">
+                    <Image url="@images/empty-cart.png"/>
+                </ImageView>
+                <Label text="Your cart is empty!" styleClass="empty-cart-label" style="-fx-font-size: 22px; -fx-text-fill: white;"/>
+                <Button onAction="#loadHome" text="Continue Shopping" styleClass="continue-shopping-btn"/>
+            </VBox>
+            <!-- Cart Items List -->
+            <VBox fx:id="cartItemsContainer" spacing="15.0" visible="false">
+                <padding>
+                    <Insets top="15.0" right="15.0" bottom="15.0" left="15.0"/>
+                </padding>
+            </VBox>
+        </StackPane>
+    </content>
 </ScrollPane>
 
 <!-- Cart Summary Section -->

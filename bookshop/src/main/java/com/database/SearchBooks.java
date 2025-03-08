@@ -49,7 +49,7 @@ public class SearchBooks {
             cursor = iterable.iterator();
             while (cursor.hasNext()) {
                 Document doc = cursor.next();
-                Book book = convertDocumentToBook(doc);
+                Book book = BooksDetailsCollection.convertDocumentToBook(doc);
                 if (book != null) {
                     bookList.add(book);
                 }
@@ -109,53 +109,5 @@ public class SearchBooks {
             LOGGER.log(Level.SEVERE, "Error finding featured books: " + e.getMessage(), e);
         }
         return results;
-    }
-
-    // Convert Document to Book object if needed
-    private static Book convertDocumentToBook(Document doc) {
-        if (doc == null) {
-            LOGGER.log(Level.SEVERE, "Document is null");
-            return null;
-        }
-
-        try {
-            Book book = new Book();
-
-            // Handle _id field safely (ObjectId or String)
-            Object idField = doc.get("_id");
-            book.setId(idField instanceof ObjectId ? ((ObjectId) idField).toHexString() : idField.toString());
-
-            book.setTitle(doc.getString("title"));
-            book.setAuthor(doc.getString("author"));
-            book.setPublisher(doc.getString("publisher"));
-            book.setPublicationDate(doc.getString("publicationDate"));
-            book.setLanguage(doc.getString("language"));
-
-            // Handle integer fields safely
-            book.setPages(doc.containsKey("pages") ? doc.get("pages", Number.class).intValue() : 0);
-            book.setReviewCount(doc.containsKey("reviewCount") ? doc.get("reviewCount", Number.class).intValue() : 0);
-
-            book.setIsbn(doc.getString("isbn"));
-
-            // Handle categories array safely
-            List<String> categoriesList = doc.getList("categories", String.class);
-            book.setCategories(categoriesList != null ? categoriesList.toArray(new String[0]) : new String[0]);
-
-            // Handle double fields safely
-            book.setOriginalPrice(
-                    doc.containsKey("originalPrice") ? doc.get("originalPrice", Number.class).doubleValue() : 0.0);
-            book.setCurrentPrice(
-                    doc.containsKey("currentPrice") ? doc.get("currentPrice", Number.class).doubleValue() : 0.0);
-            book.setDiscount(doc.containsKey("discount") ? doc.get("discount", Number.class).doubleValue() : 0.0);
-            book.setRating(doc.containsKey("rating") ? doc.get("rating", Number.class).doubleValue() : 0.0);
-
-            book.setDescription(doc.getString("description"));
-            book.setImageUrl(doc.getString("imageUrl"));
-
-            return book;
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error converting document to book: " + e.getMessage(), e);
-            return null;
-        }
     }
 }

@@ -24,6 +24,7 @@ public class Book {
     private String[] categories;
     private String description;
     private String imageUrl;
+    private String bookHubId;
 
     // Price information
     private double originalPrice;
@@ -235,6 +236,11 @@ public class Book {
 
         public Builder sellerId(String sellerId) {
             book.sellerId = sellerId;
+            return this;
+        }
+
+        public Builder bookHubId(String bookHubId) {
+            book.bookHubId = bookHubId;
             return this;
         }
 
@@ -455,6 +461,14 @@ public class Book {
 
     public void setSellerId(String sellerId) {
         this.sellerId = sellerId;
+    }
+
+    public String getBookHubId() {
+        return bookHubId;
+    }
+
+    public void setBookHubId(String bookHubId) {
+        this.bookHubId = bookHubId;
     }
 
     public String getUploadDate() {

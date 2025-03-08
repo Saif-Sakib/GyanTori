@@ -16,7 +16,7 @@ import com.database.BooksDetailsCollection;
 import com.models.Book;
 import com.services.SessionManager;
 
-public class BookDetailsController {
+public class BookDetailsController extends CommonController {
 
     private static final Logger logger = Logger.getLogger(BookDetailsController.class.getName());
 
@@ -27,8 +27,6 @@ public class BookDetailsController {
     private Label navLogo;
     @FXML
     private TextField searchField;
-    @FXML
-    private Button profileLoginButton;
     @FXML
     private Label categoryBreadcrumb;
     @FXML
@@ -98,7 +96,6 @@ public class BookDetailsController {
     private Book currentBook;
     private boolean isInWishlist = false;
 
-    HomeController homeController = new HomeController();
     /**
      * Initialize the controller.
      * This method is automatically called after the FXML file is loaded.
@@ -106,6 +103,9 @@ public class BookDetailsController {
     @FXML
     public void initialize() {
         try {
+            // Initialize common components (profile button, etc.)
+            initializeCommon();
+
             // Load dummy book data
             loadBookData();
 
@@ -114,7 +114,6 @@ public class BookDetailsController {
 
             // Update UI with book data
             updateUI();
-            updateProfileButton();
         } catch (Exception e) {
             handleException("Error initializing BookDetailsController", e);
         }
@@ -178,83 +177,6 @@ public class BookDetailsController {
         }
     }
 
-    private void updateProfileButton() {
-        if (profileLoginButton != null) {
-            if (SessionManager.getInstance().getIsLoggedIn()) {
-                // Create a dropdown menu
-                ContextMenu menu = new ContextMenu();
-
-                // Add menu items
-                CustomMenuItem dashboard = new CustomMenuItem(new Label("Dashboard"));
-                CustomMenuItem settings = new CustomMenuItem(new Label("Settings"));
-                CustomMenuItem logout = new CustomMenuItem(new Label("Logout"));
-
-                // Set action handlers for each menu item
-                dashboard.setOnAction(e -> openDashboard());
-                settings.setOnAction(e -> openSettings());
-                logout.setOnAction(e -> logout());
-
-                // Add items to menu
-                menu.getItems().addAll(dashboard, settings, logout);
-
-                // Style the context menu
-                menu.setStyle(
-                        "-fx-background-color: rgba(255, 255, 255, 0.1); -fx-text-fill: white; -fx-padding: 5px; -fx-background-radius: 10px; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0, 0, 3);");
-                menu.getItems().forEach(item -> {
-                    item.setStyle(
-                            "-fx-background-color: #444; -fx-text-fill: white; -fx-padding: 5px; -fx-background-radius: 5px; -fx-cursor: hand;");
-
-                    ((CustomMenuItem) item).getContent().setOnMouseEntered(event -> item
-                            .setStyle("-fx-background-color: #555; -fx-text-fill: #ddd; -fx-background-radius: 5px;"));
-
-                    ((CustomMenuItem) item).getContent().setOnMouseExited(event -> item
-                            .setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-background-radius: 5px;"));
-                });
-
-                // Style the profile login button
-                profileLoginButton.setText("Profile");
-                profileLoginButton.setOnAction(e -> menu.show(profileLoginButton, javafx.geometry.Side.BOTTOM, 0, 0));
-
-            } else {
-                // Styling for the login button when not logged in
-                profileLoginButton.setText("Login");
-                profileLoginButton.setOnAction(e -> handleProfileLogin());
-            }
-        }
-    }
-
-    private void openDashboard() {
-        Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
-        LoadPageController.loadScene("dashboard.fxml", "dashboard.css", currentStage);
-    }
-
-    private void openSettings() {
-        Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
-        LoadPageController.loadScene("settings.fxml", "settings.css", currentStage);
-
-    }
-
-    public void logout() {
-        try {
-            SessionManager.getInstance().setIsLoggedIn(false);
-            updateProfileButton();
-            SessionManager.getInstance().clearSession();
-            showAlert(Alert.AlertType.INFORMATION, "Logged Out", "You have been successfully logged out.", "");
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Logout Error", "Failed to process logout.", "");
-        }
-
-    }
-    
-    /**
-     * Handle navigation to home page.
-     */
-    @FXML
-    public void navigateToHome() {
-        Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
-        LoadPageController.loadScene("home.fxml", "home.css", currentStage);
-    }
-
     /**
      * Handle navigation to category page.
      */
@@ -298,43 +220,12 @@ public class BookDetailsController {
     }
 
     /**
-     * Handle cart loading.
-     */
-    @FXML
-    public void handleCartLoad() {
-        try {
-            Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
-            LoadPageController.loadScene("cart.fxml", "cart.css", currentStage);
-        } catch (Exception e) {
-            handleException("Error loading cart", e);
-        }
-    }
-
-    /**
-     * Handle profile or login.
-     */
-    @FXML
-    public void handleProfileLogin() {
-        try {
-            if(SessionManager.getInstance().getIsLoggedIn()){
-                homeController.logout();
-            }
-            else{
-                Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
-                LoadPageController.loadScene("login.fxml", "login_signup.css", currentStage);
-            }
-        } catch (Exception e) {
-            handleException("Error handling profile/login", e);
-        }
-    }
-
-    /**
      * Add current book to cart.
      */
     @FXML
     public void addToCart() {
         try {
-            homeController.handleAddToCart(currentBook);
+            handleAddToCart(currentBook);
         } catch (Exception e) {
             handleException("Error adding book to cart", e);
         }
@@ -348,13 +239,12 @@ public class BookDetailsController {
         try {
             // Add to cart and proceed to checkout
             addToCart();
-            CartController cartController = new CartController();
-            cartController.handleCheckout();
 
             // Navigate to checkout page
-            // This would be implemented based on your app's navigation structure
+            Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+            LoadPageController.loadScene("checkout.fxml", "checkout.css", currentStage);
         } catch (Exception e) {
-            handleException("Error processing buy now", e);
+            handleException("Checkout is under development -_-", e);
         }
     }
 
@@ -365,14 +255,22 @@ public class BookDetailsController {
     public void toggleWishlist() {
         try {
             isInWishlist = !isInWishlist;
-
-            if (isInWishlist) {
-                System.out.println("Added to wishlist: " + currentBook.getTitle());
-                // Update wishlist button style or icon
-            } else {
-                System.out.println("Removed from wishlist: " + currentBook.getTitle());
-                // Update wishlist button style or icon
+            if(!SessionManager.getInstance().getIsLoggedIn()){
+                showAlert(Alert.AlertType.INFORMATION, "Login Required", "Please login to add books to your cart.");
+                return;
             }
+            else{
+                if (isInWishlist) {
+                    System.out.println("Added to wishlist: " + currentBook.getTitle());
+                    showAlert(Alert.AlertType.INFORMATION, "Wishlist", "Added to your wishlist.");
+                    // Update wishlist button style or icon
+                } else {
+                    System.out.println("Removed from wishlist: " + currentBook.getTitle());
+                    showAlert(Alert.AlertType.INFORMATION, "Wishlist", "Removed from your wishlist.");
+                    // Update wishlist button style or icon
+                }
+            }
+            
         } catch (Exception e) {
             handleException("Error toggling wishlist status", e);
         }
@@ -427,23 +325,6 @@ public class BookDetailsController {
             // Navigate to full reviews page or open dialog
         } catch (Exception e) {
             handleException("Error viewing all reviews", e);
-        }
-    }
-
-    /**
-     * Display an alert dialog.
-     */
-    private void showAlert(Alert.AlertType alertType, String title, String header, String content) {
-        try {
-            Alert alert = new Alert(alertType);
-            alert.setTitle(title);
-            alert.setHeaderText(header);
-            alert.setContentText(content);
-            alert.showAndWait();
-        } catch (Exception e) {
-            // Fallback to console if alert cannot be shown
-            System.err.println("Could not show alert: " + title + " - " + content);
-            e.printStackTrace();
         }
     }
 

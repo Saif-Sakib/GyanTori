@@ -8,7 +8,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.controllers.BookDetailsController" styleClass="root" fx:id="rootPane">
 
-    <!-- Top Navigation Section - Fixed (Same as home.fxml) -->
+    <!-- Top Navigation Section - Fixed -->
     <VBox spacing="15" styleClass="top-section">
             <!-- Main Navigation Bar -->
             <HBox alignment="CENTER_RIGHT" spacing="15" styleClass="nav-bar">
@@ -76,9 +76,8 @@
                 <VBox spacing="10" styleClass="sidebar-section">
                     <Label text="My Library" styleClass="sidebar-header"/>
                     <Button text="🏠 Home" onAction="#navigateToHome" styleClass="sidebar-button, animated-button"/>
-                    <Button text="🔍 Explore" styleClass="sidebar-button, animated-button"/>
-                    <Button text="📖 List a Book" styleClass="sidebar-button, animated-button"/>
-                    <Button text="🔄 Borrow &amp; Share" styleClass="sidebar-button, animated-button"/>
+                    <Button text="🔍 Explore" onAction="#navigateToExplore" styleClass="sidebar-button, animated-button"/>
+                    <Button text="📖 Share a Book" styleClass="sidebar-button, animated-button"/>
                     <Button text="🏆 Top Publishers" styleClass="sidebar-button, animated-button"/>
                     <Button text="🌟 Highly Rated Books" styleClass="sidebar-button, animated-button"/>
                 </VBox>
@@ -137,24 +136,14 @@
                             </HBox>
                         </VBox>
 
-                        <!-- Ratings -->
+                        <!-- Ratings with Star Emoji -->
                         <HBox spacing="10" alignment="CENTER_LEFT" styleClass="ratings-section">
                             <HBox fx:id="starsContainer" spacing="2">
-                                <ImageView styleClass="star-icon">
-                                    <Image url="@images/icons/star_filled.png"/>
-                                </ImageView>
-                                <ImageView styleClass="star-icon">
-                                    <Image url="@images/icons/star_filled.png"/>
-                                </ImageView>
-                                <ImageView styleClass="star-icon">
-                                    <Image url="@images/icons/star_filled.png"/>
-                                </ImageView>
-                                <ImageView styleClass="star-icon">
-                                    <Image url="@images/icons/star_filled.png"/>
-                                </ImageView>
-                                <ImageView styleClass="star-icon">
-                                    <Image url="@images/icons/star_half.png"/>
-                                </ImageView>
+                                <Label text="⭐" styleClass="star-emoji"/>
+                                <Label text="⭐" styleClass="star-emoji"/>
+                                <Label text="⭐" styleClass="star-emoji"/>
+                                <Label text="⭐" styleClass="star-emoji"/>
+                                <Label text="⭐" styleClass="star-emoji"/>
                             </HBox>
                             <Label fx:id="ratingValue" text="4.5" styleClass="rating-value"/>
                             <Label text="|" styleClass="separator"/>
@@ -256,60 +245,50 @@
                         <Button text="Write a Review" styleClass="write-review-button, animated-button" onAction="#writeReview"/>
                     </HBox>
                     
-                    <!-- Review Summary -->
+                    <!-- Review Summary with Star Emoji -->
                     <HBox spacing="30" styleClass="review-summary">
                         <VBox spacing="10" alignment="CENTER" styleClass="average-rating">
                             <Label fx:id="averageRating" text="4.5" styleClass="average-rating-value"/>
                             <HBox fx:id="averageStarsContainer" spacing="2" alignment="CENTER">
-                                <ImageView styleClass="star-icon">
-                                    <Image url="@images/icons/star_filled.png"/>
-                                </ImageView>
-                                <ImageView styleClass="star-icon">
-                                    <Image url="@images/icons/star_filled.png"/>
-                                </ImageView>
-                                <ImageView styleClass="star-icon">
-                                    <Image url="@images/icons/star_filled.png"/>
-                                </ImageView>
-                                <ImageView styleClass="star-icon">
-                                    <Image url="@images/icons/star_filled.png"/>
-                                </ImageView>
-                                <ImageView styleClass="star-icon">
-                                    <Image url="@images/icons/star_half.png"/>
-                                </ImageView>
+                                <Label text="⭐" styleClass="star-emoji"/>
+                                <Label text="⭐" styleClass="star-emoji"/>
+                                <Label text="⭐" styleClass="star-emoji"/>
+                                <Label text="⭐" styleClass="star-emoji"/>
+                                <Label text="⭐" styleClass="star-emoji"/>
                             </HBox>
                             <Label fx:id="totalReviewCount" text="127 reviews" styleClass="total-review-count"/>
                         </VBox>
                         
                         <VBox spacing="5" HBox.hgrow="ALWAYS" styleClass="rating-bars">
                             <HBox spacing="10" alignment="CENTER_LEFT" styleClass="rating-bar-row">
-                                <Label text="5★" styleClass="star-label"/>
+                                <Label text="5⭐" styleClass="star-label"/>
                                 <ProgressBar progress="0.75" styleClass="rating-progress-bar" HBox.hgrow="ALWAYS"/>
                                 <Label text="75%" styleClass="rating-percent"/>
                             </HBox>
                             <HBox spacing="10" alignment="CENTER_LEFT" styleClass="rating-bar-row">
-                                <Label text="4★" styleClass="star-label"/>
+                                <Label text="4⭐" styleClass="star-label"/>
                                 <ProgressBar progress="0.15" styleClass="rating-progress-bar" HBox.hgrow="ALWAYS"/>
                                 <Label text="15%" styleClass="rating-percent"/>
                             </HBox>
                             <HBox spacing="10" alignment="CENTER_LEFT" styleClass="rating-bar-row">
-                                <Label text="3★" styleClass="star-label"/>
+                                <Label text="3⭐" styleClass="star-label"/>
                                 <ProgressBar progress="0.05" styleClass="rating-progress-bar" HBox.hgrow="ALWAYS"/>
                                 <Label text="5%" styleClass="rating-percent"/>
                             </HBox>
                             <HBox spacing="10" alignment="CENTER_LEFT" styleClass="rating-bar-row">
-                                <Label text="2★" styleClass="star-label"/>
+                                <Label text="2⭐" styleClass="star-label"/>
                                 <ProgressBar progress="0.03" styleClass="rating-progress-bar" HBox.hgrow="ALWAYS"/>
                                 <Label text="3%" styleClass="rating-percent"/>
                             </HBox>
                             <HBox spacing="10" alignment="CENTER_LEFT" styleClass="rating-bar-row">
-                                <Label text="1★" styleClass="star-label"/>
+                                <Label text="1⭐" styleClass="star-label"/>
                                 <ProgressBar progress="0.02" styleClass="rating-progress-bar" HBox.hgrow="ALWAYS"/>
                                 <Label text="2%" styleClass="rating-percent"/>
                             </HBox>
                         </VBox>
                     </HBox>
                     
-                    <!-- Review List -->
+                    <!-- Review List with Star Emoji -->
                     <VBox spacing="15" styleClass="review-list">
                         <!-- Sample Review 1 -->
                         <VBox styleClass="review-item">
@@ -321,21 +300,11 @@
                                     <Label text="John Smith" styleClass="reviewer-name"/>
                                     <HBox spacing="10" alignment="CENTER_LEFT">
                                         <HBox spacing="2" styleClass="review-stars">
-                                            <ImageView styleClass="star-icon-small">
-                                                <Image url="@images/icons/star_filled.png"/>
-                                            </ImageView>
-                                            <ImageView styleClass="star-icon-small">
-                                                <Image url="@images/icons/star_filled.png"/>
-                                            </ImageView>
-                                            <ImageView styleClass="star-icon-small">
-                                                <Image url="@images/icons/star_filled.png"/>
-                                            </ImageView>
-                                            <ImageView styleClass="star-icon-small">
-                                                <Image url="@images/icons/star_filled.png"/>
-                                            </ImageView>
-                                            <ImageView styleClass="star-icon-small">
-                                                <Image url="@images/icons/star_filled.png"/>
-                                            </ImageView>
+                                            <Label text="⭐" styleClass="star-emoji"/>
+                                            <Label text="⭐" styleClass="star-emoji"/>
+                                            <Label text="⭐" styleClass="star-emoji"/>
+                                            <Label text="⭐" styleClass="star-emoji"/>
+                                            <Label text="⭐" styleClass="star-emoji"/>
                                         </HBox>
                                         <Label text="Verified Purchase" styleClass="verified-badge"/>
                                         <Label text="March 15, 2023" styleClass="review-date"/>
@@ -358,21 +327,10 @@
                                     <Label text="Sarah Johnson" styleClass="reviewer-name"/>
                                     <HBox spacing="10" alignment="CENTER_LEFT">
                                         <HBox spacing="2" styleClass="review-stars">
-                                            <ImageView styleClass="star-icon-small">
-                                                <Image url="@images/icons/star_filled.png"/>
-                                            </ImageView>
-                                            <ImageView styleClass="star-icon-small">
-                                                <Image url="@images/icons/star_filled.png"/>
-                                            </ImageView>
-                                            <ImageView styleClass="star-icon-small">
-                                                <Image url="@images/icons/star_filled.png"/>
-                                            </ImageView>
-                                            <ImageView styleClass="star-icon-small">
-                                                <Image url="@images/icons/star_filled.png"/>
-                                            </ImageView>
-                                            <ImageView styleClass="star-icon-small">
-                                                <Image url="@images/icons/star_empty.png"/>
-                                            </ImageView>
+                                            <Label text="⭐" styleClass="star-emoji"/>
+                                            <Label text="⭐" styleClass="star-emoji"/>
+                                            <Label text="⭐" styleClass="star-emoji"/>
+                                            <Label text="⭐" styleClass="star-emoji"/>
                                         </HBox>
                                         <Label text="Verified Purchase" styleClass="verified-badge"/>
                                         <Label text="February 28, 2023" styleClass="review-date"/>
@@ -402,7 +360,7 @@
                     </ScrollPane>
                 </VBox>
 
-                <!-- Footer (Same as home.fxml) -->
+                <!-- Footer moved inside main content VBox -->
                 <VBox styleClass="footer" VBox.vgrow="NEVER">
                     <HBox alignment="CENTER" spacing="50">
                         <padding>

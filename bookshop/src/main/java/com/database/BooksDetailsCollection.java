@@ -497,7 +497,7 @@ public class BooksDetailsCollection {
     }
 
     // Convert MongoDB Document to Book object
-    private static Book convertDocumentToBook(Document doc) {
+    public static Book convertDocumentToBook(Document doc) {
         if (doc == null) {
             LOGGER.log(Level.SEVERE, "Document is null");
             return null;

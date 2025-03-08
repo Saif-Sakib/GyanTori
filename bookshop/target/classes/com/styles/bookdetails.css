@@ -307,8 +307,13 @@
 }
 
 .star-icon {
-  -fx-fit-width: 16px;
-  -fx-fit-height: 16px;
+  -fx-fit-width: 1px;
+  -fx-fit-height: 1px;
+  -fx-animation: fadeIn 1s ease-in forwards;
+}
+
+.star-icon:hover {
+  -fx-animation: pulse 1s infinite ease-in-out;
 }
 
 .rating-value {
@@ -596,11 +601,6 @@
 
 .review-stars {
   -fx-padding: 5px 0;
-}
-
-.star-icon-small {
-  -fx-fit-width: 14px;
-  -fx-fit-height: 14px;
 }
 
 .verified-badge {

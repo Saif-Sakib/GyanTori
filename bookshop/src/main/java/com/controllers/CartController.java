@@ -13,6 +13,8 @@ import javafx.geometry.Pos;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Locale;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -29,6 +31,10 @@ public class CartController {
     @FXML
     private Label subtotalLabel;
     @FXML
+    private Label onlineFeeLabel;
+    @FXML
+    private Label deliveryFeeLabel;
+    @FXML
     private Label totalLabel;
     @FXML
     private Button checkoutButton;
@@ -36,12 +42,16 @@ public class CartController {
     private TextField promoCodeField;
     @FXML
     private Button applyPromoButton;
+    @FXML
+    private ScrollPane cartScrollPane;
 
     private final CartService cartService = CartService.getInstance();
     private final SimpleDoubleProperty subtotal = new SimpleDoubleProperty(0);
     private final SimpleDoubleProperty total = new SimpleDoubleProperty(0);
     private final DecimalFormat decimalFormat;
     private static final double PROMO_DISCOUNT = 0.10;
+    private static final double ONLINE_FEE = 5.00;
+    private static final double DELIVERY_FEE = 15.00;
     private boolean isPromoApplied = false;
 
     public CartController() {
@@ -54,7 +64,7 @@ public class CartController {
         try {
             setupEventHandlers();
             setupBindings();
-            loadCartItems();
+            refreshCartView();
         } catch (Exception e) {
             handleError("Initialization failed", e);
         }
@@ -72,24 +82,14 @@ public class CartController {
 
     @FXML
     private void handleReturn() {
-        try {
-            Stage stage = (Stage) checkoutButton.getScene().getWindow();
-            LoadPageController.loadScene("home.fxml", "home.css", stage);
-        } catch (Exception e) {
-            handleError("Failed to return to home page", e);
-        }
+        loadHome();
     }
 
     private void setupBindings() {
+        subtotalLabel.textProperty().bind(subtotal.asString("%.2f TK"));
+        onlineFeeLabel.setText(formatPrice(ONLINE_FEE));
+        deliveryFeeLabel.setText(formatPrice(DELIVERY_FEE));
         totalLabel.textProperty().bind(total.asString("%.2f TK"));
-        updateTotals();
-    }
-
-    private void loadCartItems() {
-        cartItemsContainer.getChildren().clear();
-        cartService.getCartItems()
-                .forEach((id, item) -> cartItemsContainer.getChildren().add(createCartItemNode(item)));
-        updateCartVisibility();
         updateTotals();
     }
 
@@ -97,13 +97,17 @@ public class CartController {
         HBox container = new HBox(10);
         container.setAlignment(Pos.CENTER_LEFT);
         container.setPadding(new Insets(10));
+        container.setPrefHeight(60);
         container.getStyleClass().add("cart-item");
 
         Label nameLabel = new Label(item.getName());
+        nameLabel.setStyle("-fx-font-weight: bold;");
+
         Label priceLabel = new Label(formatPrice(item.getPrice()));
 
         Spinner<Integer> quantitySpinner = createQuantitySpinner(item);
         Button removeButton = new Button("Remove");
+        removeButton.getStyleClass().add("secondary-button");
         removeButton.setOnAction(e -> removeItem(item.getId()));
 
         Region spacer = new Region();
@@ -122,12 +126,14 @@ public class CartController {
         Spinner<Integer> spinner = new Spinner<>(1, 99, item.getQuantity());
         spinner.setEditable(true);
         spinner.valueProperty().addListener((obs, oldVal, newVal) -> {
-            try {
-                cartService.updateItemQuantity(item.getId(), newVal);
-                updateTotals();
-            } catch (Exception e) {
-                handleError("Failed to update quantity", e);
-                spinner.getValueFactory().setValue(oldVal);
+            if (newVal != null && !newVal.equals(oldVal)) {
+                try {
+                    cartService.updateItemQuantity(item.getId(), newVal);
+                    updateTotals();
+                } catch (Exception e) {
+                    handleError("Failed to update quantity", e);
+                    spinner.getValueFactory().setValue(oldVal);
+                }
             }
         });
         return spinner;
@@ -136,10 +142,39 @@ public class CartController {
     private void removeItem(String itemId) {
         try {
             cartService.removeItem(itemId);
-            loadCartItems();
+            refreshCartView();
         } catch (Exception e) {
             handleError("Failed to remove item", e);
         }
+    }
+
+    public void refreshCartView() {
+        // Clear container first
+        cartItemsContainer.getChildren().clear();
+
+        // Get cart items
+        List<CartService.CartItem> items = new ArrayList<>(cartService.getCartItems().values());
+
+        // Update visibility based on cart state
+        boolean isEmpty = items.isEmpty();
+
+        // This is the main fix - make sure both containers are visible
+        // but only populate the appropriate one
+        emptyCartContainer.setVisible(isEmpty);
+        cartItemsContainer.setVisible(!isEmpty);
+
+        if (!isEmpty) {
+            // Add items to the container if cart is not empty
+            for (CartService.CartItem item : items) {
+                cartItemsContainer.getChildren().add(createCartItemNode(item));
+            }
+        }
+
+        // Disable checkout button if cart is empty
+        checkoutButton.setDisable(isEmpty);
+
+        // Update totals based on cart contents
+        updateTotals();
     }
 
     private void updateTotals() {
@@ -147,19 +182,22 @@ public class CartController {
                 .mapToDouble(item -> item.getPrice() * item.getQuantity())
                 .sum();
 
+        subtotal.set(newSubtotal);
+
+        // Calculate total including fees
+        double newTotal = newSubtotal;
+
+        // Apply promo code discount if applicable
         if (isPromoApplied) {
-            newSubtotal *= (1 - PROMO_DISCOUNT);
+            newTotal = newTotal * (1 - PROMO_DISCOUNT);
         }
 
-        subtotal.set(newSubtotal);
-        total.set(newSubtotal);
-    }
+        // Add fixed fees
+        if (newSubtotal > 0) {
+            newTotal += ONLINE_FEE + DELIVERY_FEE;
+        }
 
-    private void updateCartVisibility() {
-        boolean isEmpty = cartService.getCartItems().isEmpty();
-        emptyCartContainer.setVisible(isEmpty);
-        cartItemsContainer.setVisible(!isEmpty);
-        checkoutButton.setDisable(isEmpty);
+        total.set(newTotal);
     }
 
     private void handlePromoCode() {
@@ -167,7 +205,11 @@ public class CartController {
         if (!isPromoApplied && "SAVE10".equalsIgnoreCase(code)) {
             isPromoApplied = true;
             updateTotals();
+            promoCodeField.setDisable(true);
+            applyPromoButton.setDisable(true);
             showAlert("Success", "10% discount applied!", Alert.AlertType.INFORMATION);
+        } else if (isPromoApplied) {
+            showAlert("Already Applied", "Promo code already applied.", Alert.AlertType.WARNING);
         } else {
             showAlert("Invalid Code", "Please enter a valid promo code.", Alert.AlertType.WARNING);
         }
@@ -199,9 +241,9 @@ public class CartController {
     }
 
     @FXML
-    private void loadHome() {
+    public void loadHome() {
         try {
-            Stage stage = (Stage) checkoutButton.getScene().getWindow();
+            Stage stage = (Stage) returnButton.getScene().getWindow();
             LoadPageController.loadScene("home.fxml", "home.css", stage);
         } catch (Exception e) {
             handleError("Failed to load home page", e);
