@@ -183,7 +183,7 @@ public class ExploreController extends CommonController implements Initializable
         // Search field listener
         searchField.setOnKeyPressed(event -> {
             if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
-                performSearch();
+                applyFilters();
             }
         });
 
@@ -238,11 +238,6 @@ public class ExploreController extends CommonController implements Initializable
         advancedSearchFilters.setVisible(isAdvancedSearchVisible);
         advancedSearchFilters.setManaged(isAdvancedSearchVisible);
         toggleAdvancedSearchBtn.setText(isAdvancedSearchVisible ? "Hide Filters" : "Show Filters");
-    }
-
-    @FXML
-    private void performSearch() {
-        applyFilters();
     }
 
     @FXML

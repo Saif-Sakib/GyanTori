@@ -123,6 +123,7 @@ public class ShareBookDB {
                 .append("description", book.getDescription())
                 .append("imageUrl", book.getImageUrl())
                 .append("bookHubId", book.getBookHubId());
+                System.out.println("Image URL:" + book.getImageUrl());
 
         // Handle categories array
         if (book.getCategories() != null) {

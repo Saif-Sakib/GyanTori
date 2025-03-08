@@ -15,9 +15,9 @@ import java.util.logging.Logger;
 import com.database.BooksDetailsCollection;
 import com.models.Book;
 import com.services.SessionManager;
+import com.services.SearchImplementation;
 
 public class BookDetailsController extends CommonController {
-
     private static final Logger logger = Logger.getLogger(BookDetailsController.class.getName());
 
     // FXML elements as defined in the FXML file
@@ -95,6 +95,7 @@ public class BookDetailsController extends CommonController {
     // Book data model (simplified)
     private Book currentBook;
     private boolean isInWishlist = false;
+    private SearchImplementation searchImplementation; // Add this line
 
     /**
      * Initialize the controller.
@@ -169,8 +170,14 @@ public class BookDetailsController extends CommonController {
             totalReviewCount.setText(currentBook.getReviewCount() + " reviews");
             averageRating.setText(String.valueOf(currentBook.getRating()));
             descriptionText.setText(currentBook.getDescription());
-            Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(currentBook.getImageUrl())));
-            bookCoverImage.setImage(image);
+            if (currentBook.getImageUrl().startsWith("/")) { // Check if it's a resource path
+                Image image = new Image(
+                        Objects.requireNonNull(getClass().getResourceAsStream(currentBook.getImageUrl())));
+                bookCoverImage.setImage(image);
+            } else { // Assume it's a URL
+                Image image = new Image(currentBook.getImageUrl());
+                bookCoverImage.setImage(image);
+            }
             // In a real app, you would also load images from URLs or resources
         } catch (Exception e) {
             handleException("Error updating UI with book data", e);
@@ -212,10 +219,26 @@ public class BookDetailsController extends CommonController {
             String searchTerm = searchField.getText().trim();
             if (!searchTerm.isEmpty()) {
                 System.out.println("Searching for: " + searchTerm);
-                // Implement search functionality
+
+                // Use the search implementation class to perform the search
+                if (searchImplementation != null) {
+                    searchImplementation.performSearch(searchTerm);
+                } else {
+                    System.err.println("Search implementation is not initialized here Bro -_- hahaha");
+                    showAlert(Alert.AlertType.ERROR, "Search Error", "Search implementation is not initialized");
+                }
+            } else {
+                // Handle empty search term
+                System.out.println("Please enter a search term");
+                if (searchImplementation != null) {
+                    searchImplementation.clearResults();
+                }
+                showAlert(Alert.AlertType.INFORMATION, "Search", "Please enter a search term");
             }
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Error performing search", e.getMessage());
+            System.err.println("Error performing search: " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error performing search", e.getMessage());
         }
     }
 

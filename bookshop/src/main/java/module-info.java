@@ -16,6 +16,8 @@ module com {
     // Logging
     requires org.slf4j;
 
+    requires java.net.http;
+
     // Open packages for JavaFX FXML
     opens com.start to javafx.fxml, javafx.graphics;
     opens com.controllers to javafx.fxml, javafx.graphics;

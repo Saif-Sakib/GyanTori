@@ -77,7 +77,7 @@
                     <Label text="My Library" styleClass="sidebar-header"/>
                     <Button text="🏠 Home" onAction="#navigateToHome" styleClass="sidebar-button, animated-button"/>
                     <Button text="🔍 Explore" onAction="#navigateToExplore" styleClass="sidebar-button, animated-button"/>
-                    <Button text="📖 Share a Book" styleClass="sidebar-button, animated-button"/>
+                    <Button text="📖 Share a Book" onAction="#navigateToShare" styleClass="sidebar-button, animated-button"/>
                     <Button text="🏆 Top Publishers" styleClass="sidebar-button, animated-button"/>
                     <Button text="🌟 Highly Rated Books" styleClass="sidebar-button, animated-button"/>
                 </VBox>

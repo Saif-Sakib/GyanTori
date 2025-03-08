@@ -29,7 +29,7 @@
                 <!-- Enhanced Search Bar -->
                 <HBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" maxWidth="4000" styleClass="search-container">
                     <TextField fx:id="searchField" promptText="Search for your favorite books..." styleClass="search-field" HBox.hgrow="ALWAYS"/>
-                    <Button onAction="#performSearch" styleClass="search-button, animated-button">
+                    <Button onAction="#applyFilters" styleClass="search-button, animated-button">
                         <graphic>
                             <ImageView fitHeight="20.0" fitWidth="20.0" styleClass="icon">
                                 <Image url="@images/icons/search.png"/>
@@ -77,7 +77,7 @@
                     <Label text="My Library" styleClass="sidebar-header"/>
                     <Button text="🏠 Home" onAction="#navigateToHome" styleClass="sidebar-button, animated-button"/>
                     <Button text="🔍 Explore" onAction="#navigateToExplore" styleClass="sidebar-button, animated-button"/>
-                    <Button text="📖 Share a Book" styleClass="sidebar-button, animated-button"/>
+                    <Button text="📖 Share a Book" onAction="#navigateToShare" styleClass="sidebar-button, animated-button"/>
                     <Button text="🏆 Top Publishers" styleClass="sidebar-button, animated-button"/>
                     <Button text="🌟 Highly Rated Books" styleClass="sidebar-button, animated-button"/>
                 </VBox>

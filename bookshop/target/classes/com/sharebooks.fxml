@@ -63,217 +63,221 @@
         </HBox>
     </VBox>
 
-    <!-- Main Content Section with Sidebar -->
-    <HBox VBox.vgrow="ALWAYS" spacing="20">
-        <!-- Enhanced Left Sidebar - Fixed width and scrollable -->
-        <ScrollPane fitToWidth="true" styleClass="sidebar-scroll" hbarPolicy="NEVER" minWidth="250" prefWidth="250" maxWidth="250" HBox.hgrow="NEVER">
-            <VBox spacing="20" styleClass="sidebar">
-                <padding>
-                    <Insets top="20" right="20" bottom="20" left="20"/>
-                </padding>
+    <!-- Fixed Main Content Section with Sidebar -->
+    <BorderPane VBox.vgrow="ALWAYS">
+        <!-- Left Sidebar - Fixed width and scrollable -->
+        <left>
+            <ScrollPane fitToWidth="true" styleClass="sidebar-scroll" hbarPolicy="NEVER" minWidth="250" prefWidth="250" maxWidth="250">
+                <VBox spacing="20" styleClass="sidebar">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
 
-                <!-- Library Section with Animation -->
-                <VBox spacing="10" styleClass="sidebar-section">
-                    <Label text="My Library" styleClass="sidebar-header"/>
-                    <Button text="🏠 Home" onAction="#navigateToHome" styleClass="sidebar-button, animated-button"/>
-                    <Button text="🔍 Explore" onAction="#navigateToExplore" styleClass="sidebar-button, animated-button"/>
-                    <Button text="📖 Share a Book" styleClass="sidebar-button, animated-button" style="-fx-font-weight: bold;"/>
-                    <Button text="🏆 Top Publishers" styleClass="sidebar-button, animated-button"/>
-                    <Button text="🌟 Highly Rated Books" styleClass="sidebar-button, animated-button"/>
-                </VBox>
-
-                <Separator styleClass="custom-separator"/>
-
-                <!-- Categories Section with Icons -->
-                <VBox spacing="10" styleClass="sidebar-section">
-                    <Label text="Categories" styleClass="sidebar-header"/>
-                    <Button text="📚 All Books" styleClass="sidebar-button, animated-button"/>
-                    <Button text="💼 Business" styleClass="sidebar-button, animated-button"/>
-                    <Button text="💻 Technology" styleClass="sidebar-button, animated-button"/>
-                    <Button text="🎨 Arts" styleClass="sidebar-button, animated-button"/>
-                    <Button text="📖 Literature" styleClass="sidebar-button, animated-button"/>
-                </VBox>
-            </VBox>
-        </ScrollPane>
-
-        <!-- Main Content Area - Share Book Form -->
-        <ScrollPane fitToWidth="true" styleClass="content-scroll" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
-            <VBox spacing="20" styleClass="content-container">
-                <padding>
-                    <Insets top="20" right="20" bottom="20" left="20"/>
-                </padding>
-
-                <!-- Share Book Header -->
-                <HBox alignment="CENTER_LEFT" styleClass="content-header">
-                    <Label text="Share Your Book" styleClass="page-title"/>
-                </HBox>
-
-                <!-- Share Book Form -->
-                <GridPane vgap="15" hgap="20" styleClass="form-container">
-                    <columnConstraints>
-                        <ColumnConstraints percentWidth="50"/>
-                        <ColumnConstraints percentWidth="50"/>
-                    </columnConstraints>
-
-                    <!-- Left Column -->
-                    <VBox spacing="15" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="form-section">
-                        <Label text="Book Details" styleClass="section-header"/>
-                        
-                        <VBox spacing="8">
-                            <Label text="Title *" styleClass="field-label"/>
-                            <TextField fx:id="titleField" promptText="Enter book title" styleClass="form-field"/>
-                        </VBox>
-                        
-                        <VBox spacing="8">
-                            <Label text="Author *" styleClass="field-label"/>
-                            <TextField fx:id="authorField" promptText="Enter author name" styleClass="form-field"/>
-                        </VBox>
-                        
-                        <VBox spacing="8">
-                            <Label text="Publisher" styleClass="field-label"/>
-                            <TextField fx:id="publisherField" promptText="Enter publisher name" styleClass="form-field"/>
-                        </VBox>
-                        
-                        <VBox spacing="8">
-                            <Label text="Publication Date" styleClass="field-label"/>
-                            <DatePicker fx:id="publicationDatePicker" promptText="Select date" styleClass="form-field"/>
-                        </VBox>
-                        
-                        <VBox spacing="8">
-                            <Label text="ISBN" styleClass="field-label"/>
-                            <TextField fx:id="isbnField" promptText="Enter ISBN" styleClass="form-field"/>
-                            <Button fx:id="fetchDetailsButton" text="Fetch Book Details" onAction="#fetchBookDetails" styleClass="secondary-button"/>
-                        </VBox>
-                        
-                        <VBox spacing="8">
-                            <Label text="Language *" styleClass="field-label"/>
-                            <ComboBox fx:id="languageComboBox" promptText="Select language" styleClass="form-field" prefWidth="Infinity"/>
-                        </VBox>
-                        
-                        <VBox spacing="8">
-                            <Label text="Pages" styleClass="field-label"/>
-                            <TextField fx:id="pagesField" promptText="Enter number of pages" styleClass="form-field"/>
-                        </VBox>
+                    <!-- Library Section with Animation -->
+                    <VBox spacing="10" styleClass="sidebar-section">
+                        <Label text="My Library" styleClass="sidebar-header"/>
+                        <Button text="🏠 Home" onAction="#navigateToHome" styleClass="sidebar-button, animated-button"/>
+                        <Button text="🔍 Explore" onAction="#navigateToExplore" styleClass="sidebar-button, animated-button"/>
+                        <Button text="📖 Share a Book" onAction="#navigateToShare" styleClass="sidebar-button, animated-button"/>
+                        <Button text="🏆 Top Publishers" styleClass="sidebar-button, animated-button"/>
+                        <Button text="🌟 Highly Rated Books" styleClass="sidebar-button, animated-button"/>
                     </VBox>
 
-                    <!-- Right Column -->
-                    <VBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="form-section">
-                        <Label text="Pricing and Categories" styleClass="section-header"/>
-                        
-                        <VBox spacing="8">
-                            <Label text="Original Price (৳) *" styleClass="field-label"/>
-                            <TextField fx:id="originalPriceField" promptText="Enter original price" styleClass="form-field"/>
-                        </VBox>
-                        
-                        <VBox spacing="8">
-                            <Label text="Discount (%)" styleClass="field-label"/>
-                            <TextField fx:id="discountField" promptText="Enter discount percentage" styleClass="form-field"/>
-                        </VBox>
-                        
-                        <VBox spacing="8">
-                            <Label text="Current Price (৳)" styleClass="field-label"/>
-                            <TextField fx:id="currentPriceField" promptText="Calculated based on discount" styleClass="form-field" disable="true"/>
-                        </VBox>
-                        
-                        <VBox spacing="8">
-                            <Label text="Categories *" styleClass="field-label"/>
-                            <HBox spacing="10">
-                                <ComboBox fx:id="categoryComboBox" promptText="Select or type category" styleClass="form-field" HBox.hgrow="ALWAYS"/>
-                                <Button fx:id="addCategoryButton" text="+" onAction="#addCategory" styleClass="icon-button"/>
-                            </HBox>
-                            <FlowPane fx:id="categoryContainer" hgap="10" vgap="10" styleClass="category-container"/>
-                        </VBox>
-                        
-                        <VBox spacing="8">
-                            <Label text="Book Image *" styleClass="field-label"/>
-                            <HBox spacing="10" alignment="CENTER_LEFT">
-                                <VBox alignment="CENTER" styleClass="image-upload-container">
-                                    <ImageView fx:id="bookImagePreview" fitHeight="150.0" fitWidth="120.0" preserveRatio="true">
-                                        <Image url="@images/placeholder/book-cover.png"/>
-                                    </ImageView>
-                                </VBox>
-                                <VBox spacing="10">
-                                    <Button fx:id="uploadImageButton" text="Choose Image" onAction="#chooseImage" styleClass="secondary-button"/>
-                                    <Label fx:id="imageNameLabel" text="No file chosen" styleClass="file-name-label"/>
-                                </VBox>
-                            </HBox>
-                        </VBox>
-                        
-                        <VBox spacing="8">
-                            <Label text="BookHub Location *" styleClass="field-label"/>
-                            <ComboBox fx:id="bookHubComboBox" promptText="Select BookHub location" styleClass="form-field" prefWidth="Infinity"/>
-                        </VBox>
+                    <Separator styleClass="custom-separator"/>
+
+                    <!-- Categories Section with Icons -->
+                    <VBox spacing="10" styleClass="sidebar-section">
+                        <Label text="Categories" styleClass="sidebar-header"/>
+                        <Button text="📚 All Books" styleClass="sidebar-button, animated-button"/>
+                        <Button text="💼 Business" styleClass="sidebar-button, animated-button"/>
+                        <Button text="💻 Technology" styleClass="sidebar-button, animated-button"/>
+                        <Button text="🎨 Arts" styleClass="sidebar-button, animated-button"/>
+                        <Button text="📖 Literature" styleClass="sidebar-button, animated-button"/>
                     </VBox>
-
-                    <!-- Full Width - Description -->
-                    <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2" styleClass="form-section">
-                        <Label text="Book Description *" styleClass="field-label"/>
-                        <TextArea fx:id="descriptionArea" promptText="Enter book description" styleClass="form-field" wrapText="true" prefRowCount="5"/>
-                    </VBox>
-
-                    <!-- Full Width - Submit Controls -->
-                    <HBox spacing="15" alignment="CENTER_RIGHT" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2" styleClass="form-actions">
-                        <Button fx:id="previewButton" text="Preview" onAction="#previewBook" styleClass="secondary-button"/>
-                        <Button fx:id="shareButton" text="Share Book" onAction="#shareBook" styleClass="primary-button"/>
-                    </HBox>
-                </GridPane>
-
-                <!-- Footer -->
-                <VBox styleClass="footer" VBox.vgrow="NEVER">
-                    <HBox alignment="CENTER" spacing="50">
-                        <padding>
-                            <Insets top="30" right="5" bottom="5" left="5"/>
-                        </padding>
-                        
-                        <VBox alignment="CENTER" spacing="10" styleClass="footer-section">
-                            <Label text="About GyanTori" styleClass="footer-header"/>
-                            <Label text="Your Gateway to Knowledge" styleClass="footer-text"/>
-                            <Label text="© 2023 GyanTori" styleClass="footer-copyright"/>
-                        </VBox>
-                        
-                        <VBox alignment="CENTER" spacing="10" styleClass="footer-section">
-                            <Label text="Contact" styleClass="footer-header"/>
-                            <Label text="support@gyantori.com" styleClass="footer-text"/>
-                            <Label text="+1 (555) 123-4567" styleClass="footer-text"/>
-                        </VBox>
-                        
-                        <VBox alignment="CENTER" spacing="10" styleClass="footer-section">
-                            <Label text="Follow Us" styleClass="footer-header"/>
-                            <HBox spacing="15" alignment="CENTER" styleClass="social-buttons">
-                                <Button styleClass="social-button, animated-button">
-                                    <graphic>
-                                        <ImageView fitHeight="20" fitWidth="20" styleClass="icon">
-                                            <Image url="@images/icons/facebook.png"/>
-                                        </ImageView>
-                                    </graphic>
-                                </Button>
-                                <Button styleClass="social-button, animated-button">
-                                    <graphic>
-                                        <ImageView fitHeight="20" fitWidth="20" styleClass="icon">
-                                            <Image url="@images/icons/x.png"/>
-                                        </ImageView>
-                                    </graphic>
-                                </Button>
-                                <Button styleClass="social-button, animated-button">
-                                    <graphic>
-                                        <ImageView fitHeight="20" fitWidth="20" styleClass="icon">
-                                            <Image url="@images/icons/LinkedIn.png"/>
-                                        </ImageView>
-                                    </graphic>
-                                </Button>
-                            </HBox>
-                        </VBox>
-                    </HBox>
-                    
-                    <!-- Footer Bottom Bar -->
-                    <HBox styleClass="footer-bottom" alignment="CENTER">
-                        <padding>
-                            <Insets top="5" right="5" bottom="5" left="5"/>
-                        </padding>
-                        <Label text="Terms of Service | Privacy Policy | Cookie Policy" styleClass="footer-links"/>
-                    </HBox>
                 </VBox>
-            </VBox>
-        </ScrollPane>
-    </HBox>
+            </ScrollPane>
+        </left>
+
+        <!-- Main Content Area - Using BorderPane.center for better space management -->
+        <center>
+            <ScrollPane fitToWidth="true" styleClass="content-scroll" VBox.vgrow="ALWAYS">
+                <VBox spacing="20" styleClass="content-container" minWidth="700">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <!-- Share Book Header -->
+                    <HBox alignment="CENTER_LEFT" styleClass="content-header">
+                        <Label text="Share Your Book" styleClass="page-title"/>
+                    </HBox>
+
+                    <!-- Share Book Form -->
+                    <GridPane vgap="15" hgap="20" styleClass="form-container" VBox.vgrow="ALWAYS">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50"/>
+                            <ColumnConstraints percentWidth="50"/>
+                        </columnConstraints>
+
+                        <!-- Left Column -->
+                        <VBox spacing="15" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="form-section">
+                            <Label text="Book Details" styleClass="section-header"/>
+                            
+                            <VBox spacing="8">
+                                <Label text="Title *" styleClass="field-label"/>
+                                <TextField fx:id="titleField" promptText="Enter book title" styleClass="form-field"/>
+                            </VBox>
+                            
+                            <VBox spacing="8">
+                                <Label text="Author *" styleClass="field-label"/>
+                                <TextField fx:id="authorField" promptText="Enter author name" styleClass="form-field"/>
+                            </VBox>
+                            
+                            <VBox spacing="8">
+                                <Label text="Publisher" styleClass="field-label"/>
+                                <TextField fx:id="publisherField" promptText="Enter publisher name" styleClass="form-field"/>
+                            </VBox>
+                            
+                            <VBox spacing="8">
+                                <Label text="Publication Date" styleClass="field-label"/>
+                                <DatePicker fx:id="publicationDatePicker" promptText="Select date" styleClass="form-field"/>
+                            </VBox>
+                            
+                            <VBox spacing="8">
+                                <Label text="ISBN" styleClass="field-label"/>
+                                <TextField fx:id="isbnField" promptText="Enter ISBN" styleClass="form-field"/>
+                                <Button fx:id="fetchDetailsButton" text="Fetch Book Details" onAction="#fetchBookDetails" styleClass="secondary-button"/>
+                            </VBox>
+                            
+                            <VBox spacing="8">
+                                <Label text="Language *" styleClass="field-label"/>
+                                <ComboBox fx:id="languageComboBox" promptText="Select language" styleClass="form-field" prefWidth="Infinity"/>
+                            </VBox>
+                            
+                            <VBox spacing="8">
+                                <Label text="Pages" styleClass="field-label"/>
+                                <TextField fx:id="pagesField" promptText="Enter number of pages" styleClass="form-field"/>
+                            </VBox>
+                        </VBox>
+
+                        <!-- Right Column -->
+                        <VBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="form-section">
+                            <Label text="Pricing and Categories" styleClass="section-header"/>
+                            
+                            <VBox spacing="8">
+                                <Label text="Original Price (৳) *" styleClass="field-label"/>
+                                <TextField fx:id="originalPriceField" promptText="Enter original price" styleClass="form-field"/>
+                            </VBox>
+                            
+                            <VBox spacing="8">
+                                <Label text="Discount (%)" styleClass="field-label"/>
+                                <TextField fx:id="discountField" promptText="Enter discount percentage" styleClass="form-field"/>
+                            </VBox>
+                            
+                            <VBox spacing="8">
+                                <Label text="Current Price (৳)" styleClass="field-label"/>
+                                <TextField fx:id="currentPriceField" promptText="Calculated based on discount" styleClass="form-field" disable="true"/>
+                            </VBox>
+                            
+                            <VBox spacing="8">
+                                <Label text="Categories *" styleClass="field-label"/>
+                                <HBox spacing="10">
+                                    <ComboBox fx:id="categoryComboBox" promptText="Select or type category" styleClass="form-field" HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="addCategoryButton" text="+" onAction="#addCategory" styleClass="icon-button"/>
+                                </HBox>
+                                <FlowPane fx:id="categoryContainer" hgap="10" vgap="10" styleClass="category-container"/>
+                            </VBox>
+                            
+                            <VBox spacing="8">
+                                <Label text="Book Image *" styleClass="field-label"/>
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <VBox alignment="CENTER" styleClass="image-upload-container">
+                                        <ImageView fx:id="bookImagePreview" fitHeight="150.0" fitWidth="120.0" preserveRatio="true">
+                                            <Image url="@images/placeholder/book-cover.png"/>
+                                        </ImageView>
+                                    </VBox>
+                                    <VBox spacing="10">
+                                        <Button fx:id="uploadImageButton" text="Choose Image" onAction="#chooseImage" styleClass="secondary-button"/>
+                                        <Label fx:id="imageNameLabel" text="No file chosen" styleClass="file-name-label"/>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
+                            
+                            <VBox spacing="8">
+                                <Label text="BookHub Location *" styleClass="field-label"/>
+                                <ComboBox fx:id="bookHubComboBox" promptText="Select BookHub location" styleClass="form-field" prefWidth="Infinity"/>
+                            </VBox>
+                        </VBox>
+
+                        <!-- Full Width - Description -->
+                        <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2" styleClass="form-section">
+                            <Label text="Book Description *" styleClass="field-label"/>
+                            <TextArea fx:id="descriptionArea" promptText="Enter book description" styleClass="form-field" wrapText="true" prefRowCount="5"/>
+                        </VBox>
+
+                        <!-- Full Width - Submit Controls -->
+                        <HBox spacing="15" alignment="CENTER_RIGHT" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2" styleClass="form-actions">
+                            <Button fx:id="previewButton" text="Preview" onAction="#previewBook" styleClass="secondary-button"/>
+                            <Button fx:id="shareButton" text="Share Book" onAction="#shareBook" styleClass="primary-button"/>
+                        </HBox>
+                    </GridPane>
+
+                    <!-- Footer -->
+                    <VBox styleClass="footer" VBox.vgrow="NEVER">
+                        <HBox alignment="CENTER" spacing="50">
+                            <padding>
+                                <Insets top="30" right="5" bottom="5" left="5"/>
+                            </padding>
+                            
+                            <VBox alignment="CENTER" spacing="10" styleClass="footer-section">
+                                <Label text="About GyanTori" styleClass="footer-header"/>
+                                <Label text="Your Gateway to Knowledge" styleClass="footer-text"/>
+                                <Label text="© 2023 GyanTori" styleClass="footer-copyright"/>
+                            </VBox>
+                            
+                            <VBox alignment="CENTER" spacing="10" styleClass="footer-section">
+                                <Label text="Contact" styleClass="footer-header"/>
+                                <Label text="support@gyantori.com" styleClass="footer-text"/>
+                                <Label text="+1 (555) 123-4567" styleClass="footer-text"/>
+                            </VBox>
+                            
+                            <VBox alignment="CENTER" spacing="10" styleClass="footer-section">
+                                <Label text="Follow Us" styleClass="footer-header"/>
+                                <HBox spacing="15" alignment="CENTER" styleClass="social-buttons">
+                                    <Button styleClass="social-button, animated-button">
+                                        <graphic>
+                                            <ImageView fitHeight="20" fitWidth="20" styleClass="icon">
+                                                <Image url="@images/icons/facebook.png"/>
+                                            </ImageView>
+                                        </graphic>
+                                    </Button>
+                                    <Button styleClass="social-button, animated-button">
+                                        <graphic>
+                                            <ImageView fitHeight="20" fitWidth="20" styleClass="icon">
+                                                <Image url="@images/icons/x.png"/>
+                                            </ImageView>
+                                        </graphic>
+                                    </Button>
+                                    <Button styleClass="social-button, animated-button">
+                                        <graphic>
+                                            <ImageView fitHeight="20" fitWidth="20" styleClass="icon">
+                                                <Image url="@images/icons/LinkedIn.png"/>
+                                            </ImageView>
+                                        </graphic>
+                                    </Button>
+                                </HBox>
+                            </VBox>
+                        </HBox>
+                        
+                        <!-- Footer Bottom Bar -->
+                        <HBox styleClass="footer-bottom" alignment="CENTER">
+                            <padding>
+                                <Insets top="5" right="5" bottom="5" left="5"/>
+                            </padding>
+                            <Label text="Terms of Service | Privacy Policy | Cookie Policy" styleClass="footer-links"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </ScrollPane>
+        </center>
+    </BorderPane>
 </VBox>

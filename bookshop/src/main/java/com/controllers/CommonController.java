@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import com.models.Book;
 import com.services.CartService;
 import com.services.SessionManager;
+import com.services.SearchImplementation; // Add this line
 
 /**
  * Base controller class for common navigation and user session handling
@@ -29,8 +30,11 @@ public abstract class CommonController {
 
     @FXML
     protected Button profileLoginButton;
+    @FXML
+    private TextField searchField; // Add this line
 
     private final CartService cartService = CartService.getInstance();
+    private SearchImplementation searchImplementation; // Add this line
 
     /**
      * Initialize method to be called in the initialize method of subclasses
@@ -76,6 +80,17 @@ public abstract class CommonController {
         }
     }
 
+    @FXML
+    public void navigateToShare() {
+        try {
+            Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+            LoadPageController.loadScene("sharebooks.fxml", "sharebooks.css", currentStage);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error navigating to Share a Book", e);
+            showAlert(Alert.AlertType.ERROR, "Error navigating to Share a Book", e.getMessage());
+        }
+    }
+
     /**
      * Handle navigation to author page.
      */
@@ -117,8 +132,7 @@ public abstract class CommonController {
     @FXML
     public void handleProfileLogin() {
         if (SessionManager.getInstance().getIsLoggedIn()) {
-            // This will be handled by the updateProfileButton method
-            // which creates a dropdown menu for logged-in users
+            logout();
         } else {
             try {
                 Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
@@ -233,10 +247,15 @@ public abstract class CommonController {
         } catch (Exception e) {
             // Load placeholder image if book image is not found
             try {
-                coverImage.setImage(new Image(
-                        Objects.requireNonNull(getClass().getResourceAsStream("/images/books/placeholder-book.png"))));
+                coverImage.setImage(new Image(Objects.requireNonNull(book.getImageUrl())));
             } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, "Failed to load placeholder image", ex);
+                try {
+                    coverImage.setImage(new Image(
+                            Objects.requireNonNull(
+                                    getClass().getResourceAsStream("/images/books/placeholder-book.png"))));
+                } catch (Exception exx) {
+                    LOGGER.log(Level.SEVERE, "Failed to load placeholder image", ex);
+                }
             }
         }
         coverImage.setFitHeight(200);
@@ -356,6 +375,36 @@ public abstract class CommonController {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error logging out", e);
             showAlert(Alert.AlertType.ERROR, "Logout Error", "Failed to process logout.");
+        }
+    }
+
+    @FXML
+    public void performSearch() {
+        try {
+            String searchTerm = searchField.getText().trim();
+            if (!searchTerm.isEmpty()) {
+                System.out.println("Searching for: " + searchTerm);
+
+                // Use the search implementation class to perform the search
+                if (searchImplementation != null) {
+                    searchImplementation.performSearch(searchTerm);
+                } else {
+                    System.err.println("Search implementation is not initialized here Bro -_- hahaha");
+                    showAlert(Alert.AlertType.ERROR, "Search Error",
+                            "Search implementation is not initialized here Bro -_- hahaha");
+                }
+            } else {
+                // Handle empty search term
+                System.out.println("Please enter a search term");
+                if (searchImplementation != null) {
+                    searchImplementation.clearResults();
+                }
+                showAlert(Alert.AlertType.INFORMATION, "Search", "Please enter a search term");
+            }
+        } catch (Exception e) {
+            System.err.println("Error performing search: " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error performing search", e.getMessage());
         }
     }
 
