@@ -172,9 +172,9 @@
 
                             <Label text="Categories:" styleClass="detail-label" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
                             <FlowPane fx:id="categoriesContainer" styleClass="categories-container" hgap="10" vgap="5" GridPane.rowIndex="5" GridPane.columnIndex="1">
-                                <Label text="Fiction" styleClass="category-tag" onMouseClicked="#navigateToCategory"/>
-                                <Label text="Adventure" styleClass="category-tag" onMouseClicked="#navigateToCategory"/>
-                                <Label text="Drama" styleClass="category-tag" onMouseClicked="#navigateToCategory"/>
+                                <Label text="Fiction" styleClass="category-tag"/>
+                                <Label text="Adventure" styleClass="category-tag"/>
+                                <Label text="Drama" styleClass="category-tag"/>
                             </FlowPane>
                         </GridPane>
 
