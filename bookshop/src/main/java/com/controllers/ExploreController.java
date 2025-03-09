@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 import com.database.ExploreDB;
 import com.services.SessionManager;
 import com.models.Book;
-import com.database.BooksDetailsCollection;
+import com.database.BookDetailsCollection;
 
 public class ExploreController extends CommonController implements Initializable {
 
@@ -28,8 +28,8 @@ public class ExploreController extends CommonController implements Initializable
     private final ExploreDB exploreDB = new ExploreDB();
 
     // Data Storage
-    private ObservableList<Document> allBooks = FXCollections.observableArrayList();
-    private ObservableList<Document> filteredBooks = FXCollections.observableArrayList();
+    private ObservableList<Book> allBooks = FXCollections.observableArrayList();
+    private ObservableList<Book> filteredBooks = FXCollections.observableArrayList();
     private Map<String, Set<String>> filterOptions = new HashMap<>();
     private boolean isAdvancedSearchVisible = false;
 
@@ -110,7 +110,7 @@ public class ExploreController extends CommonController implements Initializable
     private void loadAllBooks() {
         try {
             // Get books from database
-            List<Document> bookList = exploreDB.getAllBooks();
+            List<Book> bookList = exploreDB.getAllBooks();
             allBooks.clear();
             allBooks.addAll(bookList);
             filteredBooks.setAll(allBooks);
@@ -221,7 +221,7 @@ public class ExploreController extends CommonController implements Initializable
 
         for (int i = fromIndex; i < toIndex; i++) {
             try {
-                Book book = BooksDetailsCollection.convertDocumentToBook(filteredBooks.get(i));
+                Book book = filteredBooks.get(i);
                 VBox bookCard = createBookCard(book); // Using inherited method from CommonController
                 booksGridPane.getChildren().add(bookCard);
             } catch (Exception e) {
@@ -309,8 +309,8 @@ public class ExploreController extends CommonController implements Initializable
             filterParams.put("sortBy", sortByCombo.getValue());
             filterParams.put("ascending", "Ascending".equals(sortOrderCombo.getValue()));
 
-            // Apply all filters using the ExploreDB service
-            List<Document> result = exploreDB.applyFilters(new ArrayList<>(allBooks), filterParams);
+            // Apply all filters using the ExploreDB service - updated method name
+            List<Book> result = exploreDB.getFilteredBooks(filterParams);
 
             // Update filtered books
             filteredBooks.setAll(result);
@@ -346,14 +346,9 @@ public class ExploreController extends CommonController implements Initializable
     @FXML
     private void handleAddToCart(String bookId) {
         try {
-            // Check if user is logged in - this is redundant as the parent method does this
-            // check
-            // but we need to get the Book object first
-
             // Get book details from database
-            Document bookDoc = exploreDB.findBookById(bookId);
-            if (bookDoc != null) {
-                Book book = BooksDetailsCollection.convertDocumentToBook(bookDoc);
+            Book book = exploreDB.findBookById(bookId);
+            if (book != null) {
                 super.handleAddToCart(book); // Call the parent method with the Book object
             } else {
                 showAlert(Alert.AlertType.ERROR, "Error", "Book not found.");

@@ -1,0 +1,57 @@
+SignUp Page:
+1. Checking if the Email is in valid form something@some.some
+2. Username must be in lowercase
+3. Password must be at least 8 characters long
+Special Feature: We are not storing password in the database. Just Storing SHA-256 hash with salt
+
+Login Page:
+1. Can login using Both username or email
+Special Feature:
+1. We are using session cookie to track user while logining, Also remember me can have the persistent ability.
+
+Special Feature after logining: The login button changes into profile button after login. After logout it changes to login again.
+
+Special Feature in searching: You can search using any of the term. It can be the part of the name, the title, the author, the details, the tag anything matches to the book. And this is working correctly.
+
+Explore Page:
+Advance search: You can search actually sort using any of author, language, publisher, price range, availablility, discount, rating this. And everything is working correctly.
+Also you can sort by title author, rating price, publish date, descending, ascending anything. Everything working properly. 
+We are using java inbuilt sort functions, mongodb search command.
+
+Share a Book page:
+1. You can share books here, You can manually fill all book details.
+2. You can upload book cover photo manually.
+Special feature: You can fetch book details using api(Here open library api is being used). This will automatically fill all the fields. Also it can fetch book cover image. Everything is working correctly.
+
+Cart page:
+1. While cart is empty it shows cart is empty continue shopping.
+2. This is little different cart. Here the quantity is not being counted. Here the borrowing days is counted. Here some value is fixed for days. But you can manually add for how many days you want to borrow. 
+3. Here you can also remove from cart.
+4. Once an item is added cannot add to cart twice. It shows a message already added. 
+5. While proceed to checkout the cart items is being added to your profile.
+6. It calculates the prize correctly
+
+Note: Everything will be under logged in. It shows the message properly and every where.
+
+DashBoard Page:
+1. Here your uploaded books, borrowed books, buyer reviews shown, 
+2. Your profile details also shown. 
+Special: Every feature is dynamic using mongoDB
+
+Edit Profile Page:
+1. Here some info is already filled. This is user username, and the id. You cant change it. 
+2. You can change your name, email, location.
+3. You can also upload your dp.
+4. Dp cannot be more than 2mb and it is checking properly using file.length() function. Extension must be png, jpg, jpeg.
+5. You can also update your password providing current password
+
+Everyting is dynamic using Database
+
+Book Details page:
+1. Books infos are being shown from the database
+2. Add to cart works.
+3. wishlist is not dynamic but work
+4. buy now will immediately take you to proceed to checkout
+5. You can see all review of the book pressing "View All Review" button
+6. Every info the customer review, rating everything dynamic change immediately.
+Special fearture: You can write a review. And it is dynamic, immediately add to the database.

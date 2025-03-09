@@ -63,6 +63,11 @@ public class SignupController {
             return false;
         }
 
+        if (!usernameField.getText().equals(usernameField.getText().toLowerCase())) {
+            showAlert(AlertType.ERROR, "Error", "Username must be in lowercase");
+            return false;
+        }
+
         if (passwordField.getText().length() < 8) {
             showAlert(AlertType.ERROR, "Error", "Password must be at least 8 characters long");
             return false;

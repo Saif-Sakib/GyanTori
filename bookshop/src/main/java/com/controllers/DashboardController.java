@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import com.database.BooksDetailsCollection;
+import com.database.BookDetailsCollection;
 import com.database.DatabaseManager;
 import com.models.Book;
 import com.mongodb.client.MongoCollection;
@@ -348,7 +348,7 @@ public class DashboardController implements Initializable {
     private void loadUploadedBooks(String userId) {
         try {
             // Get books sorted by review count (high to low)
-            List<Book> uploadedBooks = BooksDetailsCollection.getBooksBySellerId(userId).stream()
+            List<Book> uploadedBooks = BookDetailsCollection.getBooksBySellerId(userId).stream()
                     .sorted((b1, b2) -> Double.compare(b2.getReviewCount(), b1.getReviewCount()))
                     .collect(Collectors.toList());
 
@@ -387,7 +387,7 @@ public class DashboardController implements Initializable {
 
     private void loadBorrowedBooks(String userId) {
         try {
-            List<Book> borrowedBooks = BooksDetailsCollection.getBooksByHolderId(userId);
+            List<Book> borrowedBooks = BookDetailsCollection.getBooksByHolderId(userId);
             ObservableList<BorrowedBook> borrowedBooksObservable = FXCollections.observableArrayList();
 
             for (Book book : borrowedBooks) {

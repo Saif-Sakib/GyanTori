@@ -13,9 +13,13 @@ public class SessionManager {
     private static final String FILE_PATH = "session.properties";
     private static SessionManager instance;
     private String userName;
+    private String userId;
     private String currentBookId;
     private boolean isLoggedIn;
     private List<String> cartItems; // Using List for dynamic sizing
+    private static String pressedView = "all_books";
+    // Category tracking
+    private static String currentCategory = null;
 
     private SessionManager() {
         cartItems = new ArrayList<>();
@@ -29,13 +33,18 @@ public class SessionManager {
         return instance;
     }
 
-    public void setUser(String name) {
+    public void setUserName(String name) {
         this.userName = name;
         saveSession();
     }
 
-    public void setCurrentBookId(String book) {
-        this.currentBookId = book;
+    public void setUserId(String Id){
+        this.userId = Id;
+        saveSession();
+    }
+
+    public void setCurrentBookId(String bookId) {
+        this.currentBookId = bookId;
         saveSession();
     }
 
@@ -44,8 +53,39 @@ public class SessionManager {
         saveSession();
     }
 
+    /**
+     * Get the currently selected view
+     * 
+     * @return The current view identifier
+     */
+    public static String getPressedView() {
+        return pressedView;
+    }
+
+    /**
+     * Set the view type to be displayed
+     * 
+     * @param viewType The view identifier to set
+     */
+    public static void setPressedView(String viewType) {
+        pressedView = viewType;
+    }
+
+    // Category getters and setters
+    public static String getCurrentCategory() {
+        return currentCategory;
+    }
+
+    public static void setCurrentCategory(String category) {
+        currentCategory = category;
+    }
+
     public String getUserName() {
         return userName;
+    }
+
+    public String getUserId() {
+        return userId;
     }
 
     public String getCurrentBookId() {

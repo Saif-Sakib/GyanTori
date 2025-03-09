@@ -36,7 +36,7 @@ public class LoginController {
         }
 
         if (UsersCollection.validateLogin(username, password)) {
-            SessionManager.getInstance().setUser(username);
+            SessionManager.getInstance().setUserName(username);
             SessionManager.getInstance().setIsLoggedIn(true);
             Stage currentStage = (Stage) loginButton.getScene().getWindow();
             LoadPageController.loadScene("home.fxml", "home.css", currentStage);

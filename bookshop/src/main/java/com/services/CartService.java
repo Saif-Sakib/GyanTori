@@ -1,17 +1,22 @@
 package com.services;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import com.controllers.CommonController;
+import com.models.Book;
 
 import javafx.scene.control.Alert;
+import java.time.LocalDate;
 
 public class CartService {
     private static CartService instance;
-    private final Map<String, CartItem> cartItems = new HashMap<>();
+    private final Map<String, Book> cartItems = new HashMap<>();
     private static final int DEFAULT_BORROW_DAYS = 30;
     private static final int MIN_BORROW_DAYS = 1;
     private static final int MAX_BORROW_DAYS = 90;
+    private int borrowDays = DEFAULT_BORROW_DAYS;
 
     private CartService() {
     }
@@ -23,6 +28,21 @@ public class CartService {
         return instance;
     }
 
+    public Boolean addBookToCart(Book book) {
+        if (book == null || book.getId() == null || book.getId().trim().isEmpty()) {
+            throw new IllegalArgumentException("Book or book ID cannot be null or empty");
+        }
+
+        if (cartItems.containsKey(book.getId())) {
+            // For books, we don't allow duplicates (since each book is unique)
+            return false;
+        } else {
+            cartItems.put(book.getId(), book);
+            return true;
+        }
+    }
+
+    // Keeping this method for backward compatibility
     public Boolean addItem(String itemId, String itemName, double price, String imageUrl) {
         validateItemInput(itemId, itemName, price);
 
@@ -30,7 +50,12 @@ public class CartService {
             // For books, we don't allow duplicates (since each book is unique)
             return false;
         } else {
-            cartItems.put(itemId, new CartItem(itemId, itemName, price, imageUrl));
+            Book book = new Book();
+            book.setId(itemId);
+            book.setTitle(itemName);
+            book.setCurrentPrice(price);
+            book.setImageUrl(imageUrl);
+            cartItems.put(itemId, book);
             return true;
         }
     }
@@ -47,19 +72,32 @@ public class CartService {
         }
     }
 
-    public Map<String, CartItem> getCartItems() {
+    public Map<String, Book> getCartItemsMap() {
         return new HashMap<>(cartItems); // Return a copy to prevent external modification
     }
 
-    public void updateBorrowDays(String itemId, int days) {
-        if (!cartItems.containsKey(itemId)) {
-            throw new IllegalArgumentException("Item not found in cart: " + itemId);
+    public List<Book> getCartItems() {
+        return new ArrayList<>(cartItems.values());
+    }
+
+    public double getCartTotal() {
+        double total = 0.0;
+        for (Book book : cartItems.values()) {
+            total += book.getCurrentPrice();
         }
+        return total;
+    }
+
+    public void setGlobalBorrowDays(int days) {
         if (days < MIN_BORROW_DAYS || days > MAX_BORROW_DAYS) {
             throw new IllegalArgumentException("Invalid borrowing period. Must be between " +
                     MIN_BORROW_DAYS + " and " + MAX_BORROW_DAYS + " days");
         }
-        cartItems.get(itemId).setBorrowDays(days);
+        this.borrowDays = days;
+    }
+
+    public int getBorrowDays() {
+        return this.borrowDays;
     }
 
     public void removeItem(String itemId) {
@@ -73,50 +111,18 @@ public class CartService {
         cartItems.clear();
     }
 
-    public static class CartItem {
-        private final String id;
-        private final String name;
-        private final double price; // Price for the default borrowing period (30 days)
-        private final String imageUrl;
-        private int borrowDays; // Number of days to borrow the book
-
-        public CartItem(String id, String name, double price, String imageUrl) {
-            this.id = id;
-            this.name = name;
-            this.price = price;
-            this.imageUrl = imageUrl;
-            this.borrowDays = DEFAULT_BORROW_DAYS; // Default to 30 days
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public double getPrice() {
-            return price;
-        }
-
-        public String getImageUrl() {
-            return imageUrl;
-        }
-
-        public int getBorrowDays() {
-            return borrowDays;
-        }
-
-        public void setBorrowDays(int days) {
-            if (days < MIN_BORROW_DAYS || days > MAX_BORROW_DAYS) {
-                throw new IllegalArgumentException("Invalid borrowing period. Must be between " +
-                        MIN_BORROW_DAYS + " and " + MAX_BORROW_DAYS + " days");
-            }
-            this.borrowDays = days;
-        }
+    public int getItemCount() {
+        return cartItems.size();
     }
-    
+
+    public LocalDate getExpectedReturnDate() {
+        return LocalDate.now().plusDays(borrowDays);
+    }
+
+    public boolean isBookInCart(String bookId) {
+        return cartItems.containsKey(bookId);
+    }
+
     public void showAlert(Alert.AlertType type, String title, String header, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

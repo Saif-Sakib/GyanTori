@@ -13,16 +13,29 @@ import javafx.geometry.Pos;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Locale;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.input.KeyCode;
+
+import com.database.BookDetailsCollection;
+import com.database.DatabaseManager;
+import com.models.Book;
+import com.database.UsersCollection;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.result.UpdateResult;
 import com.services.CartService;
 import com.services.SessionManager;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class CartController {
+    private static final Logger LOGGER = Logger.getLogger(CartController.class.getName());
     @FXML
     private Button returnButton;
     @FXML
@@ -55,7 +68,7 @@ public class CartController {
     private static final double DELIVERY_FEE = 15.00;
     private boolean isPromoApplied = false;
 
-    // Predefined borrowing day options
+    // Predefined borrowing day options - matching CartService min/max
     private static final int[] BORROW_DAY_OPTIONS = { 10, 20, 30 };
     private static final int DEFAULT_BORROW_DAYS = 30;
 
@@ -98,7 +111,7 @@ public class CartController {
         updateTotals();
     }
 
-    private Node createCartItemNode(CartService.CartItem item) {
+    private Node createCartItemNode(Book book) {
         HBox container = new HBox(10);
         container.setAlignment(Pos.CENTER_LEFT);
         container.setPadding(new Insets(10));
@@ -107,13 +120,13 @@ public class CartController {
 
         // Book information section
         VBox infoBox = new VBox(5);
-        Label nameLabel = new Label(item.getName());
+        Label nameLabel = new Label(book.getTitle());
         nameLabel.setStyle("-fx-font-weight: bold;");
 
         // Daily rate calculation
-        double dailyRate = item.getPrice() / DEFAULT_BORROW_DAYS;
+        double dailyRate = book.getCurrentPrice() / DEFAULT_BORROW_DAYS;
         Label rateLabel = new Label(formatPrice(dailyRate) + " / day");
-        Label priceLabel = new Label(formatPrice(calculateItemPrice(item)));
+        Label priceLabel = new Label(formatPrice(calculateItemPrice(book)));
 
         infoBox.getChildren().addAll(nameLabel, rateLabel);
 
@@ -129,8 +142,8 @@ public class CartController {
         }
         daysComboBox.getItems().add("Custom...");
 
-        // Set default value based on item's borrowing days
-        int currentDays = item.getBorrowDays();
+        // Set default value based on global borrowing days
+        int currentDays = cartService.getBorrowDays();
         boolean isCustomDays = true;
         for (int option : BORROW_DAY_OPTIONS) {
             if (currentDays == option) {
@@ -157,8 +170,8 @@ public class CartController {
             } else {
                 customDaysField.setVisible(false);
                 int days = Integer.parseInt(selected.split(" ")[0]);
-                updateBorrowDays(item.getId(), days);
-                priceLabel.setText(formatPrice(calculateItemPrice(item)));
+                updateBorrowDays(days);
+                priceLabel.setText(formatPrice(calculateItemPrice(book)));
             }
         });
 
@@ -167,14 +180,14 @@ public class CartController {
             try {
                 int days = Integer.parseInt(customDaysField.getText().trim());
                 if (days > 0) {
-                    updateBorrowDays(item.getId(), days);
-                    priceLabel.setText(formatPrice(calculateItemPrice(item)));
+                    updateBorrowDays(days);
+                    priceLabel.setText(formatPrice(calculateItemPrice(book)));
                 } else {
-                    customDaysField.setText(String.valueOf(item.getBorrowDays()));
+                    customDaysField.setText(String.valueOf(cartService.getBorrowDays()));
                     showAlert("Invalid Input", "Borrowing days must be greater than 0.", Alert.AlertType.WARNING);
                 }
             } catch (NumberFormatException ex) {
-                customDaysField.setText(String.valueOf(item.getBorrowDays()));
+                customDaysField.setText(String.valueOf(cartService.getBorrowDays()));
                 showAlert("Invalid Input", "Please enter a valid number.", Alert.AlertType.WARNING);
             }
         });
@@ -183,7 +196,7 @@ public class CartController {
 
         Button removeButton = new Button("Remove");
         removeButton.getStyleClass().add("secondary-button");
-        removeButton.setOnAction(e -> removeItem(item.getId()));
+        removeButton.setOnAction(e -> removeItem(book.getId()));
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -202,14 +215,14 @@ public class CartController {
         return container;
     }
 
-    private double calculateItemPrice(CartService.CartItem item) {
-        double dailyRate = item.getPrice() / DEFAULT_BORROW_DAYS;
-        return dailyRate * item.getBorrowDays();
+    private double calculateItemPrice(Book book) {
+        double dailyRate = book.getCurrentPrice() / DEFAULT_BORROW_DAYS;
+        return dailyRate * cartService.getBorrowDays();
     }
 
-    private void updateBorrowDays(String itemId, int days) {
+    private void updateBorrowDays(int days) {
         try {
-            cartService.updateBorrowDays(itemId, days);
+            cartService.setGlobalBorrowDays(days);
             updateTotals();
         } catch (Exception e) {
             handleError("Failed to update borrowing days", e);
@@ -230,7 +243,7 @@ public class CartController {
         cartItemsContainer.getChildren().clear();
 
         // Get cart items
-        List<CartService.CartItem> items = new ArrayList<>(cartService.getCartItems().values());
+        List<Book> items = cartService.getCartItems();
 
         // Update visibility based on cart state
         boolean isEmpty = items.isEmpty();
@@ -242,8 +255,8 @@ public class CartController {
 
         if (!isEmpty) {
             // Add items to the container if cart is not empty
-            for (CartService.CartItem item : items) {
-                cartItemsContainer.getChildren().add(createCartItemNode(item));
+            for (Book book : items) {
+                cartItemsContainer.getChildren().add(createCartItemNode(book));
             }
         }
 
@@ -255,10 +268,7 @@ public class CartController {
     }
 
     private void updateTotals() {
-        double newSubtotal = cartService.getCartItems().values().stream()
-                .mapToDouble(this::calculateItemPrice)
-                .sum();
-
+        double newSubtotal = cartService.getCartTotal();
         subtotal.set(newSubtotal);
 
         // Calculate total including fees
@@ -293,14 +303,77 @@ public class CartController {
     }
 
     public void handleCheckout() {
-        if (cartService.getCartItems().isEmpty()) {
+        if (cartService.getItemCount() == 0) {
             showAlert("Empty Cart", "Please add items before checkout.", Alert.AlertType.WARNING);
             return;
         }
-        // Add checkout logic here
-        showAlert("Checkout", "Processing checkout: " + formatPrice(total.get()), Alert.AlertType.INFORMATION);
-        String user = SessionManager.getInstance().getUserName();
-        //Book bookdetails = BookDetailsController.
+
+        try {
+            // Get current user ID
+            String userName = SessionManager.getInstance().getUserName();
+
+            // We need userId for processing checkout
+            String userId = UsersCollection.getUserIdFromUsername(userName); // Assuming this method exists
+            if (userId == null || userId.isEmpty()) {
+                showAlert("Authentication Error", "User is not logged in properly.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            // Calculate return date
+            String borrowDate = LocalDate.now().toString();
+            String returnDate = cartService.getExpectedReturnDate().toString();
+
+            // Process each book in the cart
+            boolean allSuccess = true;
+            List<String> borrowedBookIds = new ArrayList<>();
+
+            for (Book book : cartService.getCartItems()) {
+                // Update book details in memory
+                book.setHolderId(userId);
+                book.setBorrowDate(borrowDate);
+                book.setReturnDate(returnDate);
+
+                // Update the book in the database
+                boolean updated = BookDetailsCollection.updateBook(book);
+
+                if (updated) {
+                    borrowedBookIds.add(book.getId());
+                } else {
+                    allSuccess = false;
+                    LOGGER.log(Level.WARNING, "Failed to update book: " + book.getId());
+                }
+            }
+
+            // Update the user's borrowed books list
+            if (!borrowedBookIds.isEmpty()) {
+                // We need a method to update the user's borrowed books
+                UsersCollection usersCollection = new UsersCollection();
+                boolean userUpdated = usersCollection.updateUserBorrowedBooks(userId, borrowedBookIds);
+                if (!userUpdated) {
+                    allSuccess = false;
+                    LOGGER.log(Level.WARNING, "Failed to update user's borrowed books");
+                }
+            }
+
+            if (allSuccess) {
+                showAlert("Checkout Successful",
+                        "Books have been borrowed successfully.\nReturn by: " + returnDate,
+                        Alert.AlertType.INFORMATION);
+
+                // Clear the cart after successful checkout
+                cartService.clearCart();
+                refreshCartView();
+            } else {
+                showAlert("Checkout Issue",
+                        "Some items couldn't be processed. Please try again.",
+                        Alert.AlertType.ERROR);
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error during checkout", e);
+            showAlert("Checkout Error",
+                    "An error occurred during checkout: " + e.getMessage(),
+                    Alert.AlertType.ERROR);
+        }
     }
 
     private void handleError(String message, Exception e) {
@@ -308,11 +381,7 @@ public class CartController {
     }
 
     private void showAlert(String title, String content, Alert.AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        cartService.showAlert(type, title, null, content);
     }
 
     private String formatPrice(double price) {

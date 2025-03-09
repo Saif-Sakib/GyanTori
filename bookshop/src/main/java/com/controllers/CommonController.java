@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 import com.models.Book;
 import com.services.CartService;
 import com.services.SessionManager;
-import com.services.SearchImplementation; // Add this line
+import com.services.SearchImplementation;
 
 /**
  * Base controller class for common navigation and user session handling
@@ -29,12 +29,15 @@ public abstract class CommonController {
     private static final Logger LOGGER = Logger.getLogger(CommonController.class.getName());
 
     @FXML
+    protected Button allBooksButton;
+
+    @FXML
     protected Button profileLoginButton;
     @FXML
-    private TextField searchField; // Add this line
+    private TextField searchField;
 
     private final CartService cartService = CartService.getInstance();
-    private SearchImplementation searchImplementation; // Add this line
+    private SearchImplementation searchImplementation;
 
     /**
      * Initialize method to be called in the initialize method of subclasses
@@ -54,18 +57,6 @@ public abstract class CommonController {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error navigating to home", e);
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to home page.");
-        }
-    }
-
-    @FXML
-    public void navigateToCategory() {
-        try {
-            // Navigate to category page (implementation would depend on app structure)
-            LOGGER.info("Navigating to category page");
-            // Implementation would be added here when category page is created
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error navigating to category", e);
-            showAlert(Alert.AlertType.ERROR, "Error navigating to category", e.getMessage());
         }
     }
 
@@ -91,18 +82,156 @@ public abstract class CommonController {
         }
     }
 
-    /**
-     * Handle navigation to author page.
-     */
+    // New navigation methods for remaining sidebar items
     @FXML
-    public void navigateToAuthor() {
+    public void navigateToTopPublishers() {
         try {
-            // Navigate to author page
-            LOGGER.info("Navigating to author page");
-            // Implementation would be added here when author page is created
+            // Set the view type in SessionManager
+            SessionManager.setPressedView(AllBooksController.VIEW_PUBLISHER);
+
+            Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+            LoadPageController.loadScene("allbooks.fxml", "allbooks.css", currentStage);
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error navigating to author page", e);
-            showAlert(Alert.AlertType.ERROR, "Error navigating to author page", e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error navigating to Top Publishers", e);
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to Top Publishers page.");
+        }
+    }
+
+    @FXML
+    public void navigateToHighlyRatedBooks() {
+        try {
+            // Set the view type in SessionManager
+            SessionManager.setPressedView(AllBooksController.VIEW_HIGHLY_RATED);
+
+            Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+            LoadPageController.loadScene("allbooks.fxml", "allbooks.css", currentStage);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error navigating to Highly Rated", e);
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to Highly Rated Books page.");
+        }
+    }
+
+    // Category navigation methods
+    @FXML
+    public void navigateToAllBooks() {
+        try {
+            // Set the view type in SessionManager
+            SessionManager.setPressedView(AllBooksController.VIEW_ALL_BOOKS);
+            SessionManager.setCurrentCategory(null);
+
+            Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+            LoadPageController.loadScene("allbooks.fxml", "allbooks.css", currentStage);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error navigating to All Books", e);
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to All Books page.");
+        }
+    }
+
+    @FXML
+    public void navigateToBusinessBooks() {
+        try {
+            // Set the view type and category in SessionManager
+            SessionManager.setPressedView(AllBooksController.VIEW_CATEGORY);
+            SessionManager.setCurrentCategory("Business");
+
+            Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+            LoadPageController.loadScene("allbooks.fxml", "allbooks.css", currentStage);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error navigating to Business Books", e);
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to Business Books page.");
+        }
+    }
+
+    @FXML
+    public void navigateToTechnologyBooks() {
+        try {
+            // Set the view type and category in SessionManager
+            SessionManager.setPressedView(AllBooksController.VIEW_CATEGORY);
+            SessionManager.setCurrentCategory("Technology");
+
+            Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+            LoadPageController.loadScene("allbooks.fxml", "allbooks.css", currentStage);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error navigating to Technology Books", e);
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to Technology Books page.");
+        }
+    }
+
+    @FXML
+    public void navigateToArtsBooks() {
+        try {
+            // Set the view type and category in SessionManager
+            SessionManager.setPressedView(AllBooksController.VIEW_CATEGORY);
+            SessionManager.setCurrentCategory("Arts");
+
+            Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+            LoadPageController.loadScene("allbooks.fxml", "allbooks.css", currentStage);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error navigating to Arts Books", e);
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to Arts Books page.");
+        }
+    }
+
+    @FXML
+    public void navigateToLiteratureBooks() {
+        try {
+            // Set the view type and category in SessionManager
+            SessionManager.setPressedView(AllBooksController.VIEW_CATEGORY);
+            SessionManager.setCurrentCategory("Literature");
+
+            Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+            LoadPageController.loadScene("allbooks.fxml", "allbooks.css", currentStage);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error navigating to Literature Books", e);
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to Literature Books page.");
+        }
+    }
+
+    // Helper method to navigate to publisher books
+    public void navigateToPublisherBooks(String publisher) {
+        try {
+            // Set the view type and publisher in SessionManager
+            SessionManager.setPressedView(AllBooksController.VIEW_PUBLISHER);
+
+            Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+            LoadPageController.loadScene("allbooks.fxml", "allbooks.css", currentStage);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error navigating to publisher books: " + publisher, e);
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to publisher books page.");
+        }
+    }
+
+    // Helper method to navigate to a view
+    protected void navigateToView(String fxmlFile) {
+        try {
+            Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
+            LoadPageController.loadScene(fxmlFile, getCssForView(fxmlFile), currentStage);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error navigating to view: " + fxmlFile, e);
+        }
+    }
+
+    private String getCssForView(String fxmlFile) {
+        switch (fxmlFile) {
+            case "AllBooks.fxml":
+                return "allbooks.css";
+            case "HomeView.fxml":
+                return "home.css";
+            case "ShareBookView.fxml":
+                return "share.css";
+            case "CartView.fxml":
+                return "cart.css";
+            case "LoginView.fxml":
+            case "ProfileView.fxml":
+                return "profile.css";
+            case "SearchResultsView.fxml":
+                return "search.css";
+            case "ExploreView.fxml":
+                return "explore.css";
+            case "TopPublishersView.fxml":
+                return "publishers.css";
+            default:
+                return "default.css";
         }
     }
 
@@ -164,15 +293,14 @@ public abstract class CommonController {
         }
 
         try {
-            if(getCartService().addItem(book.getId(), book.getTitle(), book.getCurrentPrice(), book.getImageUrl())){
+            if (getCartService().addItem(book.getId(), book.getTitle(), book.getCurrentPrice(), book.getImageUrl())) {
                 showAlert(Alert.AlertType.INFORMATION, "Success",
                         String.format("%s has been added to your cart!", book.getTitle()));
-            }
-            else{
+            } else {
                 showAlert(Alert.AlertType.INFORMATION, "Success", null,
                         String.format("This book is already in your cart"));
             }
-            
+
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error adding book to cart: " + book.getId(), e);
             showAlert(Alert.AlertType.ERROR, "Cart Error", "Failed to add book to cart. Please try again.");
@@ -315,6 +443,7 @@ public abstract class CommonController {
             }
 
             SessionManager.getInstance().setCurrentBookId(book.getId());
+            System.out.println("HAHA " + book.getId());
             Stage currentStage = (Stage) profileLoginButton.getScene().getWindow();
             LoadPageController.loadScene("bookdetails.fxml", "bookdetails.css", currentStage);
         } catch (Exception e) {
@@ -429,19 +558,19 @@ public abstract class CommonController {
         alert.showAndWait();
     }
 
-    /**
-     * Overloaded showAlert method that accepts a header
-     * 
-     * @param type    Alert type (INFO, ERROR, etc.)
-     * @param title   Alert title
-     * @param header  Alert header text
-     * @param content Alert message content
-     */
-    public void showAlert(Alert.AlertType type, String title, String header, String content) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(header);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
+/**
+ * Overloaded showAlert method that accepts a header
+ * 
+ * @param type    Alert type (INFO, ERROR, etc.)
+ * @param title   Alert title
+ * @param header  Alert header text
+ * @param content Alert message content
+ */
+public void showAlert(Alert.AlertType type, String title, String header, String content) {
+    Alert alert = new Alert(type);
+    alert.setTitle(title);
+    alert.setHeaderText(header);
+    alert.setContentText(content);
+    alert.showAndWait();
+}
 }

@@ -46,7 +46,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import com.database.DatabaseManager;
-import com.database.ShareBookDB;
+import com.database.UsersCollection;
+import com.database.BookDetailsCollection;
 import com.models.Book;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -546,11 +547,13 @@ public class ShareBookController extends CommonController implements Initializab
             book.setReviewCount(0);
 
             // Save to database
-            boolean success = ShareBookDB.insertBook(book);
-
-            if (success) {
-                showAlert(AlertType.INFORMATION, "Success", "Your book has been shared successfully!");
-                clearForm();
+            if (BookDetailsCollection.insertBook(book)) {
+                if (UsersCollection.shareBook(userId, book.getId())) {
+                    showAlert(AlertType.INFORMATION, "Success", "Your book has been shared successfully!");
+                    clearForm();
+                } else {
+                    showAlert(AlertType.ERROR, "Database Error", "Failed to share your book. Please try again.");
+                }
             } else {
                 showAlert(AlertType.ERROR, "Database Error", "Failed to share your book. Please try again.");
             }

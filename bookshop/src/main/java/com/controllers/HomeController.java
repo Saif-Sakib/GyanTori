@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.database.BooksDetailsCollection;
+import com.database.BookDetailsCollection;
 import com.models.Book;
 import com.services.SearchImplementation;
 import com.services.SessionManager;
@@ -302,17 +302,18 @@ public class HomeController extends CommonController {
 
     private void loadBooks() {
         try {
-            // Define and initialize featuredBooksList
-            List<Book> featuredBooksList = BooksDetailsCollection.getBooksBySequence(0, 9).stream()
+            // Fetch books from MongoDB
+            List<Book> featuredBooksList = BookDetailsCollection.getBooksByPagination(0, 9).stream()
+                    .filter(Objects::nonNull) // Ensure no null books are included
                     .sorted((b1, b2) -> Double.compare(b2.getRating(), b1.getRating()))
                     .collect(Collectors.toList());
 
-            // Define and initialize recommendedBooksList
-            List<Book> recommendedBooksList = BooksDetailsCollection.getBooksBySequence(9, 18).stream()
+            List<Book> recommendedBooksList = BookDetailsCollection.getBooksByPagination(9, 9).stream()
+                    .filter(Objects::nonNull)
                     .sorted((b1, b2) -> Double.compare(b2.getReviewCount(), b1.getReviewCount()))
                     .collect(Collectors.toList());
 
-            // Load the book sections with data from MongoDB
+            // Load the book sections with data
             loadBookSection(featuredBooks, featuredBooksList);
             loadBookSection(recommendedBooks, recommendedBooksList);
         } catch (Exception e) {

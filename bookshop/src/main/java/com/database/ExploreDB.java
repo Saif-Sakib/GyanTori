@@ -8,52 +8,36 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.bson.Document;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
+import org.bson.conversions.Bson;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Sorts;
+import com.models.Book;
 
 /**
- * Handles all database operations for the Explore page
+ * Handles all database operations for the Explore page by leveraging
+ * BookDetailsCollection
  */
 public class ExploreDB {
     private static final Logger LOGGER = Logger.getLogger(ExploreDB.class.getName());
-    private static final String COLLECTION_NAME = "bookdetails";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private final MongoCollection<Document> books;
-
-    public ExploreDB() {
-        this.books = DatabaseManager.getCollection(COLLECTION_NAME);
-    }
 
     /**
      * Fetches all books from the database
      * 
-     * @return List of book documents
+     * @return List of Book objects
      */
-    public List<Document> getAllBooks() {
-        List<Document> bookList = new ArrayList<>();
-        try {
-            FindIterable<Document> cursor = books.find();
-            cursor.forEach(bookList::add);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error loading books from database", e);
-        }
-        return bookList;
+    public List<Book> getAllBooks() {
+        return BookDetailsCollection.getAllBooks();
     }
 
     /**
      * Finds a book by its ID
      * 
      * @param bookId ID of the book to find
-     * @return Book document or null if not found
+     * @return Book object or null if not found
      */
-    public Document findBookById(String bookId) {
-        try {
-            return books.find(Filters.eq("id", bookId)).first();
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Error finding book by ID: " + bookId, e);
-            return null;
-        }
+    public Book findBookById(String bookId) {
+        return BookDetailsCollection.getBookById(bookId);
     }
 
     /**
@@ -62,22 +46,22 @@ public class ExploreDB {
      * @param allBooks List of all books
      * @return Map of filter options by category
      */
-    public Map<String, Set<String>> extractFilterOptions(List<Document> allBooks) {
+    public Map<String, Set<String>> extractFilterOptions(List<Book> allBooks) {
         Map<String, Set<String>> filterOptions = new HashMap<>();
         Set<String> languages = new HashSet<>();
         Set<String> categories = new HashSet<>();
 
-        for (Document book : allBooks) {
+        for (Book book : allBooks) {
             // Add language
-            String language = book.getString("language");
+            String language = book.getLanguage();
             if (language != null) {
                 languages.add(language);
             }
 
             // Add categories
-            List<String> bookCategories = (List<String>) book.get("categories");
+            String[] bookCategories = book.getCategories();
             if (bookCategories != null) {
-                categories.addAll(bookCategories);
+                categories.addAll(Arrays.asList(bookCategories));
             }
         }
 
@@ -87,133 +71,95 @@ public class ExploreDB {
     }
 
     /**
-     * Applies all filters to the book list
+     * Searches books based on the search term using BookDetailsCollection
      * 
-     * @param allBooks     Original book list
-     * @param filterParams Map of filter parameters
-     * @return Filtered book list
+     * @param searchTerm The search term to find in books
+     * @return List of books matching the search term
      */
-    public List<Document> applyFilters(List<Document> allBooks, Map<String, Object> filterParams) {
-        List<Document> result = new ArrayList<>(allBooks);
-
-        // Apply text search filters
-        result = applyTextFilters(result, filterParams);
-
-        // Apply selection filters
-        result = applySelectionFilters(result, filterParams);
-
-        // Apply numeric filters
-        result = applyNumericFilters(result, filterParams);
-
-        // Apply date filters
-        result = applyDateFilters(result, filterParams);
-
-        // Apply availability and discount filters
-        result = applySpecialFilters(result, filterParams);
-
-        // Apply sorting
-        result = applySorting(result, filterParams);
-
-        return result;
+    public List<Book> searchBooks(String searchTerm) {
+        if (searchTerm == null || searchTerm.isEmpty()) {
+            return BookDetailsCollection.getAllBooks();
+        }
+        return BookDetailsCollection.searchBooks(searchTerm);
     }
 
-    private List<Document> applyTextFilters(List<Document> books, Map<String, Object> params) {
-        List<Document> result = books;
-
-        // Apply search term filter
-        String searchTerm = (String) params.get("searchTerm");
-        if (searchTerm != null && !searchTerm.isEmpty()) {
-            result = result.stream()
-                    .filter(book -> contains(book, "title", searchTerm) ||
-                            contains(book, "author", searchTerm) ||
-                            contains(book, "description", searchTerm))
-                    .collect(Collectors.toList());
+    /**
+     * Gets books by author using BookDetailsCollection
+     * 
+     * @param author The author name to search for
+     * @return List of books by the specified author
+     */
+    public List<Book> getBooksByAuthor(String author) {
+        if (author == null || author.isEmpty()) {
+            return new ArrayList<>();
         }
-
-        // Apply author filter
-        String authorFilter = (String) params.get("author");
-        if (authorFilter != null && !authorFilter.isEmpty()) {
-            result = result.stream()
-                    .filter(book -> contains(book, "author", authorFilter))
-                    .collect(Collectors.toList());
-        }
-
-        // Apply publisher filter
-        String publisherFilter = (String) params.get("publisher");
-        if (publisherFilter != null && !publisherFilter.isEmpty()) {
-            result = result.stream()
-                    .filter(book -> contains(book, "publisher", publisherFilter))
-                    .collect(Collectors.toList());
-        }
-
-        return result;
+        return BookDetailsCollection.getBooksByAuthor(author);
     }
 
-    private List<Document> applySelectionFilters(List<Document> books, Map<String, Object> params) {
-        List<Document> result = books;
+    /**
+     * Gets books by category using BookDetailsCollection
+     * 
+     * @param category The category to filter by
+     * @return List of books in the specified category
+     */
+    public List<Book> getBooksByCategory(String category) {
+        if (category == null || category.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return BookDetailsCollection.getBooksByCategory(category);
+    }
+
+    /**
+     * Applies composite filters that aren't directly available in
+     * BookDetailsCollection
+     * 
+     * @param books        Original list of books
+     * @param filterParams Map of filter parameters
+     * @return Filtered list of books
+     */
+    public List<Book> applyCompositeFilters(List<Book> books, Map<String, Object> filterParams) {
+        List<Book> result = new ArrayList<>(books);
 
         // Apply language filter
-        String languageFilter = (String) params.get("language");
+        String languageFilter = (String) filterParams.get("language");
         if (languageFilter != null && !languageFilter.isEmpty()) {
             result = result.stream()
-                    .filter(book -> languageFilter.equals(book.getString("language")))
+                    .filter(book -> languageFilter.equals(book.getLanguage()))
                     .collect(Collectors.toList());
         }
-
-        // Apply category filter
-        String categoryFilter = (String) params.get("category");
-        if (categoryFilter != null && !categoryFilter.isEmpty()) {
-            result = result.stream()
-                    .filter(book -> {
-                        List<String> categories = (List<String>) book.get("categories");
-                        return categories != null && categories.contains(categoryFilter);
-                    })
-                    .collect(Collectors.toList());
-        }
-
-        return result;
-    }
-
-    private List<Document> applyNumericFilters(List<Document> books, Map<String, Object> params) {
-        List<Document> result = books;
 
         // Apply price range filters
-        Double minPrice = (Double) params.get("minPrice");
+        Double minPrice = (Double) filterParams.get("minPrice");
         if (minPrice != null) {
             result = result.stream()
-                    .filter(book -> book.getInteger("currentPrice") >= minPrice)
+                    .filter(book -> book.getCurrentPrice() >= minPrice)
                     .collect(Collectors.toList());
         }
 
-        Double maxPrice = (Double) params.get("maxPrice");
+        Double maxPrice = (Double) filterParams.get("maxPrice");
         if (maxPrice != null) {
             result = result.stream()
-                    .filter(book -> book.getInteger("currentPrice") <= maxPrice)
+                    .filter(book -> book.getCurrentPrice() <= maxPrice)
                     .collect(Collectors.toList());
         }
 
         // Apply rating filter
-        Double minRating = (Double) params.get("minRating");
+        Double minRating = (Double) filterParams.get("minRating");
         if (minRating != null && minRating > 0) {
             result = result.stream()
-                    .filter(book -> book.getDouble("rating") >= minRating)
+                    .filter(book -> book.getRating() >= minRating)
                     .collect(Collectors.toList());
         }
 
-        return result;
-    }
-
-    private List<Document> applyDateFilters(List<Document> books, Map<String, Object> params) {
-        List<Document> result = books;
-
-        LocalDate fromDate = (LocalDate) params.get("fromDate");
-        LocalDate toDate = (LocalDate) params.get("toDate");
+        // Apply date filters
+        LocalDate fromDate = (LocalDate) filterParams.get("fromDate");
+        LocalDate toDate = (LocalDate) filterParams.get("toDate");
 
         if (fromDate != null || toDate != null) {
             result = result.stream()
                     .filter(book -> {
                         try {
-                            String dateStr = book.getString("publicationDate");
+                            String dateStr = book.getPublicationDate();
                             if (dateStr == null || dateStr.isEmpty()) {
                                 return true; // Keep if no date is available
                             }
@@ -225,26 +171,20 @@ public class ExploreDB {
 
                             return afterFromDate && beforeToDate;
                         } catch (Exception e) {
-                            LOGGER.log(Level.WARNING, "Error parsing date for book: " + book.getString("title"), e);
+                            LOGGER.log(Level.WARNING, "Error parsing date for book: " + book.getTitle(), e);
                             return true; // Keep if date parsing fails
                         }
                     })
                     .collect(Collectors.toList());
         }
 
-        return result;
-    }
-
-    private List<Document> applySpecialFilters(List<Document> books, Map<String, Object> params) {
-        List<Document> result = books;
-
         // Apply availability filter
-        String availabilityFilter = (String) params.get("availability");
+        String availabilityFilter = (String) filterParams.get("availability");
         if (availabilityFilter != null && !availabilityFilter.equals("Any")) {
             switch (availabilityFilter) {
                 case "Available Now":
                     result = result.stream()
-                            .filter(book -> book.get("holderId") == null || book.getString("holderId").isEmpty())
+                            .filter(book -> book.getHolderId() == null || book.getHolderId().isEmpty())
                             .collect(Collectors.toList());
                     break;
                 case "Available for Purchase":
@@ -252,55 +192,59 @@ public class ExploreDB {
                     break;
                 case "Available for Borrowing":
                     result = result.stream()
-                            .filter(book -> book.containsKey("holderId") &&
-                                    (book.get("holderId") == null || book.getString("holderId").isEmpty()))
+                            .filter(book -> book.getHolderId() == null || book.getHolderId().isEmpty())
                             .collect(Collectors.toList());
                     break;
             }
         }
 
         // Apply discount filter
-        Boolean discountOnly = (Boolean) params.get("discountOnly");
+        Boolean discountOnly = (Boolean) filterParams.get("discountOnly");
         if (discountOnly != null && discountOnly) {
             result = result.stream()
-                    .filter(book -> book.getInteger("discount") > 0)
+                    .filter(book -> book.getDiscount() > 0)
                     .collect(Collectors.toList());
         }
 
         return result;
     }
 
-    private List<Document> applySorting(List<Document> books, Map<String, Object> params) {
-        String sortBy = (String) params.get("sortBy");
-        Boolean ascending = (Boolean) params.get("ascending");
-
+    /**
+     * Applies sorting to the book list
+     * 
+     * @param books     List of books to sort
+     * @param sortBy    Field to sort by
+     * @param ascending Whether to sort in ascending order
+     * @return Sorted list of books
+     */
+    public List<Book> sortBooks(List<Book> books, String sortBy, Boolean ascending) {
         if (sortBy == null || sortBy.equals("Relevance")) {
             return books; // No sorting
         }
 
-        Comparator<Document> comparator = null;
+        Comparator<Book> comparator = null;
 
         switch (sortBy) {
             case "Title":
-                comparator = Comparator.comparing(doc -> doc.getString("title"));
+                comparator = Comparator.comparing(Book::getTitle, Comparator.nullsLast(String::compareTo));
                 break;
             case "Author":
-                comparator = Comparator.comparing(doc -> doc.getString("author"));
+                comparator = Comparator.comparing(Book::getAuthor, Comparator.nullsLast(String::compareTo));
                 break;
             case "Price":
-                comparator = Comparator.comparing(doc -> doc.getInteger("currentPrice"));
+                comparator = Comparator.comparing(Book::getCurrentPrice, Comparator.nullsLast(Double::compareTo));
                 break;
             case "Rating":
-                comparator = Comparator.comparing(doc -> doc.getDouble("rating"));
+                comparator = Comparator.comparing(Book::getRating, Comparator.nullsLast(Double::compareTo));
                 break;
             case "Publication Date":
-                comparator = Comparator.comparing(doc -> doc.getString("publicationDate"));
+                comparator = Comparator.comparing(Book::getPublicationDate, Comparator.nullsLast(String::compareTo));
                 break;
             default:
                 return books;
         }
 
-        List<Document> sortedBooks = new ArrayList<>(books);
+        List<Book> sortedBooks = new ArrayList<>(books);
         if (ascending == null || !ascending) {
             comparator = comparator.reversed();
         }
@@ -310,10 +254,41 @@ public class ExploreDB {
     }
 
     /**
-     * Helper method to check if a field contains a substring (case-insensitive)
+     * Main method to apply all filters and sorting
+     * 
+     * @param filterParams Map of filter parameters
+     * @return Filtered and sorted list of books
      */
-    private boolean contains(Document doc, String field, String value) {
-        String fieldValue = doc.getString(field);
-        return fieldValue != null && fieldValue.toLowerCase().contains(value.toLowerCase());
+    public List<Book> getFilteredBooks(Map<String, Object> filterParams) {
+        List<Book> result;
+
+        // First try to use specialized search methods if applicable
+        String searchTerm = (String) filterParams.get("searchTerm");
+        String authorFilter = (String) filterParams.get("author");
+        String categoryFilter = (String) filterParams.get("category");
+
+        if (searchTerm != null && !searchTerm.isEmpty()) {
+            // Use the search capability from BookDetailsCollection
+            result = searchBooks(searchTerm);
+        } else if (authorFilter != null && !authorFilter.isEmpty()) {
+            // Use the author filter from BookDetailsCollection
+            result = getBooksByAuthor(authorFilter);
+        } else if (categoryFilter != null && !categoryFilter.isEmpty()) {
+            // Use the category filter from BookDetailsCollection
+            result = getBooksByCategory(categoryFilter);
+        } else {
+            // Get all books if no specialized filter is applicable
+            result = getAllBooks();
+        }
+
+        // Apply any additional filters that aren't handled by BookDetailsCollection
+        result = applyCompositeFilters(result, filterParams);
+
+        // Apply sorting
+        String sortBy = (String) filterParams.get("sortBy");
+        Boolean ascending = (Boolean) filterParams.get("ascending");
+        result = sortBooks(result, sortBy, ascending);
+
+        return result;
     }
 }

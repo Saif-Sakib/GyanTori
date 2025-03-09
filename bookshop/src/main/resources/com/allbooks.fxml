@@ -6,62 +6,62 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
 
-<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.controllers.HomeController" styleClass="root" fx:id="rootPane">
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.controllers.AllBooksController" styleClass="root" fx:id="rootPane">
 
     <!-- Top Navigation Section - Fixed -->
     <VBox spacing="15" styleClass="top-section">
-            <!-- Main Navigation Bar -->
-            <HBox alignment="CENTER_RIGHT" spacing="15" styleClass="nav-bar">
-                <padding>
-                    <Insets left="20" right="20"/>
-                </padding>
-                
-                <!-- Logo Section with Animation -->
-                <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" styleClass="logo-container">
-                    <StackPane styleClass="logo-circle">
-                        <ImageView fitHeight="65.0" fitWidth="65.0" styleClass="logo-image">
-                            <Image url="@images/icons/logo.png"/>
-                        </ImageView>
-                    </StackPane>
-                    <Label fx:id="navLogo" text="GyanTori" styleClass="nav-logo"
-                           style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
-                </HBox>
-                <!-- Enhanced Search Bar -->
-                <HBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" maxWidth="4000" styleClass="search-container">
-                    <TextField fx:id="searchField" promptText="Search for your favorite books..." styleClass="search-field" HBox.hgrow="ALWAYS"/>
-                    <Button onAction="#performSearch" styleClass="search-button, animated-button">
-                        <graphic>
-                            <ImageView fitHeight="20.0" fitWidth="20.0" styleClass="icon">
-                                <Image url="@images/icons/search.png"/>
-                            </ImageView>
-                        </graphic>
-                    </Button>
-                </HBox>
-                
-                <!-- Animated Navigation Buttons -->
-                <HBox spacing="10" alignment="CENTER">
-                    <Button onAction="#handleCartLoad" styleClass="nav-button, animated-button" text="Cart">
-                        <graphic>
-                            <StackPane styleClass="icon-container">
-                                <ImageView fitHeight="24.0" fitWidth="24.0" styleClass="icon">
-                                    <Image url="@images/icons/cart.png"/>
-                                </ImageView>
-                            </StackPane>
-                        </graphic>
-                    </Button>
-                    
-                    <Button fx:id="profileLoginButton" onAction="#handleProfileLogin" styleClass="nav-button, animated-button" text="Login">
-                        <graphic>
-                            <StackPane styleClass="icon-container">
-                                <ImageView fitHeight="24.0" fitWidth="24.0" styleClass="icon">
-                                    <Image url="@images/icons/user.png"/>
-                                </ImageView>
-                            </StackPane>
-                        </graphic>
-                    </Button>
-                </HBox>
+        <!-- Main Navigation Bar -->
+        <HBox alignment="CENTER_RIGHT" spacing="15" styleClass="nav-bar">
+            <padding>
+                <Insets left="20" right="20"/>
+            </padding>
+            
+            <!-- Logo Section with Animation -->
+            <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" styleClass="logo-container">
+                <StackPane styleClass="logo-circle">
+                    <ImageView fitHeight="65.0" fitWidth="65.0" styleClass="logo-image">
+                        <Image url="@images/icons/logo.png"/>
+                    </ImageView>
+                </StackPane>
+                <Label fx:id="navLogo" text="GyanTori" styleClass="nav-logo"
+                       style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
             </HBox>
-        </VBox>
+            <!-- Enhanced Search Bar -->
+            <HBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" maxWidth="4000" styleClass="search-container">
+                <TextField fx:id="searchField" promptText="Search for your favorite books..." styleClass="search-field" HBox.hgrow="ALWAYS"/>
+                <Button onAction="#performSearch" styleClass="search-button, animated-button">
+                    <graphic>
+                        <ImageView fitHeight="20.0" fitWidth="20.0" styleClass="icon">
+                            <Image url="@images/icons/search.png"/>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </HBox>
+            
+            <!-- Animated Navigation Buttons -->
+            <HBox spacing="10" alignment="CENTER">
+                <Button onAction="#handleCartLoad" styleClass="nav-button, animated-button" text="Cart">
+                    <graphic>
+                        <StackPane styleClass="icon-container">
+                            <ImageView fitHeight="24.0" fitWidth="24.0" styleClass="icon">
+                                <Image url="@images/icons/cart.png"/>
+                            </ImageView>
+                        </StackPane>
+                    </graphic>
+                </Button>
+                
+                <Button fx:id="profileLoginButton" onAction="#handleProfileLogin" styleClass="nav-button, animated-button" text="Login">
+                    <graphic>
+                        <StackPane styleClass="icon-container">
+                            <ImageView fitHeight="24.0" fitWidth="24.0" styleClass="icon">
+                                <Image url="@images/icons/user.png"/>
+                            </ImageView>
+                        </StackPane>
+                    </graphic>
+                </Button>
+            </HBox>
+        </HBox>
+    </VBox>
 
     <!-- Main Content Section with Sidebar -->
     <HBox VBox.vgrow="ALWAYS" spacing="20">
@@ -79,7 +79,7 @@
                     <Button text="🔍 Explore" onAction="#navigateToExplore" styleClass="sidebar-button, animated-button"/>
                     <Button text="📖 Share a Book" onAction="#navigateToShare" styleClass="sidebar-button, animated-button"/>
                     <Button text="🏆 Top Publishers" styleClass="sidebar-button, animated-button"/>
-                    <Button text="🌟 Highly Rated Books" styleClass="sidebar-button, animated-button"/>
+                    <Button text="🌟 Highly Rated Books" onAction="#navigateToHighlyRatedBooks" styleClass="sidebar-button, animated-button"/>
                 </VBox>
 
                 <Separator styleClass="custom-separator"/>
@@ -97,48 +97,44 @@
         </ScrollPane>
 
         <!-- Main Content Area with Smooth Scrolling -->
-        <ScrollPane fitToWidth="true" styleClass="main-content-scroll" HBox.hgrow="ALWAYS">
-            <VBox spacing="30" styleClass="main-content">
+        <ScrollPane styleClass="books-scroll-pane" fitToWidth="true" HBox.hgrow="ALWAYS">
+            <VBox spacing="20">
                 <padding>
                     <Insets top="20" right="20" bottom="20" left="20"/>
                 </padding>
 
-                <!-- Enhanced Welcome Section -->
-                <StackPane VBox.vgrow="ALWAYS">
-    <ImageView fx:id="bannerImage"/>
-</StackPane>
-
-                <VBox spacing="15">
-                    <ScrollPane styleClass="books-scroll-pane" hbarPolicy="NEVER">
-                        <HBox fx:id="searchResultsContainer" spacing="20" styleClass="books-container"/>
-                    </ScrollPane>
-                </VBox>
-
-                <!-- Featured Books Section with Horizontal Scroll -->
-                <VBox spacing="15">
-                    <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label text="Featured Books" styleClass="section-title"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Button text="View All" styleClass="view-all-button, animated-button"/>
+                <!-- Category Header -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label fx:id="categoryTitle" text="Category Books" styleClass="section-title">
+                        <font>
+                            <Font name="System Bold" size="24.0"/>
+                        </font>
+                    </Label>
+                </HBox>
+                
+                <!-- Filter Options -->
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <Label text="Sort by:" styleClass="filter-label"/>
+                    <ComboBox fx:id="sortOptions" promptText="Popularity" prefWidth="150"/>
+                    
+                    <Label text="Filter:" styleClass="filter-label"/>
+                    <ComboBox fx:id="filterOptions" promptText="All" prefWidth="150"/>
+                    
+                    <Button text="Apply" onAction="#applyFilters" styleClass="filter-button, animated-button"/>
+                </HBox>
+                
+                <!-- Books Display -->
+                <VBox spacing="20" VBox.vgrow="ALWAYS">
+                    <!-- Books will be displayed in a grid layout -->
+                    <FlowPane fx:id="booksContainer" hgap="20" vgap="20"/>
+                    
+                    <!-- Pagination -->
+                    <HBox alignment="CENTER" spacing="10">
+                        <Pagination fx:id="booksPagination" maxPageIndicatorCount="5"/>
                     </HBox>
-                    <ScrollPane styleClass="books-scroll-pane" hbarPolicy="NEVER">
-                        <HBox fx:id="featuredBooks" spacing="20" styleClass="books-container"/>
-                    </ScrollPane>
                 </VBox>
 
-                <!-- Recommended Books Section -->
-                <VBox spacing="15">
-                    <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label text="Recommended For You" styleClass="section-title"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Button text="View All" styleClass="view-all-button, animated-button"/>
-                    </HBox>
-                    <ScrollPane styleClass="books-scroll-pane" hbarPolicy="NEVER">
-                        <HBox fx:id="recommendedBooks" spacing="20" styleClass="books-container"/>
-                    </ScrollPane>
-                </VBox>
-
-                <!-- Footer moved inside main content VBox -->
+                <!-- Footer -->
                 <VBox styleClass="footer" VBox.vgrow="NEVER">
                     <HBox alignment="CENTER" spacing="50">
                         <padding>

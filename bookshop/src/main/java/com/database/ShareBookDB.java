@@ -59,7 +59,7 @@ public class ShareBookDB {
     }
 
     // Update book
-    public static boolean updateBook(Book book) {
+    public static boolean updateBookbyId(Book book) {
         try {
             String idToUse = book.get_id() != null ? book.get_id() : book.getId();
 
@@ -167,17 +167,5 @@ public class ShareBookDB {
         }
 
         return doc;
-    }
-
-    // Helper method to convert Document to Review
-    private static Review documentToReview(Document doc) {
-        String reviewerId = doc.getString("reviewerId");
-        String comment = doc.getString("comment");
-        double rating = doc.getDouble("rating");
-
-        String reviewDateStr = doc.getString("reviewDate");
-        LocalDate reviewDate = reviewDateStr != null ? LocalDate.parse(reviewDateStr) : null;
-
-        return new Review(reviewerId, comment, rating, reviewDate);
     }
 }

@@ -2,7 +2,7 @@ package com.services;
 
 import java.util.List;
 
-import com.database.SearchBooks;
+import com.database.BookDetailsCollection;
 import com.models.Book;
 import com.controllers.HomeController;
 
@@ -17,12 +17,12 @@ import javafx.scene.layout.VBox;
  */
 public class SearchImplementation {
 
-    private final SearchBooks searchBooks;
+    private final BookDetailsCollection searchBooks;
     private final HomeController homeController;
     private HBox searchResultsContainer;
 
     public SearchImplementation(HomeController homeController, HBox searchResultsContainer) {
-        this.searchBooks = new SearchBooks();
+        this.searchBooks = new BookDetailsCollection();
         this.homeController = homeController;
         this.searchResultsContainer = searchResultsContainer;
     }

@@ -28,7 +28,7 @@
             <Label text="Welcome!" styleClass="login-header"/>
             <Label text="Log in to continue" styleClass="login-subheader"/>
 
-            <Label text="USERNAME" styleClass="input-label"/>
+            <Label text="USERNAME/EMAIL" styleClass="input-label"/>
             <TextField fx:id="usernameField"
                        promptText="Enter your username"
                        styleClass="input-field"/>

@@ -87,11 +87,11 @@
                 <!-- Categories Section with Icons -->
                 <VBox spacing="10" styleClass="sidebar-section">
                     <Label text="Categories" styleClass="sidebar-header"/>
-                    <Button text="📚 All Books" styleClass="sidebar-button, animated-button"/>
-                    <Button text="💼 Business" styleClass="sidebar-button, animated-button"/>
-                    <Button text="💻 Technology" styleClass="sidebar-button, animated-button"/>
-                    <Button text="🎨 Arts" styleClass="sidebar-button, animated-button"/>
-                    <Button text="📖 Literature" styleClass="sidebar-button, animated-button"/>
+                    <Button text="📚 All Books" fx:id="allBooksButton" onAction="#navigateToAllBooks" styleClass="sidebar-button, animated-button"/>
+<Button text="💼 Business" fx:id="businessButton" onAction="#navigateToBusinessBooks" styleClass="sidebar-button, animated-button"/>
+<Button text="💻 Technology" fx:id="technologyButton" onAction="#navigateToTechnologyBooks" styleClass="sidebar-button, animated-button"/>
+<Button text="🎨 Arts" fx:id="artsButton" onAction="#navigateToArtsBooks" styleClass="sidebar-button, animated-button"/>
+<Button text="📖 Literature" fx:id="literatureButton" onAction="#navigateToLiteratureBooks" styleClass="sidebar-button, animated-button"/>
                 </VBox>
             </VBox>
         </ScrollPane>
