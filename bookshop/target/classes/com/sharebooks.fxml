@@ -108,7 +108,7 @@
 
                     <!-- Share Book Header -->
                     <HBox alignment="CENTER_LEFT" styleClass="content-header">
-                        <Label text="Share Your Book" styleClass="page-title"/>
+                        <Label text="Share Your Book!" styleClass="page-title"/>
                     </HBox>
 
                     <!-- Share Book Form -->
