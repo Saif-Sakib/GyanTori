@@ -202,7 +202,7 @@
 }
 
 .main-content-scroll .scroll-bar:vertical .thumb {
-  -fx-background-color: #dddddd;
+  -fx-background-color: #9a27d8c9;
   -fx-background-radius: 5px;
 }
 
@@ -215,30 +215,35 @@
 
 /* Advanced Search Panel */
 .advanced-search-panel {
-  -fx-background-color: white;
+  -fx-background-color: linear-gradient(
+    to right,
+    rgba(220, 66, 220, 0.427),
+    rgba(171, 65, 171, 0.618),
+    rgba(212, 103, 36, 0.551)
+  );
   -fx-background-radius: 10px;
-  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 1);
+  -fx-effect: dropshadow(gaussian, rgba(163, 16, 16, 0.1), 5, 0, 0, 1);
 }
 
 .toggle-button {
-  -fx-background-color: rgba(255, 255, 255, 0.1);
-  -fx-text-fill: #4a7bff;
+  -fx-background-color: rgba(154, 18, 18, 0.1);
+  -fx-text-fill: #000000;
   -fx-font-weight: normal;
   -fx-background-radius: 20px;
   -fx-padding: 8px 15px;
   -fx-cursor: hand;
-  -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.15), 5, 0, 0, 2);
+  -fx-effect: dropshadow(gaussian, rgba(111, 20, 20, 0.15), 5, 0, 0, 2);
   -fx-transition: all 0.3s ease;
 }
 
 .toggle-button:hover {
-  -fx-background-color: rgba(102, 59, 123, 0.676);
+  -fx-background-color: rgba(41, 19, 153, 0.547);
   -fx-text-fill: white;
   -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.3), 10, 0, 0, 2);
 }
 
 .advanced-filters {
-  -fx-background-color: #f8faff;
+  -fx-background-color: #d81dd509;
   -fx-background-radius: 8px;
   -fx-padding: 15px;
   -fx-border-color: #eaeaea;
@@ -247,13 +252,13 @@
 
 .filter-label {
   -fx-font-weight: bold;
-  -fx-text-fill: #555555;
+  -fx-text-fill: #080808a5;
 }
 
 .filter-field, .price-field {
   -fx-background-color: white;
   -fx-background-radius: 5px;
-  -fx-border-color: #e0e0e0;
+  -fx-border-color: #b9169e8a;
   -fx-border-radius: 5px;
   -fx-padding: 8px;
 }
@@ -261,7 +266,7 @@
 .filter-combo {
   -fx-background-color: white;
   -fx-background-radius: 5px;
-  -fx-border-color: #e0e0e0;
+  -fx-border-color: #b9169e8a;
   -fx-border-radius: 5px;
   -fx-padding: 7px;
 }
@@ -272,11 +277,11 @@
 }
 
 .filter-checkbox {
-  -fx-text-fill: #555555;
+  -fx-text-fill: #302f2f;
 }
 
 .date-picker {
-  -fx-background-color: white;
+  -fx-background-color: linear-gradient(to right, #ffffff30, #f0f0f035);
   -fx-border-color: #e0e0e0;
   -fx-border-radius: 5px;
 }
@@ -287,8 +292,8 @@
 }
 
 .clear-button {
-  -fx-background-color: rgba(255, 255, 255, 0.1);
-  -fx-text-fill: #555555;
+  -fx-background-color: rgba(201, 78, 142, 0.5);
+  -fx-text-fill: #2b2929;
   -fx-background-radius: 20px;
   -fx-padding: 8px 15px;
   -fx-cursor: hand;
@@ -304,7 +309,7 @@
 
 .apply-button {
   -fx-background-color: rgba(255, 255, 255, 0.1);
-  -fx-text-fill: #4a7bff;
+  -fx-text-fill: #181819;
   -fx-background-radius: 20px;
   -fx-padding: 8px 15px;
   -fx-cursor: hand;
@@ -320,7 +325,12 @@
 
 /* Sort Controls */
 .sort-controls {
-  -fx-background-color: white;
+  -fx-background-color: linear-gradient(
+    to right,
+    rgba(220, 66, 220, 0.427),
+    rgba(171, 65, 171, 0.618),
+    rgba(212, 103, 36, 0.551)
+  );
   -fx-background-radius: 10px;
   -fx-padding: 10px 20px;
   -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 1);
@@ -339,7 +349,7 @@
 }
 
 .result-count {
-  -fx-text-fill: #777777;
+  -fx-text-fill: #1b1a1a;
   -fx-font-style: italic;
 }
 
@@ -365,7 +375,7 @@
 
 /* Book Card Style */
 .book-card {
-  -fx-background-color: white;
+  -fx-background-color: rgba(194, 128, 186, 0.3);
   -fx-background-radius: 10px;
   -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 0);
   -fx-padding: 15px;
@@ -388,25 +398,25 @@
 .book-title {
   -fx-font-size: 18px;
   -fx-font-weight: bold;
-  -fx-text-fill: #424242;
+  -fx-text-fill: #333232;
   -fx-wrap-text: true;
 }
 
 .book-author {
   -fx-font-size: 16px;
-  -fx-text-fill: #757575;
+  -fx-text-fill: #403e3e;
   -fx-wrap-text: true;
 }
 
 .book-rating {
   -fx-font-size: 15px;
-  -fx-text-fill: #f1680d;
+  -fx-text-fill: #f56a0d;
   -fx-font-weight: bold;
 }
 
 .book-price {
   -fx-font-size: 17px;
-  -fx-text-fill: #2196f3;
+  -fx-text-fill: #1a93f7;
   -fx-font-weight: bold;
 }
 
@@ -451,7 +461,7 @@
 }
 
 .books-pagination .pagination-control .button {
-  -fx-background-color: rgba(255, 255, 255, 0.1);
+  -fx-background-color: rgba(210, 27, 27, 0.1);
   -fx-border-color: #e0e0e0;
   -fx-background-radius: 20px;
   -fx-border-radius: 20px;
@@ -491,12 +501,13 @@
 .no-results-title {
   -fx-font-size: 24px;
   -fx-font-weight: bold;
-  -fx-text-fill: #424242;
+  -fx-text-fill: #f00f0fd1;
 }
 
 .no-results-text {
   -fx-font-size: 16px;
-  -fx-text-fill: #757575;
+  -fx-text-fill: #250e99;
+  -fx-font-weight: bold;
   -fx-opacity: 0.8;
 }
 
