@@ -20,6 +20,7 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.input.KeyCode;
 import com.services.CartService;
+import com.services.SessionManager;
 
 public class CartController {
     @FXML
@@ -53,6 +54,10 @@ public class CartController {
     private static final double ONLINE_FEE = 5.00;
     private static final double DELIVERY_FEE = 15.00;
     private boolean isPromoApplied = false;
+
+    // Predefined borrowing day options
+    private static final int[] BORROW_DAY_OPTIONS = { 10, 20, 30 };
+    private static final int DEFAULT_BORROW_DAYS = 30;
 
     public CartController() {
         decimalFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.US);
@@ -97,15 +102,85 @@ public class CartController {
         HBox container = new HBox(10);
         container.setAlignment(Pos.CENTER_LEFT);
         container.setPadding(new Insets(10));
-        container.setPrefHeight(60);
+        container.setPrefHeight(70); // Slightly increased height for more space
         container.getStyleClass().add("cart-item");
 
+        // Book information section
+        VBox infoBox = new VBox(5);
         Label nameLabel = new Label(item.getName());
         nameLabel.setStyle("-fx-font-weight: bold;");
 
-        Label priceLabel = new Label(formatPrice(item.getPrice()));
+        // Daily rate calculation
+        double dailyRate = item.getPrice() / DEFAULT_BORROW_DAYS;
+        Label rateLabel = new Label(formatPrice(dailyRate) + " / day");
+        Label priceLabel = new Label(formatPrice(calculateItemPrice(item)));
 
-        Spinner<Integer> quantitySpinner = createQuantitySpinner(item);
+        infoBox.getChildren().addAll(nameLabel, rateLabel);
+
+        // Create borrowing days control
+        HBox daysControlBox = new HBox(5);
+        daysControlBox.setAlignment(Pos.CENTER);
+        Label daysLabel = new Label("Borrow for: ");
+
+        // ComboBox for common day options
+        ComboBox<String> daysComboBox = new ComboBox<>();
+        for (int days : BORROW_DAY_OPTIONS) {
+            daysComboBox.getItems().add(days + " days");
+        }
+        daysComboBox.getItems().add("Custom...");
+
+        // Set default value based on item's borrowing days
+        int currentDays = item.getBorrowDays();
+        boolean isCustomDays = true;
+        for (int option : BORROW_DAY_OPTIONS) {
+            if (currentDays == option) {
+                daysComboBox.setValue(option + " days");
+                isCustomDays = false;
+                break;
+            }
+        }
+        if (isCustomDays) {
+            daysComboBox.setValue("Custom...");
+        }
+
+        // TextField for custom days
+        TextField customDaysField = new TextField(String.valueOf(currentDays));
+        customDaysField.setPrefWidth(60);
+        customDaysField.setVisible(isCustomDays);
+
+        // Handle combobox selection changes
+        daysComboBox.setOnAction(e -> {
+            String selected = daysComboBox.getValue();
+            if ("Custom...".equals(selected)) {
+                customDaysField.setVisible(true);
+                customDaysField.requestFocus();
+            } else {
+                customDaysField.setVisible(false);
+                int days = Integer.parseInt(selected.split(" ")[0]);
+                updateBorrowDays(item.getId(), days);
+                priceLabel.setText(formatPrice(calculateItemPrice(item)));
+            }
+        });
+
+        // Handle custom days field changes
+        customDaysField.setOnAction(e -> {
+            try {
+                int days = Integer.parseInt(customDaysField.getText().trim());
+                if (days > 0) {
+                    updateBorrowDays(item.getId(), days);
+                    priceLabel.setText(formatPrice(calculateItemPrice(item)));
+                } else {
+                    customDaysField.setText(String.valueOf(item.getBorrowDays()));
+                    showAlert("Invalid Input", "Borrowing days must be greater than 0.", Alert.AlertType.WARNING);
+                }
+            } catch (NumberFormatException ex) {
+                customDaysField.setText(String.valueOf(item.getBorrowDays()));
+                showAlert("Invalid Input", "Please enter a valid number.", Alert.AlertType.WARNING);
+            }
+        });
+
+        daysControlBox.getChildren().addAll(daysLabel, daysComboBox, customDaysField);
+
         Button removeButton = new Button("Remove");
         removeButton.getStyleClass().add("secondary-button");
         removeButton.setOnAction(e -> removeItem(item.getId()));
@@ -113,30 +188,32 @@ public class CartController {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
+        // Right side with price and controls
+        VBox controlsBox = new VBox(5);
+        controlsBox.setAlignment(Pos.CENTER_RIGHT);
+        controlsBox.getChildren().addAll(priceLabel, daysControlBox);
+
         container.getChildren().addAll(
-                new VBox(5, nameLabel, priceLabel),
+                infoBox,
                 spacer,
-                quantitySpinner,
+                controlsBox,
                 removeButton);
 
         return container;
     }
 
-    private Spinner<Integer> createQuantitySpinner(CartService.CartItem item) {
-        Spinner<Integer> spinner = new Spinner<>(1, 99, item.getQuantity());
-        spinner.setEditable(true);
-        spinner.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null && !newVal.equals(oldVal)) {
-                try {
-                    cartService.updateItemQuantity(item.getId(), newVal);
-                    updateTotals();
-                } catch (Exception e) {
-                    handleError("Failed to update quantity", e);
-                    spinner.getValueFactory().setValue(oldVal);
-                }
-            }
-        });
-        return spinner;
+    private double calculateItemPrice(CartService.CartItem item) {
+        double dailyRate = item.getPrice() / DEFAULT_BORROW_DAYS;
+        return dailyRate * item.getBorrowDays();
+    }
+
+    private void updateBorrowDays(String itemId, int days) {
+        try {
+            cartService.updateBorrowDays(itemId, days);
+            updateTotals();
+        } catch (Exception e) {
+            handleError("Failed to update borrowing days", e);
+        }
     }
 
     private void removeItem(String itemId) {
@@ -179,7 +256,7 @@ public class CartController {
 
     private void updateTotals() {
         double newSubtotal = cartService.getCartItems().values().stream()
-                .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                .mapToDouble(this::calculateItemPrice)
                 .sum();
 
         subtotal.set(newSubtotal);
@@ -222,6 +299,8 @@ public class CartController {
         }
         // Add checkout logic here
         showAlert("Checkout", "Processing checkout: " + formatPrice(total.get()), Alert.AlertType.INFORMATION);
+        String user = SessionManager.getInstance().getUserName();
+        //Book bookdetails = BookDetailsController.
     }
 
     private void handleError(String message, Exception e) {

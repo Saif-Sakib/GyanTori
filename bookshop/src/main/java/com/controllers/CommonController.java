@@ -164,9 +164,15 @@ public abstract class CommonController {
         }
 
         try {
-            getCartService().addItem(book.getId(), book.getTitle(), book.getCurrentPrice(), book.getImageUrl());
-            showAlert(Alert.AlertType.INFORMATION, "Success",
-                    String.format("%s has been added to your cart!", book.getTitle()));
+            if(getCartService().addItem(book.getId(), book.getTitle(), book.getCurrentPrice(), book.getImageUrl())){
+                showAlert(Alert.AlertType.INFORMATION, "Success",
+                        String.format("%s has been added to your cart!", book.getTitle()));
+            }
+            else{
+                showAlert(Alert.AlertType.INFORMATION, "Success", null,
+                        String.format("This book is already in your cart"));
+            }
+            
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error adding book to cart: " + book.getId(), e);
             showAlert(Alert.AlertType.ERROR, "Cart Error", "Failed to add book to cart. Please try again.");
@@ -415,7 +421,7 @@ public abstract class CommonController {
      * @param title   Alert title
      * @param content Alert message content
      */
-    protected void showAlert(Alert.AlertType type, String title, String content) {
+    public void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
@@ -431,7 +437,7 @@ public abstract class CommonController {
      * @param header  Alert header text
      * @param content Alert message content
      */
-    protected void showAlert(Alert.AlertType type, String title, String header, String content) {
+    public void showAlert(Alert.AlertType type, String title, String header, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(header);

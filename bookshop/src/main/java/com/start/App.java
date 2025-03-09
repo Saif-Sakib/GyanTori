@@ -12,7 +12,7 @@ import java.net.URL;
 public class App extends Application {
 
     private static final String HOME_FXML = "/com/sharebooks.fxml";
-    private static final String STYLES_CSS = "/com/styles/sharebooks.css";
+    private static final String STYLES_CSS = "/com/styles/home.css";
     private static final String APP_TITLE = "GyanTori";
     private static final double INITIAL_WIDTH = 1024;
     private static final double INITIAL_HEIGHT = 768;
