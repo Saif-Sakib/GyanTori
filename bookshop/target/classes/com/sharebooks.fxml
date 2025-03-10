@@ -73,27 +73,27 @@
                         <Insets top="20" right="20" bottom="20" left="20"/>
                     </padding>
 
-                    <!-- Updated sidebar buttons with event handlers -->
-<VBox spacing="10" styleClass="sidebar-section">
-    <Label text="My Library" styleClass="sidebar-header"/>
-    <Button text="🏠 Home" onAction="#navigateToHome" styleClass="sidebar-button, animated-button"/>
-    <Button text="🔍 Explore" onAction="#navigateToExplore" styleClass="sidebar-button, animated-button"/>
-    <Button text="📖 Share a Book" onAction="#navigateToShare" styleClass="sidebar-button, animated-button"/>
-    <Button text="🏆 Top Publishers" onAction="#navigateToTopPublishers" styleClass="sidebar-button, animated-button"/>
-    <Button text="🌟 Highly Rated Books" onAction="#navigateToHighlyRatedBooks" styleClass="sidebar-button, animated-button"/>
-</VBox>
+                    <!-- Library Section with Animation -->
+                <VBox spacing="10" styleClass="sidebar-section">
+                    <Label text="My Library" styleClass="sidebar-header"/>
+                    <Button text="🏠 Home" onAction="#navigateToHome" styleClass="sidebar-button, animated-button"/>
+                    <Button text="🔍 Explore" onAction="#navigateToExplore" styleClass="sidebar-button, animated-button"/>
+                    <Button text="📖 Share a Book" onAction="#navigateToShare" styleClass="sidebar-button, animated-button"/>
+                    <Button text="🏆 Top Publishers" onAction="#navigateToTopPublishers" styleClass="sidebar-button, animated-button"/>
+                    <Button text="🌟 Highly Rated Books" onAction="#navigateToHighlyRatedBooks" styleClass="sidebar-button, animated-button"/>
+                </VBox>
 
-<Separator styleClass="custom-separator"/>
+                <Separator styleClass="custom-separator"/>
 
-<!-- Categories Section with Icons -->
-<VBox spacing="10" styleClass="sidebar-section">
-    <Label text="Categories" styleClass="sidebar-header"/>
-    <Button text="📚 All Books" fx:id="allBooksButton" onAction="#navigateToAllBooks" styleClass="sidebar-button, animated-button"/>
+                <!-- Categories Section with Icons -->
+                <VBox spacing="10" styleClass="sidebar-section">
+                    <Label text="Categories" styleClass="sidebar-header"/>
+                    <Button text="📚 All Books" fx:id="allBooksButton" onAction="#navigateToAllBooks" styleClass="sidebar-button, animated-button"/>
 <Button text="💼 Business" fx:id="businessButton" onAction="#navigateToBusinessBooks" styleClass="sidebar-button, animated-button"/>
 <Button text="💻 Technology" fx:id="technologyButton" onAction="#navigateToTechnologyBooks" styleClass="sidebar-button, animated-button"/>
 <Button text="🎨 Arts" fx:id="artsButton" onAction="#navigateToArtsBooks" styleClass="sidebar-button, animated-button"/>
 <Button text="📖 Literature" fx:id="literatureButton" onAction="#navigateToLiteratureBooks" styleClass="sidebar-button, animated-button"/>
-</VBox>
+                </VBox>
                 </VBox>
             </ScrollPane>
         </left>

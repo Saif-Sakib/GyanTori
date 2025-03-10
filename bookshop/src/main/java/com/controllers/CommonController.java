@@ -1,6 +1,7 @@
 package com.controllers;
 
 import javafx.animation.ScaleTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -364,71 +365,96 @@ public abstract class CommonController {
      * @return VBox containing the book card UI
      */
     public VBox createBookCard(Book book) {
-        if (book == null) {
-            LOGGER.warning("Attempted to create card for null book");
-            return new VBox(); // Return empty VBox instead of null to avoid NPE
-        }
+    if (book == null) {
+        LOGGER.warning("Attempted to create card for null book");
+        return new VBox();
+    }
 
-        VBox card = new VBox(10);
-        card.getStyleClass().add("book-card");
-        card.setAlignment(Pos.CENTER);
+    VBox card = new VBox(10);
+    card.getStyleClass().add("book-card");
+    card.setAlignment(Pos.CENTER);
 
-        // Book Cover Image
-        ImageView coverImage = new ImageView();
+    // Create image placeholder first
+    ImageView coverImage = new ImageView();
+    coverImage.setFitHeight(200);
+    coverImage.setFitWidth(140);
+    coverImage.setPreserveRatio(true);
+    
+    // Set a placeholder immediately so UI can render
+    try {
+        coverImage.setImage(new Image(
+            Objects.requireNonNull(getClass().getResourceAsStream("/com/images/books/placeholder-book.png"))));
+    } catch (Exception ex) {
+        LOGGER.log(Level.WARNING, "Failed to load placeholder image", ex);
+    }
+
+    // Load the actual image asynchronously
+    Thread imageLoadThread = new Thread(() -> {
+        Image actualImage = null;
         try {
-            Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(book.getImageUrl())));
-            coverImage.setImage(image);
+            actualImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(book.getImageUrl())));
         } catch (Exception e) {
-            // Load placeholder image if book image is not found
             try {
-                coverImage.setImage(new Image(Objects.requireNonNull(book.getImageUrl())));
+                actualImage = new Image(Objects.requireNonNull(book.getImageUrl()));
             } catch (Exception ex) {
-                try {
-                    coverImage.setImage(new Image(
-                            Objects.requireNonNull(
-                                    getClass().getResourceAsStream("/images/books/placeholder-book.png"))));
-                } catch (Exception exx) {
-                    LOGGER.log(Level.SEVERE, "Failed to load placeholder image", ex);
-                }
+                LOGGER.log(Level.WARNING, "Failed to load book image: " + book.getImageUrl(), ex);
+                return; // Keep placeholder
             }
         }
-        coverImage.setFitHeight(200);
-        coverImage.setFitWidth(140);
-        coverImage.setPreserveRatio(true);
+        
+        // Update image on UI thread
+        final Image finalImage = actualImage;
+        if (finalImage != null) {
+            Platform.runLater(() -> coverImage.setImage(finalImage));
+        }
+    });
+    imageLoadThread.setDaemon(true);
+    imageLoadThread.start();
 
-        // Make the cover image clickable
-        coverImage.setCursor(Cursor.HAND);
-        coverImage.setOnMouseClicked(e -> handleBookSelection(book));
+    // Make the cover image clickable
+    coverImage.setCursor(Cursor.HAND);
+    coverImage.setOnMouseClicked(e -> handleBookSelection(book));
 
-        // Book Details
-        Label titleLabel = new Label(book.getTitle());
-        titleLabel.getStyleClass().add("book-title");
-        titleLabel.setWrapText(true);
+    // Book Details - Keep these simple to improve performance
+    Label titleLabel = new Label(book.getTitle());
+    titleLabel.getStyleClass().add("book-title");
+    titleLabel.setWrapText(true);
+    titleLabel.setCursor(Cursor.HAND);
+    titleLabel.setOnMouseClicked(e -> handleBookSelection(book));
 
-        // Make the title clickable
-        titleLabel.setCursor(Cursor.HAND);
-        titleLabel.setOnMouseClicked(e -> handleBookSelection(book));
+    Label authorLabel = new Label(book.getAuthor());
+    authorLabel.getStyleClass().add("book-author");
 
-        Label authorLabel = new Label(book.getAuthor());
-        authorLabel.getStyleClass().add("book-author");
+    Label ratingLabel = new Label(String.format("%.1f ★", book.getRating()));
+    ratingLabel.getStyleClass().add("book-rating");
 
-        Label ratingLabel = new Label(String.format("%.1f ★", book.getRating()));
-        ratingLabel.getStyleClass().add("book-rating");
+    Label priceLabel = new Label(String.format("৳ %.2f", book.getCurrentPrice()));
+    priceLabel.getStyleClass().add("book-price");
 
-        Label priceLabel = new Label(String.format("৳ %.2f", book.getCurrentPrice()));
-        priceLabel.getStyleClass().add("book-price");
+    Button addToCartBtn = new Button("Add to Cart");
+    addToCartBtn.getStyleClass().addAll("cart-button", "animated-button");
+    addToCartBtn.setOnAction(e -> handleAddToCart(book));
 
-        Button addToCartBtn = new Button("Add to Cart");
-        addToCartBtn.getStyleClass().addAll("cart-button", "animated-button");
-        addToCartBtn.setOnAction(e -> handleAddToCart(book));
+    card.getChildren().addAll(coverImage, titleLabel, authorLabel, ratingLabel, priceLabel, addToCartBtn);
 
-        card.getChildren().addAll(coverImage, titleLabel, authorLabel, ratingLabel, priceLabel, addToCartBtn);
+    // Add hover effect - but simplify it
+    addSimplifiedHoverEffect(card);
 
-        // Add hover effect
-        addHoverEffect(card);
+    return card;
+}
 
-        return card;
-    }
+// Simplified hover effect that's less resource-intensive
+protected void addSimplifiedHoverEffect(VBox card) {
+    card.setOnMouseEntered(e -> {
+        card.setScaleX(1.05);
+        card.setScaleY(1.05);
+    });
+    
+    card.setOnMouseExited(e -> {
+        card.setScaleX(1.0);
+        card.setScaleY(1.0);
+    });
+}
 
     /**
      * Handle book selection to navigate to book details page

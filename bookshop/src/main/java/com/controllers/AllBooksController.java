@@ -10,10 +10,12 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import com.models.Book;
 import com.database.BookDetailsCollection;
+import com.database.ExploreDB;
 import com.services.SessionManager;
 
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,6 +40,8 @@ public class AllBooksController extends CommonController {
     private Button profileLoginButton;
 
     private List<Book> allBooks;
+    private ExploreDB exploreDB;
+    private Map<String, Object> filterParams;
 
     // Possible view types
     public static final String VIEW_ALL_BOOKS = "all_books";
@@ -50,11 +54,15 @@ public class AllBooksController extends CommonController {
         // Initialize common elements from parent class
         initializeCommon();
 
+        // Initialize ExploreDB and filter parameters
+        exploreDB = new ExploreDB();
+        filterParams = new HashMap<>();
+
         // Determine the view type and category/publisher from SessionManager
         String viewType = SessionManager.getPressedView();
         String category = SessionManager.getCurrentCategory();
-        //String publisher = SessionManager.getCurrentPublisher();
-        String publisher = null;
+        String publisher = null; // SessionManager.getCurrentPublisher();
+
         // Set the category title based on view type and category
         setCategoryTitle(viewType, category, publisher);
 
@@ -82,23 +90,31 @@ public class AllBooksController extends CommonController {
 
     private void setupSortOptions(String viewType) {
         sortOptions.getItems().addAll(
-                "Popularity",
-                "Price: Low to High",
-                "Price: High to Low",
+                "Relevance",
+                "Title",
+                "Author",
+                "Price",
                 "Rating",
-                "Newest First");
+                "Publication Date");
 
         // Set default sort option based on view type
         if (VIEW_HIGHLY_RATED.equals(viewType)) {
             sortOptions.setValue("Rating");
+            filterParams.put("sortBy", "Rating");
+            filterParams.put("ascending", false);
         } else if (VIEW_PUBLISHER.equals(viewType)) {
-            sortOptions.setValue("Popularity");
+            sortOptions.setValue("Relevance");
+            filterParams.put("sortBy", "Relevance");
         } else {
-            sortOptions.setValue("Popularity");
+            sortOptions.setValue("Relevance");
+            filterParams.put("sortBy", "Relevance");
         }
 
         // Add listener for sort option changes
-        sortOptions.setOnAction(event -> sortBooks());
+        sortOptions.setOnAction(event -> {
+            filterParams.put("sortBy", sortOptions.getValue());
+            applyFilters();
+        });
     }
 
     private void setupFilterOptions() {
@@ -111,37 +127,84 @@ public class AllBooksController extends CommonController {
         filterOptions.setValue("All");
 
         // Add listener for filter option changes
-        filterOptions.setOnAction(event -> filterBooks());
+        filterOptions.setOnAction(event -> {
+            applyFilterOptionToParams();
+            applyFilters();
+        });
+    }
+
+    private void applyFilterOptionToParams() {
+        // Clear previous filter values
+        filterParams.remove("minPrice");
+        filterParams.remove("maxPrice");
+        filterParams.remove("minRating");
+        filterParams.remove("availability");
+
+        String filterOption = filterOptions.getValue();
+        switch (filterOption) {
+            case "Available":
+                filterParams.put("availability", "Available Now");
+                break;
+            case "Under ৳500":
+                filterParams.put("maxPrice", 500.0);
+                break;
+            case "Under ৳1000":
+                filterParams.put("maxPrice", 1000.0);
+                break;
+            case "5-Star Rated":
+                filterParams.put("minRating", 4.5);
+                break;
+            case "All":
+            default:
+                // No filters needed
+                break;
+        }
     }
 
     private void loadBooks(String viewType, String category, String publisher) {
         try {
-            // Get books based on the view type, category, and publisher
+            // Reset filter parameters
+            filterParams.clear();
+
+            // Set the appropriate filter parameters based on view type
             if (VIEW_HIGHLY_RATED.equals(viewType)) {
-                allBooks = BookDetailsCollection.getTopRatedBooks(50); // Limit to top 50 rated books
+                filterParams.put("minRating", 4.0);
+                filterParams.put("sortBy", "Rating");
+                filterParams.put("ascending", false);
+
+                allBooks = exploreDB.getFilteredBooks(filterParams);
                 LOGGER.info("Loaded " + allBooks.size() + " highly rated books");
             } else if (VIEW_CATEGORY.equals(viewType) && category != null) {
-                allBooks = BookDetailsCollection.getBooksByCategory(category);
+                filterParams.put("category", category);
+
+                allBooks = exploreDB.getFilteredBooks(filterParams);
                 LOGGER.info("Loaded " + allBooks.size() + " books in category: " + category);
             } else if (VIEW_PUBLISHER.equals(viewType) && publisher != null) {
-                //allBooks = BookDetailsCollection.getBooksByPublisher(publisher);
+                // Add publisher filter to ExploreDB if it's implemented
+                // filterParams.put("publisher", publisher);
+
+                allBooks = exploreDB.getFilteredBooks(filterParams);
                 LOGGER.info("Loaded " + allBooks.size() + " books from publisher: " + publisher);
             } else {
-                allBooks = BookDetailsCollection.getAllBooks();
+                allBooks = exploreDB.getAllBooks();
                 LOGGER.info("Loaded " + allBooks.size() + " books");
             }
 
             // Set up pagination
-            int pageCount = (allBooks.size() + BOOKS_PER_PAGE - 1) / BOOKS_PER_PAGE;
-            booksPagination.setPageCount(pageCount > 0 ? pageCount : 1);
-            booksPagination.setCurrentPageIndex(0);
-
-            // Set page factory to display books for each page
-            booksPagination.setPageFactory(this::createPage);
+            updatePagination();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error loading books", e);
             showAlert(javafx.scene.control.Alert.AlertType.ERROR, "Error", "Failed to load books");
         }
+    }
+
+    private void updatePagination() {
+        int pageCount = (allBooks.size() + BOOKS_PER_PAGE - 1) / BOOKS_PER_PAGE;
+        booksPagination.setPageCount(pageCount > 0 ? pageCount : 1);
+        booksPagination.setCurrentPageIndex(0);
+
+        // Set page factory to display books for each page
+        booksPagination.setPageFactory(this::createPage);
     }
 
     private VBox createPage(int pageIndex) {
@@ -168,98 +231,47 @@ public class AllBooksController extends CommonController {
         }
     }
 
-    private void sortBooks() {
-        try {
-            String sortOption = sortOptions.getValue();
-
-            switch (sortOption) {
-                case "Price: Low to High":
-                    allBooks.sort(Comparator.comparing(Book::getCurrentPrice));
-                    break;
-                case "Price: High to Low":
-                    allBooks.sort(Comparator.comparing(Book::getCurrentPrice).reversed());
-                    break;
-                case "Rating":
-                    allBooks.sort(Comparator.comparing(Book::getRating).reversed());
-                    break;
-                case "Newest First":
-                    allBooks.sort(Comparator.comparing(Book::getPublicationDate).reversed());
-                    break;
-                case "Popularity":
-                default:
-                    // For popularity, we could use a combination of ratings and number of reviews
-                    allBooks.sort(
-                            Comparator.comparing((Book book) -> book.getRating() * book.getReviewCount()).reversed());
-                    break;
-            }
-
-            // Refresh the current page
-            booksPagination.setCurrentPageIndex(booksPagination.getCurrentPageIndex());
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error sorting books", e);
-        }
-    }
-
-    private void filterBooks() {
-        try {
-            // Get books based on view type, category, and publisher
-            String viewType = SessionManager.getPressedView();
-            String category = SessionManager.getCurrentCategory();
-            //String publisher = SessionManager.getCurrentPublisher();
-            String publisher = null;
-            List<Book> filteredBooks;
-
-            if (VIEW_HIGHLY_RATED.equals(viewType)) {
-                filteredBooks = BookDetailsCollection.getTopRatedBooks(50);
-            } else if (VIEW_CATEGORY.equals(viewType) && category != null) {
-                filteredBooks = BookDetailsCollection.getBooksByCategory(category);
-            } else {
-                filteredBooks = BookDetailsCollection.getAllBooks();
-            }
-
-            String filterOption = filterOptions.getValue();
-
-            // Apply filters
-            switch (filterOption) {
-                case "Available":
-                    filteredBooks.removeIf(book -> !book.isFeatured());
-                    break;
-                case "Under ৳500":
-                    filteredBooks.removeIf(book -> book.getCurrentPrice() >= 500);
-                    break;
-                case "Under ৳1000":
-                    filteredBooks.removeIf(book -> book.getCurrentPrice() >= 1000);
-                    break;
-                case "5-Star Rated":
-                    filteredBooks.removeIf(book -> book.getRating() < 4.5); // Consider 4.5+ as 5 star
-                    break;
-                case "All":
-                default:
-                    // No filtering needed
-                    break;
-            }
-
-            // Update the allBooks list with filtered books
-            allBooks = filteredBooks;
-
-            // Update pagination
-            int pageCount = (allBooks.size() + BOOKS_PER_PAGE - 1) / BOOKS_PER_PAGE;
-            booksPagination.setPageCount(pageCount > 0 ? pageCount : 1);
-            booksPagination.setCurrentPageIndex(0);
-
-            // Refresh the display
-            createPage(0);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error filtering books", e);
-        }
-    }
-
     @FXML
     private void applyFilters() {
-        // First filter books
-        filterBooks();
+        try {
+            // Get view type and category/publisher for context
+            String viewType = SessionManager.getPressedView();
+            String category = SessionManager.getCurrentCategory();
+            String publisher = null; // SessionManager.getCurrentPublisher();
 
-        // Then sort the filtered books
-        sortBooks();
+            // Preserve context in filter parameters
+            if (VIEW_CATEGORY.equals(viewType) && category != null) {
+                filterParams.put("category", category);
+            }
+
+            if (VIEW_PUBLISHER.equals(viewType) && publisher != null) {
+                // Add publisher filter to ExploreDB if it's implemented
+                // filterParams.put("publisher", publisher);
+            }
+
+            if (VIEW_HIGHLY_RATED.equals(viewType)) {
+                filterParams.put("minRating", 4.0);
+            }
+
+            // Apply current filter option
+            applyFilterOptionToParams();
+
+            // Apply ascending/descending based on sort type
+            // Price is typically ascending, everything else is descending by default
+            String sortBy = (String) filterParams.get("sortBy");
+            if ("Price".equals(sortBy)) {
+                filterParams.put("ascending", true);
+            } else if (sortBy != null && !sortBy.equals("Relevance")) {
+                filterParams.put("ascending", false);
+            }
+
+            // Get the filtered and sorted books
+            allBooks = exploreDB.getFilteredBooks(filterParams);
+
+            // Update pagination and refresh display
+            updatePagination();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error applying filters", e);
+        }
     }
 }

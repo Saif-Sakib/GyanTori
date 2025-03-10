@@ -62,7 +62,7 @@ public class ShareBookController extends CommonController implements Initializab
     private BookAPIService bookAPIService = new BookAPIService();
     private static final Logger LOGGER = Logger.getLogger(ShareBookController.class.getName());
     // Update the path based on your actual project structure
-    private static final String DEFAULT_IMAGE_PATH = "/com/images/placeholder/book-cover.png";
+    private static final String DEFAULT_IMAGE_PATH = "/com/images/books/placeholder-book.png";
 
     // Main container
     @FXML
@@ -225,9 +225,7 @@ public class ShareBookController extends CommonController implements Initializab
             // Try multiple paths to find the image
             String[] possiblePaths = {
                     DEFAULT_IMAGE_PATH,
-                    "/images/placeholder/book-cover.png",
-                    "images/placeholder/book-cover.png",
-                    "/com/views/images/placeholder/book-cover.png"
+                    "/com/images/books/placeholder-book.png"
             };
 
             boolean imageLoaded = false;

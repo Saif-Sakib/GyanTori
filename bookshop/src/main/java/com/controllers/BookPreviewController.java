@@ -132,12 +132,12 @@ public class BookPreviewController implements Initializable {
             } catch (Exception e) {
                 // Use placeholder image if there's an error
                 bookCoverPreview
-                        .setImage(new Image(getClass().getResource("/images/placeholder/book-cover.png").toString()));
+                        .setImage(new Image(getClass().getResourceAsStream("/com/images/books/placeholder-book.png").toString()));
             }
         } else {
             // Use placeholder image if no image URL
             bookCoverPreview
-                    .setImage(new Image(getClass().getResource("/images/placeholder/book-cover.png").toString()));
+                    .setImage(new Image(getClass().getResourceAsStream("/com/images/books/placeholder-book.png").toString()));
         }
     }
 }

@@ -110,6 +110,55 @@ public class ExploreDB {
     }
 
     /**
+     * Gets books by publisher
+     * 
+     * @param publisher The publisher name to search for
+     * @return List of books by the specified publisher
+     */
+    public List<Book> getBooksByPublisher(String publisher) {
+        if (publisher == null || publisher.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return BookDetailsCollection.getBooksByPublisher(publisher);
+    }
+
+    // Modify the getFilteredBooks method to check for publisher filter
+    public List<Book> getFilteredBooks(Map<String, Object> filterParams) {
+        List<Book> result;
+
+        // First try to use specialized search methods if applicable
+        String searchTerm = (String) filterParams.get("searchTerm");
+        String authorFilter = (String) filterParams.get("author");
+        String categoryFilter = (String) filterParams.get("category");
+        String publisherFilter = (String) filterParams.get("publisher");
+
+        if (searchTerm != null && !searchTerm.isEmpty()) {
+            // Use the search capability from BookDetailsCollection
+            result = searchBooks(searchTerm);
+        } else if (authorFilter != null && !authorFilter.isEmpty()) {
+            // Use the author filter from BookDetailsCollection
+            result = getBooksByAuthor(authorFilter);
+        } else if (categoryFilter != null && !categoryFilter.isEmpty()) {
+            // Use the category filter from BookDetailsCollection
+            result = getBooksByCategory(categoryFilter);
+        } else if (publisherFilter != null && !publisherFilter.isEmpty()) {
+            // Use the publisher filter
+            result = getBooksByPublisher(publisherFilter);
+        } else {
+            // Get all books if no specialized filter is applicable
+            result = getAllBooks();
+        }
+
+        // Rest of the method remains the same...
+        result = applyCompositeFilters(result, filterParams);
+        String sortBy = (String) filterParams.get("sortBy");
+        Boolean ascending = (Boolean) filterParams.get("ascending");
+        result = sortBooks(result, sortBy, ascending);
+
+        return result;
+    }
+
+    /**
      * Applies composite filters that aren't directly available in
      * BookDetailsCollection
      * 
@@ -251,44 +300,5 @@ public class ExploreDB {
 
         sortedBooks.sort(comparator);
         return sortedBooks;
-    }
-
-    /**
-     * Main method to apply all filters and sorting
-     * 
-     * @param filterParams Map of filter parameters
-     * @return Filtered and sorted list of books
-     */
-    public List<Book> getFilteredBooks(Map<String, Object> filterParams) {
-        List<Book> result;
-
-        // First try to use specialized search methods if applicable
-        String searchTerm = (String) filterParams.get("searchTerm");
-        String authorFilter = (String) filterParams.get("author");
-        String categoryFilter = (String) filterParams.get("category");
-
-        if (searchTerm != null && !searchTerm.isEmpty()) {
-            // Use the search capability from BookDetailsCollection
-            result = searchBooks(searchTerm);
-        } else if (authorFilter != null && !authorFilter.isEmpty()) {
-            // Use the author filter from BookDetailsCollection
-            result = getBooksByAuthor(authorFilter);
-        } else if (categoryFilter != null && !categoryFilter.isEmpty()) {
-            // Use the category filter from BookDetailsCollection
-            result = getBooksByCategory(categoryFilter);
-        } else {
-            // Get all books if no specialized filter is applicable
-            result = getAllBooks();
-        }
-
-        // Apply any additional filters that aren't handled by BookDetailsCollection
-        result = applyCompositeFilters(result, filterParams);
-
-        // Apply sorting
-        String sortBy = (String) filterParams.get("sortBy");
-        Boolean ascending = (Boolean) filterParams.get("ascending");
-        result = sortBooks(result, sortBy, ascending);
-
-        return result;
     }
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -138,6 +139,24 @@ public class BookDetailsCollection {
     public static List<Book> getBooksByAuthor(String author) {
         return getBooksByFilter(Filters.regex("author", Pattern.compile(author, Pattern.CASE_INSENSITIVE)));
     }
+
+    /**
+ * Gets all books from a specific publisher
+ * 
+ * @param publisher The publisher name to filter by
+ * @return List of books from the specified publisher
+ */
+public static List<Book> getBooksByPublisher(String publisher) {
+    try {
+        Bson filter = Filters.eq("publisher", publisher);
+        return books.find(filter).into(new ArrayList<>()).stream()
+                .map(BookDetailsCollection::convertDocumentToBook)
+                .collect(Collectors.toList());
+    } catch (Exception e) {
+        LOGGER.log(Level.SEVERE, "Error getting books by publisher: " + publisher, e);
+        return new ArrayList<>();
+    }
+}
 
     // Get books by category
     public static List<Book> getBooksByCategory(String category) {

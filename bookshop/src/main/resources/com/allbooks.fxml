@@ -78,7 +78,7 @@
                     <Button text="🏠 Home" onAction="#navigateToHome" styleClass="sidebar-button, animated-button"/>
                     <Button text="🔍 Explore" onAction="#navigateToExplore" styleClass="sidebar-button, animated-button"/>
                     <Button text="📖 Share a Book" onAction="#navigateToShare" styleClass="sidebar-button, animated-button"/>
-                    <Button text="🏆 Top Publishers" styleClass="sidebar-button, animated-button"/>
+                    <Button text="🏆 Top Publishers" onAction="#navigateToTopPublishers" styleClass="sidebar-button, animated-button"/>
                     <Button text="🌟 Highly Rated Books" onAction="#navigateToHighlyRatedBooks" styleClass="sidebar-button, animated-button"/>
                 </VBox>
 
@@ -126,7 +126,7 @@
                 <!-- Books Display -->
                 <VBox spacing="20" VBox.vgrow="ALWAYS">
                     <!-- Books will be displayed in a grid layout -->
-                    <FlowPane fx:id="booksContainer" hgap="20" vgap="20"/>
+                    <FlowPane fx:id="booksContainer" hgap="20" vgap="20" styleClass="books-container"/>
                     
                     <!-- Pagination -->
                     <HBox alignment="CENTER" spacing="10">

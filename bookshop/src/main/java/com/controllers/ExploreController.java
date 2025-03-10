@@ -1,5 +1,6 @@
 package com.controllers;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -7,7 +8,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import org.bson.Document;
 
 import java.net.URL;
 import java.util.*;
@@ -15,9 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.database.ExploreDB;
-import com.services.SessionManager;
 import com.models.Book;
-import com.database.BookDetailsCollection;
 
 public class ExploreController extends CommonController implements Initializable {
 
@@ -94,17 +92,90 @@ public class ExploreController extends CommonController implements Initializable
             setupListeners();
             setupPagination();
 
+            // Configure tile pane
+            booksGridPane.setPrefColumns(4);
+            booksGridPane.setMinHeight(500);
+
             // Load initial data
             loadAllBooks();
 
-            // Set up the books display
-            displayBooks(0);
+            // Initial display
+            updatePagination();
             updateResultCount();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error initializing ExploreController", e);
             showAlert(Alert.AlertType.ERROR, "Initialization Error",
                     "Failed to initialize the explore page. Please try again later.");
         }
+    }
+
+    private void setupPagination() {
+        booksPagination.setPageCount(1);
+        booksPagination.setCurrentPageIndex(0);
+        booksPagination.setPageFactory(this::createPage);
+
+        // Add direct listener to page changes
+        booksPagination.currentPageIndexProperty().addListener((obs, oldIndex, newIndex) -> {
+            Platform.runLater(() -> {
+                // Force recreation of the page content
+                booksGridPane.getChildren().clear();
+                createPage(newIndex.intValue());
+            });
+        });
+    }
+
+    private Node createPage(int pageIndex) {
+        // Clear existing content
+        booksGridPane.getChildren().clear();
+
+        if (filteredBooks.isEmpty()) {
+            noResultsBox.setVisible(true);
+            noResultsBox.setManaged(true);
+            booksGridPane.setVisible(false);
+            booksGridPane.setManaged(false);
+            return booksGridPane;
+        }
+
+        booksGridPane.setVisible(true);
+        booksGridPane.setManaged(true);
+        noResultsBox.setVisible(false);
+        noResultsBox.setManaged(false);
+
+        int fromIndex = pageIndex * BOOKS_PER_PAGE;
+        int toIndex = Math.min(fromIndex + BOOKS_PER_PAGE, filteredBooks.size());
+
+        System.out.println("Creating page " + pageIndex + " showing books " + fromIndex + " to " + toIndex);
+
+        for (int i = fromIndex; i < toIndex; i++) {
+            try {
+                Book book = filteredBooks.get(i);
+                VBox bookCard = createBookCard(book);
+                if (bookCard != null) {
+                    booksGridPane.getChildren().add(bookCard);
+                }
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, "Error creating book card at index " + i, e);
+            }
+        }
+
+        // Force layout refresh
+        booksGridPane.requestLayout();
+        return booksGridPane;
+    }
+
+    private void updatePagination() {
+        int pageCount = (int) Math.ceil((double) filteredBooks.size() / BOOKS_PER_PAGE);
+        pageCount = Math.max(1, pageCount);
+
+        System.out.println("Updating pagination, book count: " + filteredBooks.size() + ", page count: " + pageCount);
+
+        booksPagination.setPageCount(pageCount);
+
+        // Reset to first page when filtering changes results
+        booksPagination.setCurrentPageIndex(0);
+
+        // Force refresh
+        Platform.runLater(() -> createPage(0));
     }
 
     private void loadAllBooks() {
@@ -190,6 +261,12 @@ public class ExploreController extends CommonController implements Initializable
         // Numeric only for price fields
         setupNumericTextField(minPriceField);
         setupNumericTextField(maxPriceField);
+
+        booksPagination.currentPageIndexProperty().addListener((obs, oldIndex, newIndex) -> {
+    System.out.println("Page changed from " + oldIndex + " to " + newIndex);
+    Platform.runLater(() -> createPage(newIndex.intValue()));
+});
+
     }
 
     private void setupNumericTextField(TextField textField) {
@@ -198,38 +275,6 @@ public class ExploreController extends CommonController implements Initializable
                 textField.setText(oldVal);
             }
         });
-    }
-
-    private void setupPagination() {
-        booksPagination.setPageCount(1);
-        booksPagination.setCurrentPageIndex(0);
-        booksPagination.setPageFactory(this::createPage);
-    }
-
-    private Node createPage(int pageIndex) {
-        booksGridPane.getChildren().clear();
-
-        if (filteredBooks.isEmpty()) {
-            noResultsBox.setVisible(true);
-            return booksGridPane;
-        }
-
-        noResultsBox.setVisible(false);
-
-        int fromIndex = pageIndex * BOOKS_PER_PAGE;
-        int toIndex = Math.min(fromIndex + BOOKS_PER_PAGE, filteredBooks.size());
-
-        for (int i = fromIndex; i < toIndex; i++) {
-            try {
-                Book book = filteredBooks.get(i);
-                VBox bookCard = createBookCard(book); // Using inherited method from CommonController
-                booksGridPane.getChildren().add(bookCard);
-            } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Error creating book card at index " + i, e);
-            }
-        }
-
-        return booksGridPane;
     }
 
     @FXML
@@ -247,6 +292,7 @@ public class ExploreController extends CommonController implements Initializable
             searchField.clear();
 
             // Reset advanced search filters
+            // Reset advanced search filters
             authorFilterField.clear();
             languageFilterCombo.getSelectionModel().clearSelection();
             publisherFilterField.clear();
@@ -261,6 +307,11 @@ public class ExploreController extends CommonController implements Initializable
 
             // Reset results
             filteredBooks.setAll(allBooks);
+
+            // Make sure the noResultsBox is properly hidden
+            noResultsBox.setVisible(false);
+            noResultsBox.setManaged(false);
+
             updatePagination();
             updateResultCount();
         } catch (Exception e) {
@@ -316,6 +367,10 @@ public class ExploreController extends CommonController implements Initializable
             filteredBooks.setAll(result);
 
             // Update UI
+            boolean hasResults = !filteredBooks.isEmpty();
+            noResultsBox.setVisible(!hasResults);
+            noResultsBox.setManaged(!hasResults);
+
             updatePagination();
             updateResultCount();
         } catch (Exception e) {
@@ -324,21 +379,9 @@ public class ExploreController extends CommonController implements Initializable
         }
     }
 
-    private void updatePagination() {
-        int pageCount = (int) Math.ceil((double) filteredBooks.size() / BOOKS_PER_PAGE);
-        booksPagination.setPageCount(Math.max(1, pageCount));
-        booksPagination.setCurrentPageIndex(0);
-        displayBooks(0);
-    }
-
     private void updateResultCount() {
         resultCountLabel.setText("Showing " + filteredBooks.size() + " book(s)");
     }
-
-    private void displayBooks(int pageIndex) {
-        booksPagination.setPageFactory(this::createPage);
-    }
-
     /**
      * This overrides the duplicate method previously defined
      * Now it uses the parent class method directly
@@ -357,5 +400,19 @@ public class ExploreController extends CommonController implements Initializable
             LOGGER.log(Level.WARNING, "Error adding book to cart: " + bookId, e);
             showAlert(Alert.AlertType.ERROR, "Cart Error", "Failed to add book to cart. Please try again.");
         }
+    }
+    
+    // Add memory optimization method
+    private void clearImageCache() {
+        System.gc(); // Request garbage collection
+    }
+
+    // Add method to call when controller is no longer needed
+    public void cleanup() {
+        // Clear references
+        allBooks.clear();
+        filteredBooks.clear();
+        filterOptions.clear();
+        clearImageCache();
     }
 }

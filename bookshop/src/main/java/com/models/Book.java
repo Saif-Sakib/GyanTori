@@ -431,7 +431,7 @@ public class Book {
         this.rating = rating;
     }
 
-    public int getReviewCount() {
+    public Integer getReviewCount() {
         return reviewCount;
     }
 

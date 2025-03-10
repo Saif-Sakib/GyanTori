@@ -529,6 +529,63 @@
     -fx-border-width: 0 0 1 0;
 }
 
+/* Slider Styles */
+.slider .track {
+  -fx-background-color: #e0e0e0;
+  -fx-background-radius: 3px;
+  -fx-pref-height: 6px;
+}
+
+.slider .thumb {
+  -fx-background-color: rgb(171, 65, 171);
+  -fx-background-radius: 50%;
+  -fx-pref-height: 16px;
+  -fx-pref-width: 16px;
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);
+}
+
+.slider .thumb:hover {
+  -fx-effect: dropshadow(gaussian, rgb(184, 110, 209), 8, 0, 0, 2);
+}
+
+.rating-label {
+  -fx-text-fill: rgb(171, 65, 171);
+  -fx-font-weight: bold;
+}
+
+/* General Form Control Focus States */
+.text-field:focused, .combo-box:focused, .slider:focused {
+  -fx-border-color: rgb(171, 65, 171);
+  -fx-effect: dropshadow(gaussian, rgba(171, 65, 171, 0.2), 5, 0, 0, 0);
+}
+
+/* Books ScrollPane */
+.books-scroll-pane {
+  -fx-background: transparent;
+  -fx-background-color: transparent;
+  -fx-padding: 10px 0;
+}
+
+.books-scroll-pane .viewport {
+  -fx-background-color: transparent;
+}
+
+.books-scroll-pane .scroll-bar:horizontal {
+  -fx-background-color: transparent;
+  -fx-pref-height: 12px;
+}
+
+.books-scroll-pane .scroll-bar:horizontal .thumb {
+  -fx-background-color: #bdbdbd;
+  -fx-background-radius: 6px;
+}
+
+/* Separator Styling */
+.separator {
+  -fx-padding: 10px 0;
+  -fx-opacity: 0.2;
+}
+
 /* Footer Styles */
 .footer {
   -fx-background-color: linear-gradient(
@@ -593,61 +650,4 @@
 
 .footer-links:hover {
   -fx-text-fill: #ffffff;
-}
-
-/* Slider Styles */
-.slider .track {
-  -fx-background-color: #e0e0e0;
-  -fx-background-radius: 3px;
-  -fx-pref-height: 6px;
-}
-
-.slider .thumb {
-  -fx-background-color: rgb(171, 65, 171);
-  -fx-background-radius: 50%;
-  -fx-pref-height: 16px;
-  -fx-pref-width: 16px;
-  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);
-}
-
-.slider .thumb:hover {
-  -fx-effect: dropshadow(gaussian, rgb(184, 110, 209), 8, 0, 0, 2);
-}
-
-.rating-label {
-  -fx-text-fill: rgb(171, 65, 171);
-  -fx-font-weight: bold;
-}
-
-/* General Form Control Focus States */
-.text-field:focused, .combo-box:focused, .slider:focused {
-  -fx-border-color: rgb(171, 65, 171);
-  -fx-effect: dropshadow(gaussian, rgba(171, 65, 171, 0.2), 5, 0, 0, 0);
-}
-
-/* Books ScrollPane */
-.books-scroll-pane {
-  -fx-background: transparent;
-  -fx-background-color: transparent;
-  -fx-padding: 10px 0;
-}
-
-.books-scroll-pane .viewport {
-  -fx-background-color: transparent;
-}
-
-.books-scroll-pane .scroll-bar:horizontal {
-  -fx-background-color: transparent;
-  -fx-pref-height: 12px;
-}
-
-.books-scroll-pane .scroll-bar:horizontal .thumb {
-  -fx-background-color: #bdbdbd;
-  -fx-background-radius: 6px;
-}
-
-/* Separator Styling */
-.separator {
-  -fx-padding: 10px 0;
-  -fx-opacity: 0.2;
 }

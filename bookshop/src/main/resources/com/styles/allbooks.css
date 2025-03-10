@@ -17,18 +17,19 @@
     rgb(171, 65, 171),
     rgb(224, 124, 61)
   );
+  padding: 10px 20px;
   -fx-padding: 10px 20px;
   -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0, 0, 2);
 }
 
 .logo-container {
-  -fx-spacing: 10px;
+  -fx-spacing: 10px; /* Adjust spacing between logo and text */
   -fx-padding: 5px 10px;
 }
 
 .logo-circle {
-  -fx-background-color: #ffffff;
-  -fx-background-radius: 50%;
+  -fx-background-color: #ffffff; /* Change to match your design */
+  -fx-background-radius: 50%; /* Makes it circular */
   -fx-padding: 5px;
   -fx-alignment: center;
   -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.3, 0, 2);
@@ -54,6 +55,7 @@
   -fx-background-radius: 20px;
   -fx-cursor: hand;
   -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.15), 5, 0, 0, 2);
+  -fx-transition: all 0.3s ease;
 }
 
 .nav-button:hover {
@@ -61,21 +63,23 @@
   -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.3), 10, 0, 0, 2);
 }
 
+/* Slight darkening effect to make the image blend better */
 .icon-container {
   -fx-background-color: rgba(0, 0, 0, 0.1);
   -fx-background-radius: 50%;
   -fx-padding: 5px;
 }
 
-.icon {
-  -fx-blend-mode: multiply;
-  -fx-opacity: 0.9;
+/* Ensure the icons blend properly */
+.icon-container ImageView {
+  -fx-opacity: 0.85; /* Makes the icon slightly transparent for blending */
 }
 
 /* Animation Classes */
 .animated-button {
   -fx-transition: all 0.3s ease;
   -fx-cursor: hand;
+  -fx-transition: -fx-background-color 0.2s, -fx-scale-x 0.1s, -fx-scale-y 0.1s;
 }
 
 .animated-button:hover {
@@ -100,7 +104,7 @@
   -fx-text-fill: black;
   -fx-prompt-text-fill: rgba(47, 30, 30, 0.7);
   -fx-padding: 8px 15px;
-  -fx-font-size: 14px;
+  -fx-font-size: 18px;
 }
 
 .search-field:focused {
@@ -117,6 +121,12 @@
 
 .search-button:hover {
   -fx-background-color: rgba(108, 38, 90, 0.2);
+}
+
+/* Ensures icons blend properly while staying visible */
+.icon {
+  -fx-blend-mode: multiply;
+  -fx-opacity: 0.9; /* Helps icons blend better without disappearing */
 }
 
 /* Sidebar Styles */
@@ -137,7 +147,7 @@
 }
 
 .sidebar-header {
-  -fx-font-size: 18px;
+  -fx-font-size: 25px;
   -fx-font-weight: bold;
   -fx-text-fill: linear-gradient(
     to right,
@@ -151,14 +161,13 @@
 .sidebar-button {
   -fx-background-color: transparent;
   -fx-text-fill: #424242;
-  -fx-font-size: 14px;
+  -fx-font-size: 18px;
   -fx-padding: 10px 15px;
   -fx-background-radius: 8px;
   -fx-alignment: center-left;
   -fx-cursor: hand;
   -fx-max-width: infinity;
 }
-
 .sidebar-button:hover {
   -fx-background-color: #f5f5f5;
   -fx-text-fill: #000000;
@@ -167,9 +176,9 @@
     rgb(202, 99, 202),
     rgb(171, 65, 171),
     rgb(224, 124, 61)
-  );
-  -fx-border-width: 2px;
-  -fx-border-radius: 8px;
+  ); /* Change the border color on hover */
+  -fx-border-width: 4px; /* Set the border width */
+  -fx-border-radius: 12px; /* Match the border radius with the button */
 }
 
 .custom-separator {
@@ -227,12 +236,18 @@
 .book-card {
   -fx-background-color: white;
   -fx-background-radius: 10px;
-  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 0);
   -fx-padding: 15px;
-  -fx-spacing: 10px;
-  -fx-min-width: 200px;
-  -fx-max-width: 200px;
-  -fx-min-height: 320px;
+  -fx-spacing: 10;
+  -fx-alignment: center;
+  -fx-min-width: 180px;
+  -fx-max-width: 180px;
+  -fx-cursor: hand;
+}
+
+.book-card:hover {
+  -fx-effect: dropshadow(gaussian, rgb(184, 110, 209), 10, 0, 0, 2);
+  -fx-translate-y: 0;
 }
 
 .book-title {
@@ -304,7 +319,7 @@
   );
   -fx-padding: 5px;
   -fx-background-radius: 10px 10px 0 0;
-  -fx-margin-top: 20px;
+  -fx-margin-top: 30px;
 }
 
 .footer-header {
