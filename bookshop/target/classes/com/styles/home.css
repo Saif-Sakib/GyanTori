@@ -40,9 +40,9 @@
 }
 
 .nav-logo {
-  -fx-font-size: 24px;
+  -fx-font-size: 30px;
   -fx-font-weight: bold;
-  -fx-text-fill: rgb(0, 0, 0);
+  -fx-text-fill: linear-gradient(to right, rgb(255, 20, 147), rgb(255, 0, 0), rgb(128, 0, 128), rgb(0, 0, 255));
   -fx-padding: 0 20px;
 }
 
@@ -220,7 +220,6 @@
   -fx-padding: 20px;
   -fx-background-radius: 10px;
   -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 5, 0, 0, 3);
-  -fx-spacing: 20; /* Reduced spacing between sections */
 }
 
 /* Description Section */
@@ -233,7 +232,7 @@
 
 /* Book Card Styles */
 .books-container {
-  -fx-padding: 15px 0; /* Reduced padding */
+  -fx-padding: 20px 0;
 }
 
 .book-card {
@@ -246,12 +245,11 @@
   -fx-min-width: 180px;
   -fx-max-width: 180px;
   -fx-cursor: hand;
-  -fx-transition: all 0.3s;
 }
 
 .book-card:hover {
   -fx-effect: dropshadow(gaussian, rgb(184, 110, 209), 10, 0, 0, 2);
-  -fx-translate-y: -4px;
+  -fx-translate-y: 0;
 }
 
 .book-title {
@@ -306,61 +304,7 @@
     rgb(171, 65, 171),
     rgb(224, 124, 61)
   );
-  -fx-text-fill: white;
 }
-
-/* View All Button styling */
-.view-all-button {
-  -fx-background-color: #f5f5f5;
-  -fx-text-fill: #424242;
-  -fx-border-color: #e0e0e0;
-  -fx-border-radius: 4px;
-  -fx-background-radius: 4px;
-  -fx-padding: 6px 12px;
-  -fx-cursor: hand;
-}
-
-.view-all-button:hover {
-  -fx-background-color: #eeeeee;
-  -fx-border-color: #bdbdbd;
-}
-
-.animated-button {
-  -fx-transition: all 0.2s;
-}
-
-.animated-button:hover {
-  -fx-scale-x: 1.05;
-  -fx-scale-y: 1.05;
-}
-
-/* Separator Styling */
-.separator {
-  -fx-padding: 10px 0;
-  -fx-opacity: 0.2;
-}
-
-/* Books ScrollPane */
-.books-scroll-pane {
-  -fx-background: transparent;
-  -fx-background-color: transparent;
-  -fx-padding: 5px 0; /* Reduced padding */
-}
-
-.books-scroll-pane .viewport {
-  -fx-background-color: transparent;
-}
-
-.books-scroll-pane .scroll-bar:horizontal {
-  -fx-background-color: transparent;
-  -fx-pref-height: 12px;
-}
-
-.books-scroll-pane .scroll-bar:horizontal .thumb {
-  -fx-background-color: #bdbdbd;
-  -fx-background-radius: 6px;
-}
-
 
 /* Footer Styles */
 .footer {
@@ -426,4 +370,31 @@
 
 .footer-links:hover {
   -fx-text-fill: #ffffff;
+}
+
+/* Separator Styling */
+.separator {
+  -fx-padding: 10px 0;
+  -fx-opacity: 0.2;
+}
+
+/* Books ScrollPane */
+.books-scroll-pane {
+  -fx-background: transparent;
+  -fx-background-color: transparent;
+  -fx-padding: 10px 0;
+}
+
+.books-scroll-pane .viewport {
+  -fx-background-color: transparent;
+}
+
+.books-scroll-pane .scroll-bar:horizontal {
+  -fx-background-color: transparent;
+  -fx-pref-height: 12px;
+}
+
+.books-scroll-pane .scroll-bar:horizontal .thumb {
+  -fx-background-color: #bdbdbd;
+  -fx-background-radius: 6px;
 }

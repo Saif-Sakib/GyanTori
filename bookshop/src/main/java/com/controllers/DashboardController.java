@@ -1,5 +1,7 @@
 package com.controllers;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -23,6 +25,9 @@ import java.util.ResourceBundle;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 import com.database.BookDetailsCollection;
 import com.database.DatabaseManager;
@@ -45,6 +50,9 @@ public class DashboardController implements Initializable {
     private static final String DEFAULT_PROFILE_IMAGE = "/com/images/userDP/default-profile.png";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM d, yyyy");
 
+    // Cache for user names to avoid repeated DB lookups
+    private final Map<String, String> userNameCache = new ConcurrentHashMap<>();
+
     @FXML
     private ImageView profilePic;
     @FXML
@@ -66,62 +74,65 @@ public class DashboardController implements Initializable {
     @FXML
     private Label buyerRatingLabel;
     @FXML
-    private TableView<UploadedBook> uploadedBooksTable;
+    private TableView<BookTableWrapper> uploadedBooksTable;
     @FXML
-    private TableView<BorrowedBook> borrowedBooksTable;
+    private TableView<BookTableWrapper> borrowedBooksTable;
     @FXML
-    private ListView<Review> reviewsList;
+    private ListView<ReviewWrapper> reviewsList;
     @FXML
     private Button logoutButton;
     @FXML
     private Label lastUpdateLabel;
+    @FXML
+    private ProgressIndicator loadingIndicator;
 
     @FXML
-    private TableColumn<UploadedBook, String> uploadedTitleColumn;
+    private TableColumn<BookTableWrapper, String> uploadedTitleColumn;
     @FXML
-    private TableColumn<UploadedBook, LocalDate> uploadDateColumn;
+    private TableColumn<BookTableWrapper, LocalDate> uploadDateColumn;
     @FXML
-    private TableColumn<UploadedBook, Double> priceColumn;
+    private TableColumn<BookTableWrapper, Double> priceColumn;
     @FXML
-    private TableColumn<UploadedBook, Integer> totalPurchasesColumn;
+    private TableColumn<BookTableWrapper, Integer> totalPurchasesColumn;
     @FXML
-    private TableColumn<UploadedBook, Double> revenueColumn;
+    private TableColumn<BookTableWrapper, Double> revenueColumn;
 
     @FXML
-    private TableColumn<BorrowedBook, String> borrowedTitleColumn;
+    private TableColumn<BookTableWrapper, String> borrowedTitleColumn;
     @FXML
-    private TableColumn<BorrowedBook, String> sellerNameColumn;
+    private TableColumn<BookTableWrapper, String> sellerNameColumn;
     @FXML
-    private TableColumn<BorrowedBook, LocalDate> borrowDateColumn;
+    private TableColumn<BookTableWrapper, LocalDate> borrowDateColumn;
     @FXML
-    private TableColumn<BorrowedBook, Integer> daysRemainingColumn;
+    private TableColumn<BookTableWrapper, Integer> daysRemainingColumn;
     @FXML
-    private TableColumn<BorrowedBook, String> statusColumn;
+    private TableColumn<BookTableWrapper, String> statusColumn;
 
-    // Data classes
-    public static class UploadedBook {
-        private final String title;
+    // Wrapper class for TableView display
+    public static class BookTableWrapper {
+        private final Book book;
         private final LocalDate uploadDate;
-        private final double price;
-        private final int totalPurchases;
+        private final LocalDate borrowDate;
+        private final LocalDate returnDate;
+        private final String sellerName;
+        private final int daysRemaining;
+        private final String status;
         private final double revenue;
 
-        public UploadedBook(String title, LocalDate uploadDate, double price, int totalPurchases) {
-            if (title == null || uploadDate == null) {
-                throw new IllegalArgumentException("Title and upload date cannot be null");
-            }
-            if (price < 0 || totalPurchases < 0) {
-                throw new IllegalArgumentException("Price and total purchases cannot be negative");
-            }
-            this.title = title;
-            this.uploadDate = uploadDate;
-            this.price = price;
-            this.totalPurchases = totalPurchases;
-            this.revenue = price * totalPurchases;
+        public BookTableWrapper(Book book, String sellerName) {
+            this.book = book;
+            this.uploadDate = parseDate(book.getUploadDate(), LocalDate.now());
+            this.borrowDate = parseDate(book.getBorrowDate(), LocalDate.now().minusDays(30));
+            this.returnDate = parseDate(book.getReturnDate(), LocalDate.now().plusDays(14));
+            this.sellerName = sellerName != null ? sellerName : "Unknown";
+            this.daysRemaining = (int) Math.max(0, ChronoUnit.DAYS.between(LocalDate.now(), this.returnDate));
+            this.status = this.daysRemaining > 0 ? "Active" : "Overdue";
+            this.revenue = book.getCurrentPrice() * book.getTotalPurchases();
         }
 
+        // Getter methods for TableView
         public String getTitle() {
-            return title;
+            return book.getTitle();
         }
 
         public LocalDate getUploadDate() {
@@ -129,42 +140,15 @@ public class DashboardController implements Initializable {
         }
 
         public double getPrice() {
-            return price;
+            return book.getCurrentPrice();
         }
 
         public int getTotalPurchases() {
-            return totalPurchases;
+            return book.getTotalPurchases();
         }
 
         public double getRevenue() {
             return revenue;
-        }
-    }
-
-    public static class BorrowedBook {
-        private final String title;
-        private final String sellerName;
-        private final LocalDate borrowDate;
-        private final LocalDate returnDate;
-        private final int daysRemaining;
-        private final String status;
-
-        public BorrowedBook(String title, String sellerName, LocalDate borrowDate, LocalDate returnDate,
-                int daysRemaining, String status) {
-            if (title == null || sellerName == null || borrowDate == null || returnDate == null || status == null) {
-                throw new IllegalArgumentException(
-                        "Title, seller name, borrow date, return date, and status cannot be null");
-            }
-            this.title = title;
-            this.sellerName = sellerName;
-            this.borrowDate = borrowDate;
-            this.returnDate = returnDate;
-            this.daysRemaining = Math.max(0, daysRemaining); // Ensure non-negative
-            this.status = status;
-        }
-
-        public String getTitle() {
-            return title;
         }
 
         public String getSellerName() {
@@ -186,20 +170,21 @@ public class DashboardController implements Initializable {
         public String getStatus() {
             return status;
         }
+
+        public Book getBook() {
+            return book;
+        }
     }
 
-    public static class Review {
+    // Wrapper class for Review display
+    public static class ReviewWrapper {
+        private final Book.Review review;
         private final String reviewerName;
-        private final int rating;
-        private final String comment;
-        private final LocalDate reviewDate;
         private final String bookTitle;
 
-        public Review(String reviewerName, int rating, String comment, LocalDate reviewDate, String bookTitle) {
+        public ReviewWrapper(Book.Review review, String reviewerName, String bookTitle) {
+            this.review = review;
             this.reviewerName = reviewerName != null ? reviewerName : "Anonymous";
-            this.rating = (rating >= 1 && rating <= 5) ? rating : 1;
-            this.comment = comment != null ? comment : "No comment provided";
-            this.reviewDate = reviewDate != null ? reviewDate : LocalDate.now();
             this.bookTitle = bookTitle != null ? bookTitle : "Unknown Book";
         }
 
@@ -208,19 +193,19 @@ public class DashboardController implements Initializable {
         }
 
         public int getRating() {
-            return rating;
+            return safeRating(review.getRating());
         }
 
         public String getComment() {
-            return comment;
+            return review.getComment() != null ? review.getComment() : "No comment provided";
+        }
+
+        public LocalDate getReviewDate() {
+            return review.getReviewDate() != null ? review.getReviewDate() : LocalDate.now();
         }
 
         public String getBookTitle() {
             return bookTitle;
-        }
-
-        public LocalDate getReviewDate() {
-            return reviewDate;
         }
     }
 
@@ -228,25 +213,148 @@ public class DashboardController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         LOGGER.info("Initializing dashboard controller...");
 
-        try {
-            String userName = SessionManager.getInstance().getUserName();
-            setupTables();
-            setProfileInfo(userName);
-            loadUserData(userName);
-            setupReviewsList();
-            updateLastUpdateLabel();
+        // Show loading indicator
+        if (loadingIndicator != null) {
+            loadingIndicator.setVisible(true);
+        }
 
-            LOGGER.info("Dashboard initialization completed successfully");
+        // Setup UI components
+        setupTables();
+        setupReviewsList();
+        updateLastUpdateLabel();
+
+
+        // Load data asynchronously
+        String userName = SessionManager.getInstance().getUserName();
+        loadDashboardDataAsync(userName);
+    }
+
+    private void loadDashboardDataAsync(String userName) {
+        Task<Void> loadTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                try {
+                    // Load everything in background
+                    Document userDoc = loadUserDocument(userName);
+
+                    if (userDoc == null) {
+                        Platform.runLater(() -> showError("Data Error", "User not found."));
+                        return null;
+                    }
+
+                    // Get user ID
+                    String userId = getStringId(userDoc, "id");
+
+                    // Load data in parallel
+                    CompletableFuture<Document> profileFuture = CompletableFuture.supplyAsync(() -> userDoc);
+                    CompletableFuture<List<Book>> uploadedBooksFuture = CompletableFuture
+                            .supplyAsync(() -> BookDetailsCollection.getBooksBySellerId(userId));
+                    CompletableFuture<List<Book>> borrowedBooksFuture = CompletableFuture
+                            .supplyAsync(() -> BookDetailsCollection.getBooksByHolderId(userId));
+
+                    // When profile data is ready, update UI on JavaFX thread
+                    profileFuture.thenAcceptAsync(user -> {
+                        updateProfileUI(user);
+                        updateUserStatistics(user);
+                    }, Platform::runLater);
+
+                    // When uploaded books are ready
+                    uploadedBooksFuture.thenAcceptAsync(books -> {
+                        updateUploadedBooksTable(books);
+                        loadReviews(books);
+                    }, Platform::runLater);
+
+                    // When borrowed books are ready
+                    borrowedBooksFuture.thenAcceptAsync(books -> updateBorrowedBooksTable(books), Platform::runLater);
+
+                    // Wait for all async operations to complete
+                    CompletableFuture.allOf(profileFuture, uploadedBooksFuture, borrowedBooksFuture).join();
+
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "Error loading dashboard data", e);
+                    Platform.runLater(
+                            () -> showError("Data Error", "Failed to load dashboard data: " + e.getMessage()));
+                }
+                return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                // Hide loading indicator when done
+                if (loadingIndicator != null) {
+                    loadingIndicator.setVisible(false);
+                }
+            }
+
+            @Override
+            protected void failed() {
+                // Hide loading indicator on failure
+                if (loadingIndicator != null) {
+                    loadingIndicator.setVisible(false);
+                }
+                LOGGER.log(Level.SEVERE, "Failed to load dashboard data", getException());
+                Platform.runLater(() -> showError("Data Error", "Failed to load dashboard data"));
+            }
+        };
+
+        // Start background task
+        Thread loadThread = new Thread(loadTask);
+        loadThread.setDaemon(true);
+        loadThread.start();
+    }
+
+    private Document loadUserDocument(String userName) {
+        if (userName == null || userName.isEmpty()) {
+            LOGGER.log(Level.SEVERE, "Username is null or empty");
+            return null;
+        }
+
+        try {
+            MongoCollection<Document> users = DatabaseManager.getDatabase().getCollection("users");
+            return users.find(Filters.eq("username", userName)).first();
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error initializing dashboard", e);
-            showError("Initialization Error", "Failed to initialize dashboard: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error loading user document", e);
+            return null;
         }
     }
 
     private void setupReviewsList() {
-        reviewsList.setCellFactory(param -> new ListCell<Review>() {
+        // Use a more efficient cell factory with view recycling
+        reviewsList.setCellFactory(param -> new ListCell<ReviewWrapper>() {
+            private final VBox container = new VBox(5);
+            private final HBox header = new HBox(10);
+            private final Label nameLabel = new Label();
+            private final Label dateLabel = new Label();
+            private final Label bookLabel = new Label();
+            private final HBox stars = new HBox(2);
+            private final Label[] starLabels = new Label[5];
+            private final Label commentLabel = new Label();
+
+            {
+                // Initialize components once
+                container.setPadding(new Insets(10));
+                container.getStyleClass().add("review-cell");
+
+                nameLabel.setStyle("-fx-font-weight: bold;");
+                dateLabel.setStyle("-fx-text-fill: #666;");
+                header.getChildren().addAll(nameLabel, dateLabel);
+
+                bookLabel.setStyle("-fx-font-style: italic;");
+
+                stars.setAlignment(Pos.CENTER_LEFT);
+                for (int i = 0; i < 5; i++) {
+                    starLabels[i] = new Label("☆");
+                    starLabels[i].setStyle("-fx-text-fill: #ccc; -fx-font-size: 14px;");
+                    stars.getChildren().add(starLabels[i]);
+                }
+
+                commentLabel.setWrapText(true);
+
+                container.getChildren().addAll(header, bookLabel, stars, commentLabel);
+            }
+
             @Override
-            protected void updateItem(Review review, boolean empty) {
+            protected void updateItem(ReviewWrapper review, boolean empty) {
                 super.updateItem(review, empty);
 
                 if (empty || review == null) {
@@ -255,40 +363,21 @@ public class DashboardController implements Initializable {
                     return;
                 }
 
-                VBox container = new VBox(5);
-                container.setPadding(new Insets(10));
-                container.getStyleClass().add("review-cell");
+                // Update existing components instead of creating new ones
+                nameLabel.setText(review.getReviewerName());
+                dateLabel.setText(review.getReviewDate().format(DATE_FORMATTER));
+                bookLabel.setText("Book: " + review.getBookTitle());
 
-                // Header with name and date
-                HBox header = new HBox(10);
-                Label nameLabel = new Label(review.getReviewerName());
-                nameLabel.setStyle("-fx-font-weight: bold;");
-
-                Label dateLabel = new Label(review.getReviewDate().format(DATE_FORMATTER));
-                dateLabel.setStyle("-fx-text-fill: #666;");
-
-                header.getChildren().addAll(nameLabel, dateLabel);
-
-                // Book title
-                Label bookLabel = new Label("Book: " + review.getBookTitle());
-                bookLabel.setStyle("-fx-font-style: italic;");
-
-                // Rating stars
-                HBox stars = new HBox(2);
-                stars.setAlignment(Pos.CENTER_LEFT);
-
+                // Update star ratings
                 for (int i = 0; i < 5; i++) {
-                    Label star = new Label(i < review.getRating() ? "★" : "☆");
-                    star.setStyle(i < review.getRating() ? "-fx-text-fill: gold; -fx-font-size: 14px;"
+                    boolean filled = i < review.getRating();
+                    starLabels[i].setText(filled ? "★" : "☆");
+                    starLabels[i].setStyle(filled ? "-fx-text-fill: gold; -fx-font-size: 14px;"
                             : "-fx-text-fill: #ccc; -fx-font-size: 14px;");
-                    stars.getChildren().add(star);
                 }
 
-                // Comment
-                Label commentLabel = new Label(review.getComment());
-                commentLabel.setWrapText(true);
+                commentLabel.setText(review.getComment());
 
-                container.getChildren().addAll(header, bookLabel, stars, commentLabel);
                 setGraphic(container);
                 setText(null);
             }
@@ -317,181 +406,8 @@ public class DashboardController implements Initializable {
         borrowedBooksTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
-    private void loadUserData(String userName) {
+    private void updateProfileUI(Document user) {
         try {
-            if (userName == null || userName.isEmpty()) {
-                throw new IllegalArgumentException("Username cannot be null or empty");
-            }
-
-            MongoCollection<Document> users = DatabaseManager.getDatabase().getCollection("users");
-            Document user = users.find(Filters.eq("username", userName)).first();
-
-            if (user == null) {
-                showError("Data Error", "User not found.");
-                return;
-            }
-
-            // Get user ID
-            String userId = getStringId(user, "id");
-
-            // Load uploaded books, borrowed books, and statistics
-            loadUploadedBooks(userId);
-            loadBorrowedBooks(userId);
-            loadUserStatistics(user);
-
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error loading user data", e);
-            showError("Data Error", "Failed to load user data: " + e.getMessage());
-        }
-    }
-
-    private void loadUploadedBooks(String userId) {
-        try {
-            // Get books sorted by review count (high to low)
-            List<Book> uploadedBooks = BookDetailsCollection.getBooksBySellerId(userId).stream()
-                    .sorted((b1, b2) -> Double.compare(b2.getReviewCount(), b1.getReviewCount()))
-                    .collect(Collectors.toList());
-
-            ObservableList<UploadedBook> uploadedBooksObservable = FXCollections.observableArrayList();
-
-            // Convert Book objects to UploadedBook objects
-            for (Book book : uploadedBooks) {
-                // Safe date parsing with fallback
-                LocalDate uploadDate;
-                try {
-                    String uploadDateStr = book.getUploadDate();
-                    uploadDate = (uploadDateStr == null || uploadDateStr.isEmpty()) ? LocalDate.now()
-                            : LocalDate.parse(uploadDateStr);
-                } catch (Exception e) {
-                    LOGGER.log(Level.WARNING, "Invalid date format for book: " + book.getTitle(), e);
-                    uploadDate = LocalDate.now();
-                }
-
-                uploadedBooksObservable.add(new UploadedBook(
-                        book.getTitle(),
-                        uploadDate,
-                        book.getCurrentPrice(),
-                        book.getTotalPurchases()));
-            }
-
-            uploadedBooksTable.setItems(uploadedBooksObservable);
-
-            // Load reviews for these books
-            loadReviews(uploadedBooks);
-
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error loading uploaded books", e);
-            showError("Data Error", "Failed to load uploaded books: " + e.getMessage());
-        }
-    }
-
-    private void loadBorrowedBooks(String userId) {
-        try {
-            List<Book> borrowedBooks = BookDetailsCollection.getBooksByHolderId(userId);
-            ObservableList<BorrowedBook> borrowedBooksObservable = FXCollections.observableArrayList();
-
-            for (Book book : borrowedBooks) {
-                // Get seller name
-                String sellerName = getSafeSellerName(book.getSellerId());
-
-                // Safe date parsing with fallbacks
-                LocalDate borrowDate = parseDate(book.getBorrowDate(), LocalDate.now().minusDays(30));
-                LocalDate returnDate = parseDate(book.getReturnDate(), LocalDate.now().plusDays(14));
-
-                // Calculate days remaining and status
-                long daysRemaining = ChronoUnit.DAYS.between(LocalDate.now(), returnDate);
-                String status = (daysRemaining > 0) ? "Active" : "Overdue";
-
-                borrowedBooksObservable.add(new BorrowedBook(
-                        book.getTitle(),
-                        sellerName,
-                        borrowDate,
-                        returnDate,
-                        (int) daysRemaining,
-                        status));
-            }
-
-            borrowedBooksTable.setItems(borrowedBooksObservable);
-
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error loading borrowed books", e);
-            showError("Data Error", "Failed to load borrowed books: " + e.getMessage());
-        }
-    }
-
-    private void loadReviews(List<Book> books) {
-        try {
-            ObservableList<Review> reviewsObservable = FXCollections.observableArrayList();
-
-            for (Book book : books) {
-                String bookTitle = book.getTitle();
-
-                if (book.getBuyerReviews() == null || book.getBuyerReviews().isEmpty()) {
-                    continue;
-                }
-
-                for (Book.Review bookReview : book.getBuyerReviews()) {
-                    if (bookReview == null)
-                        continue;
-
-                    String reviewerName = getSafeReviewerName(bookReview.getReviewerId());
-                    int rating = safeRating(bookReview.getRating());
-                    String comment = bookReview.getComment() != null ? bookReview.getComment() : "No comment provided";
-                    LocalDate reviewDate = bookReview.getReviewDate() != null ? bookReview.getReviewDate()
-                            : LocalDate.now();
-
-                    reviewsObservable.add(new Review(
-                            reviewerName, rating, comment, reviewDate, bookTitle));
-                }
-            }
-
-            // Add placeholder if no reviews found
-            if (reviewsObservable.isEmpty()) {
-                reviewsObservable.add(new Review(
-                        "No Reviews Yet",
-                        0,
-                        "No reviews have been posted for your books yet.",
-                        LocalDate.now(),
-                        "N/A"));
-            }
-
-            reviewsList.setItems(reviewsObservable);
-
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error loading reviews", e);
-        }
-    }
-
-    private void loadUserStatistics(Document user) {
-        try {
-            // Extract statistics from user document with safe handling
-            int uploads = user.containsKey("uploaded_books") ? ((List<?>) user.get("uploaded_books")).size() : 0;
-
-            int borrowed = user.containsKey("borrowed_books") ? ((List<?>) user.get("borrowed_books")).size() : 0;
-
-            Double ratingObj = user.getDouble("rating");
-            double rating = (ratingObj != null) ? ratingObj : 0.0;
-
-            // Update UI
-            totalUploadsLabel.setText(String.valueOf(uploads));
-            totalBorrowedLabel.setText(String.valueOf(borrowed));
-            buyerRatingLabel.setText(String.format("%.1f", rating));
-
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error loading statistics", e);
-        }
-    }
-
-    private void setProfileInfo(String userName) {
-        try {
-            MongoCollection<Document> users = DatabaseManager.getDatabase().getCollection("users");
-            Document user = users.find(Filters.eq("username", userName)).first();
-
-            if (user == null) {
-                showError("Profile Error", "User not found.");
-                return;
-            }
-
             // Extract user info with null checks
             String name = user.getString("full_name");
             String location = user.containsKey("location") ? user.getString("location") : "Not Set";
@@ -505,44 +421,204 @@ public class DashboardController implements Initializable {
             updateProfilePicture(imagePath);
 
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error setting profile info", e);
-            showError("Profile Error", "Failed to load profile information.");
+            LOGGER.log(Level.SEVERE, "Error updating profile UI", e);
         }
+    }
+
+    private void updateUserStatistics(Document user) {
+        try {
+            // Extract statistics from user document with safe handling
+            int uploads = user.containsKey("uploaded_books") ? ((List<?>) user.get("uploaded_books")).size() : 0;
+            int borrowed = user.containsKey("borrowed_books") ? ((List<?>) user.get("borrowed_books")).size() : 0;
+            Double ratingObj = user.getDouble("rating");
+            double rating = (ratingObj != null) ? ratingObj : 0.0;
+
+            // Update UI
+            totalUploadsLabel.setText(String.valueOf(uploads));
+            totalBorrowedLabel.setText(String.valueOf(borrowed));
+            buyerRatingLabel.setText(String.format("%.1f", rating));
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error updating user statistics", e);
+        }
+    }
+
+    private void updateUploadedBooksTable(List<Book> uploadedBooks) {
+        try {
+            // Skip if no books
+            if (uploadedBooks == null || uploadedBooks.isEmpty()) {
+                uploadedBooksTable.setItems(FXCollections.observableArrayList());
+                return;
+            }
+
+            // Sort books by review count (high to low) and wrap with our adapter
+            List<BookTableWrapper> bookWrappers = uploadedBooks.stream()
+                    .sorted((b1, b2) -> Double.compare(b2.getReviewCount(), b1.getReviewCount()))
+                    .map(book -> new BookTableWrapper(book, null))
+                    .collect(Collectors.toList());
+
+            // Update table in one batch operation
+            uploadedBooksTable.setItems(FXCollections.observableArrayList(bookWrappers));
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error updating uploaded books table", e);
+        }
+    }
+
+    private void updateBorrowedBooksTable(List<Book> borrowedBooks) {
+        try {
+            // Skip if no books
+            if (borrowedBooks == null || borrowedBooks.isEmpty()) {
+                borrowedBooksTable.setItems(FXCollections.observableArrayList());
+                return;
+            }
+
+            // Wrap books with our adapter
+            List<BookTableWrapper> bookWrappers = borrowedBooks.stream()
+                    .map(book -> {
+                        // Get seller name (using cache)
+                        String sellerName = getSellerNameFromCache(book.getSellerId());
+                        return new BookTableWrapper(book, sellerName);
+                    })
+                    .collect(Collectors.toList());
+
+            // Update table in one batch operation
+            borrowedBooksTable.setItems(FXCollections.observableArrayList(bookWrappers));
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error updating borrowed books table", e);
+        }
+    }
+
+    private void loadReviews(List<Book> books) {
+        try {
+            if (books == null || books.isEmpty()) {
+                // Add placeholder if no books
+                addPlaceholderReview();
+                return;
+            }
+
+            // Extract and wrap all reviews at once
+            List<ReviewWrapper> allReviewWrappers = books.stream()
+                    .filter(book -> book.getBuyerReviews() != null && !book.getBuyerReviews().isEmpty())
+                    .flatMap(book -> book.getBuyerReviews().stream()
+                            .filter(review -> review != null)
+                            .map(review -> {
+                                String reviewerName = getReviewerNameFromCache(review.getReviewerId());
+                                return new ReviewWrapper(review, reviewerName, book.getTitle());
+                            }))
+                    .collect(Collectors.toList());
+
+            // Add placeholder if no reviews
+            if (allReviewWrappers.isEmpty()) {
+                addPlaceholderReview();
+                return;
+            }
+
+            // Update list in one batch operation
+            reviewsList.setItems(FXCollections.observableArrayList(allReviewWrappers));
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error loading reviews", e);
+        }
+    }
+
+    private void addPlaceholderReview() {
+        // Create a placeholder Book.Review
+        Book.Review placeholderReview = new Book.Review(
+                "no-reviewer",
+                "No reviews have been posted for your books yet.",
+                0,
+                LocalDate.now());
+
+        // Wrap it and add to the list
+        ReviewWrapper wrapper = new ReviewWrapper(placeholderReview, "No Reviews Yet", "N/A");
+        reviewsList.setItems(FXCollections.observableArrayList(wrapper));
+    }
+
+    // Cached name lookup
+    private String getSellerNameFromCache(String sellerId) {
+        if (sellerId == null || sellerId.isEmpty()) {
+            return "Unknown";
+        }
+
+        return userNameCache.computeIfAbsent(sellerId, id -> {
+            try {
+                MongoCollection<Document> users = DatabaseManager.getDatabase().getCollection("users");
+                Document seller = users.find(Filters.eq("id", id)).first();
+                return (seller != null && seller.getString("name") != null) ? seller.getString("name") : id;
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, "Error fetching seller name", e);
+                return id;
+            }
+        });
+    }
+
+    // Cached reviewer name lookup
+    private String getReviewerNameFromCache(String reviewerId) {
+        if (reviewerId == null || reviewerId.isEmpty()) {
+            return "Anonymous";
+        }
+
+        return userNameCache.computeIfAbsent(reviewerId, id -> {
+            try {
+                MongoCollection<Document> users = DatabaseManager.getDatabase().getCollection("users");
+                Document reviewer = users.find(Filters.eq("id", id)).first();
+                return (reviewer != null && reviewer.getString("name") != null) ? reviewer.getString("name") : id;
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, "Error fetching reviewer name", e);
+                return id;
+            }
+        });
     }
 
     public void updateProfilePicture(String imagePath) {
         try {
-            // Use default image if path is invalid
-            Image newImage;
-            try {
-                if (imagePath == null || imagePath.isEmpty()) {
-                    throw new IllegalArgumentException("Image path is empty");
+            // Load image asynchronously
+            Task<Image> imageTask = new Task<Image>() {
+                @Override
+                protected Image call() throws Exception {
+                    try {
+                        if (imagePath == null || imagePath.isEmpty()) {
+                            throw new IllegalArgumentException("Image path is empty");
+                        }
+
+                        File imageFile = new File(imagePath);
+                        if (!imageFile.exists()) {
+                            throw new IllegalArgumentException("Image not found");
+                        }
+
+                        return new Image(imageFile.toURI().toString(),
+                                100, 100, true, true, true); // Use background loading
+                    } catch (Exception e) {
+                        LOGGER.log(Level.WARNING, "Using default profile image", e);
+                        return new Image(getClass().getResourceAsStream(DEFAULT_PROFILE_IMAGE),
+                                100, 100, true, true);
+                    }
                 }
 
-                File imageFile = new File(imagePath);
-                if (!imageFile.exists()) {
-                    throw new IllegalArgumentException("Image not found");
+                @Override
+                protected void succeeded() {
+                    // Apply the image with circular clip on UI thread
+                    Image newImage = getValue();
+                    profilePicContainer.setAlignment(Pos.CENTER);
+                    profilePic.setImage(newImage);
+                    profilePic.setFitHeight(100);
+                    profilePic.setFitWidth(100);
+                    profilePic.setPreserveRatio(true);
+
+                    // Create circular clip
+                    Circle clip = new Circle(50, 50, 50);
+                    profilePic.setClip(clip);
+
+                    // Add hover effect
+                    addHoverEffect(profilePic);
                 }
+            };
 
-                newImage = new Image(imageFile.toURI().toString());
-            } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Using default profile image", e);
-                newImage = new Image(getClass().getResourceAsStream(DEFAULT_PROFILE_IMAGE));
-            }
-
-            // Apply the image with circular clip
-            profilePicContainer.setAlignment(Pos.CENTER);
-            profilePic.setImage(newImage);
-            profilePic.setFitHeight(100);
-            profilePic.setFitWidth(100);
-            profilePic.setPreserveRatio(true);
-
-            // Create circular clip
-            Circle clip = new Circle(50, 50, 50);
-            profilePic.setClip(clip);
-
-            // Add hover effect
-            addHoverEffect(profilePic);
+            Thread imageThread = new Thread(imageTask);
+            imageThread.setDaemon(true);
+            imageThread.start();
 
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error updating profile picture", e);
@@ -604,42 +680,12 @@ public class DashboardController implements Initializable {
 
     // Helper methods
 
-    private String getSafeSellerName(String sellerId) {
-        if (sellerId == null || sellerId.isEmpty()) {
-            return "Unknown";
-        }
-
-        try {
-            MongoCollection<Document> users = DatabaseManager.getDatabase().getCollection("users");
-            Document seller = users.find(Filters.eq("id", sellerId)).first();
-            return (seller != null && seller.getString("name") != null) ? seller.getString("name") : sellerId;
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Error fetching seller name", e);
-            return sellerId;
-        }
-    }
-
-    private String getSafeReviewerName(String reviewerId) {
-        if (reviewerId == null || reviewerId.isEmpty()) {
-            return "Anonymous";
-        }
-
-        try {
-            MongoCollection<Document> users = DatabaseManager.getDatabase().getCollection("users");
-            Document reviewer = users.find(Filters.eq("id", reviewerId)).first();
-            return (reviewer != null && reviewer.getString("name") != null) ? reviewer.getString("name") : reviewerId;
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Error fetching reviewer name", e);
-            return reviewerId;
-        }
-    }
-
-    private int safeRating(double rawRating) {
+    private static int safeRating(double rawRating) {
         int rating = (int) Math.round(rawRating);
         return Math.max(1, Math.min(5, rating));
     }
 
-    private LocalDate parseDate(String dateStr, LocalDate defaultDate) {
+    private static LocalDate parseDate(String dateStr, LocalDate defaultDate) {
         if (dateStr == null || dateStr.isEmpty()) {
             return defaultDate;
         }
@@ -647,7 +693,8 @@ public class DashboardController implements Initializable {
         try {
             return LocalDate.parse(dateStr);
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Invalid date format: " + dateStr, e);
+            Logger.getLogger(DashboardController.class.getName())
+                    .log(Level.WARNING, "Invalid date format: " + dateStr, e);
             return defaultDate;
         }
     }

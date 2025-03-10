@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Book {
     // MongoDB ID
@@ -42,7 +44,7 @@ public class Book {
     private String holderId;
     private String borrowDate;
     private String returnDate;
-    private List<Review> buyerReviews;
+    private List<Review> buyerReviews = new ArrayList<>();
     private boolean featured;
 
     // Inner class for buyer reviews
@@ -126,9 +128,10 @@ public class Book {
 
     // Default constructor for serialization
     public Book() {
-        this.buyerReviews = new ArrayList<>();
+        // ArrayList already initialized in field declaration
     }
 
+    // Minimal constructor for essential fields
     public Book(String id, String title, String author, String imageUrl, double originalPrice, double currentPrice,
             double rating, int reviewCount) {
         this.id = id;
@@ -270,7 +273,10 @@ public class Book {
         }
 
         public Builder buyerReviews(List<Review> buyerReviews) {
-            book.buyerReviews = new ArrayList<>(buyerReviews);
+            if (buyerReviews != null) {
+                book.buyerReviews = new ArrayList<>(buyerReviews);
+                book.recalculateRating();
+            }
             return this;
         }
 
@@ -284,7 +290,8 @@ public class Book {
         }
     }
 
-    // Minimal constructor for listing views
+    // Common constructor for list views that replaces the one with similar
+    // parameters
     public Book(String id, String title, String author, String[] categories, double rating, double price,
             String imageUrl) {
         this.id = id;
@@ -294,28 +301,7 @@ public class Book {
         this.rating = rating;
         this.currentPrice = price;
         this.imageUrl = imageUrl;
-        this.buyerReviews = new ArrayList<>();
-    }
-
-    // For backward compatibility
-    public Book(String title, String author, String publisher, String publicationDate, String language, int pages,
-            String isbn, String[] categories, double originalPrice, double currentPrice, double discount,
-            double rating, int reviewCount, String description) {
-        this.title = title;
-        this.author = author;
-        this.publisher = publisher;
-        this.publicationDate = publicationDate;
-        this.language = language;
-        this.pages = pages;
-        this.isbn = isbn;
-        this.categories = categories;
-        this.originalPrice = originalPrice;
-        this.currentPrice = currentPrice;
-        this.discount = discount;
-        this.rating = rating;
-        this.reviewCount = reviewCount;
-        this.description = description;
-        this.buyerReviews = new ArrayList<>();
+        // ArrayList already initialized in field declaration
     }
 
     // Getters and setters
@@ -516,7 +502,10 @@ public class Book {
     }
 
     public void setBuyerReviews(List<Review> buyerReviews) {
-        this.buyerReviews = new ArrayList<>(buyerReviews);
+        this.buyerReviews = Optional.ofNullable(buyerReviews)
+                .map(ArrayList::new)
+                .orElseGet(ArrayList::new);
+        recalculateRating();
     }
 
     public boolean isFeatured() {
@@ -529,32 +518,32 @@ public class Book {
 
     // Helper methods
     public void addReview(Review review) {
-        if (this.buyerReviews == null) {
-            this.buyerReviews = new ArrayList<>();
+        if (review == null) {
+            return;
         }
         this.buyerReviews.add(review);
         recalculateRating();
     }
 
     public void removeReview(String reviewerId) {
-        if (this.buyerReviews != null) {
-            this.buyerReviews.removeIf(review -> review.getReviewerId().equals(reviewerId));
-            recalculateRating();
+        if (reviewerId == null || reviewerId.isEmpty()) {
+            return;
         }
+        this.buyerReviews.removeIf(review -> reviewerId.equals(review.getReviewerId()));
+        recalculateRating();
     }
 
     private void recalculateRating() {
-        if (buyerReviews == null || buyerReviews.isEmpty()) {
+        if (buyerReviews.isEmpty()) {
             this.rating = 0;
             this.reviewCount = 0;
             return;
         }
 
-        double sum = 0;
-        for (Review review : buyerReviews) {
-            sum += review.getRating();
-        }
-        this.rating = sum / buyerReviews.size();
+        this.rating = buyerReviews.stream()
+                .mapToDouble(Review::getRating)
+                .average()
+                .orElse(0);
         this.reviewCount = buyerReviews.size();
     }
 
@@ -571,9 +560,7 @@ public class Book {
                 ", pages=" + pages +
                 ", isbn='" + isbn + '\'' +
                 ", categories=" + (categories != null ? Arrays.toString(categories) : "null") +
-                ", description='"
-                + (description != null ? description.substring(0, Math.min(50, description.length())) + "..." : "null")
-                + '\'' +
+                ", description='" + truncateString(description, 50) + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
                 ", originalPrice=" + originalPrice +
                 ", currentPrice=" + currentPrice +
@@ -586,9 +573,16 @@ public class Book {
                 ", holderId='" + holderId + '\'' +
                 ", borrowDate='" + borrowDate + '\'' +
                 ", returnDate='" + returnDate + '\'' +
-                ", reviewCount=" + (buyerReviews != null ? buyerReviews.size() : 0) +
+                ", reviewCount=" + buyerReviews.size() +
                 ", featured=" + featured +
                 '}';
+    }
+
+    private String truncateString(String str, int maxLength) {
+        if (str == null) {
+            return "null";
+        }
+        return str.length() <= maxLength ? str : str.substring(0, maxLength) + "...";
     }
 
     @Override
@@ -631,5 +625,36 @@ public class Book {
                 sellerId, uploadDate, totalPurchases, holderId, borrowDate, returnDate, featured);
         result = 31 * result + Arrays.hashCode(categories);
         return result;
+    }
+
+    // Static factory methods for common book types
+    public static Book createMinimalBook(String id, String title, String author) {
+        return new Builder()
+                .id(id)
+                .title(title)
+                .author(author)
+                .build();
+    }
+
+    public static Book createFullBook(String title, String author, String publisher, String publicationDate,
+            String language, int pages, String isbn, String[] categories,
+            double originalPrice, double currentPrice, double discount,
+            double rating, int reviewCount, String description) {
+        return new Builder()
+                .title(title)
+                .author(author)
+                .publisher(publisher)
+                .publicationDate(publicationDate)
+                .language(language)
+                .pages(pages)
+                .isbn(isbn)
+                .categories(categories)
+                .originalPrice(originalPrice)
+                .currentPrice(currentPrice)
+                .discount(discount)
+                .rating(rating)
+                .reviewCount(reviewCount)
+                .description(description)
+                .build();
     }
 }

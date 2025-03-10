@@ -23,8 +23,7 @@
                         <Image url="@images/icons/logo.png"/>
                     </ImageView>
                 </StackPane>
-                <Label fx:id="navLogo" text="GyanTori" styleClass="nav-logo"
-                       style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                <Label fx:id="navLogo" text="GyanTori" styleClass="nav-logo"/>
             </HBox>
             <!-- Enhanced Search Bar -->
             <HBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" maxWidth="4000" styleClass="search-container">
