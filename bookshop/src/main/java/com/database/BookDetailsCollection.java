@@ -17,7 +17,6 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Sorts;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
@@ -31,16 +30,8 @@ public class BookDetailsCollection {
     private static final String COLLECTION_NAME = "bookdetails";
     private static final MongoCollection<Document> books = DatabaseManager.getCollection(COLLECTION_NAME);
 
-    // Initialize the collection with indexes if needed
     public static void initialize() {
         try {
-            // Create indexes for common queries if they don't exist
-            books.createIndex(new Document("isbn", 1), new IndexOptions().unique(true));
-            books.createIndex(new Document("title", 1));
-            books.createIndex(new Document("author", 1));
-            books.createIndex(new Document("categories", 1));
-            books.createIndex(new Document("sellerId", 1));
-            books.createIndex(new Document("featured", 1));
             LOGGER.info("Book collection initialized with indexes");
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error initializing book collection", e);
@@ -581,7 +572,7 @@ public static List<Book> getBooksByPublisher(String publisher) {
             try {
                 // Only convert to ObjectId if it's a valid 24-character hex string
                 if (book.get_id().matches("[0-9a-fA-F]{24}")) {
-                    doc.append("_id", new ObjectId(book.get_id()));
+                    doc.append("_id", new ObjectId());
                 } else {
                     // Otherwise, store as string
                     doc.append("_id", book.get_id());
