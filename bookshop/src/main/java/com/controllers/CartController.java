@@ -45,7 +45,7 @@ public class CartController {
     @FXML
     private Label subtotalLabel;
     @FXML
-    private Label onlineFeeLabel;
+    private Label onlineFeeLabel; // Used for online service fee
     @FXML
     private Label deliveryFeeLabel;
     @FXML
@@ -59,6 +59,7 @@ public class CartController {
     @FXML
     private ScrollPane cartScrollPane;
 
+    // Removed redundant declaration
     private final CartService cartService = CartService.getInstance();
     private final SimpleDoubleProperty subtotal = new SimpleDoubleProperty(0);
     private final SimpleDoubleProperty total = new SimpleDoubleProperty(0);
@@ -96,6 +97,7 @@ public class CartController {
                 handlePromoCode();
             }
         });
+        returnButton.setOnAction(event -> handleReturn());
     }
 
     @FXML
@@ -229,6 +231,30 @@ public class CartController {
         }
     }
 
+    public void handleDaysChange(int selectedDays) {
+        // Update the borrowing days in the cart service
+        cartService.setBorrowingDays(selectedDays);
+
+        // Recalculate and update all prices
+        updateCartTotals();
+
+        // Update the UI to show the new total
+        refreshCartView();
+    }
+
+    private void updateCartTotals() {
+        // Recalculate all items with the new duration
+        cartService.recalculateAllPrices();
+
+        // Update the UI totals
+        subtotal.set(cartService.getSubtotal());
+        total.set(cartService.getTotal());
+
+        // Update fixed fee labels
+        onlineFeeLabel.setText(formatPrice(cartService.getServiceFee()));
+        deliveryFeeLabel.setText(formatPrice(cartService.getDeliveryFee()));
+    }
+
     private void removeItem(String itemId) {
         try {
             cartService.removeItem(itemId);
@@ -238,6 +264,7 @@ public class CartController {
         }
     }
 
+    // Consolidated refreshCartView method combining both implementations
     public void refreshCartView() {
         // Clear container first
         cartItemsContainer.getChildren().clear();
@@ -248,8 +275,7 @@ public class CartController {
         // Update visibility based on cart state
         boolean isEmpty = items.isEmpty();
 
-        // This is the main fix - make sure both containers are visible
-        // but only populate the appropriate one
+        // Set visibility of containers
         emptyCartContainer.setVisible(isEmpty);
         cartItemsContainer.setVisible(!isEmpty);
 
@@ -263,8 +289,14 @@ public class CartController {
         // Disable checkout button if cart is empty
         checkoutButton.setDisable(isEmpty);
 
-        // Update totals based on cart contents
-        updateTotals();
+        // Update cart totals
+        updateCartTotals();
+    }
+
+    // Helper method to remove a book from cart
+    public void handleRemoveItem(Book book) {
+        cartService.removeFromCart(book);
+        refreshCartView();
     }
 
     private void updateTotals() {

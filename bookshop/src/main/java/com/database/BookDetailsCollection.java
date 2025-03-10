@@ -260,10 +260,6 @@ public static List<Book> getBooksByPublisher(String publisher) {
                 return false;
             }
 
-            Document updateDoc = convertBookToDocument(book);
-            // Remove the _id field from the update document
-            updateDoc.remove("_id");
-
             // Create filter based on the type of ID
             Bson filter;
             if (idToUse.matches("[0-9a-fA-F]{24}")) {
@@ -274,8 +270,27 @@ public static List<Book> getBooksByPublisher(String publisher) {
                 filter = Filters.eq("id", idToUse);
             }
 
-            UpdateResult result = books.updateOne(filter, new Document("$set", updateDoc));
+            // Get the existing document
+            Document existingDoc = books.find(filter).first();
+            if (existingDoc == null) {
+                LOGGER.warning("Book not found with ID: " + idToUse);
+                return false;
+            }
 
+            // Convert book to document for update
+            Document updateDoc = convertBookToDocument(book);
+            updateDoc.remove("_id");
+
+            // Create a filtered update document that only includes non-null values
+            Document filteredUpdate = new Document();
+            for (String key : updateDoc.keySet()) {
+                Object value = updateDoc.get(key);
+                if (value != null) {
+                    filteredUpdate.put(key, value);
+                }
+            }
+
+            UpdateResult result = books.updateOne(filter, new Document("$set", filteredUpdate));
             return result.getModifiedCount() > 0;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error updating book with ID: " +

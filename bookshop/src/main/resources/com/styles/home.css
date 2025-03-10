@@ -42,7 +42,7 @@
 .nav-logo {
   -fx-font-size: 30px;
   -fx-font-weight: bold;
-  -fx-text-fill: linear-gradient(to right, rgb(255, 20, 147), rgb(255, 0, 0), rgb(128, 0, 128), rgb(0, 0, 255));
+  -fx-text-fill: linear-gradient(to right, magenta, purple, red);
   -fx-padding: 0 20px;
 }
 
