@@ -25,9 +25,9 @@
 
             <VBox spacing="5" styleClass="profile-info">
                 <Label fx:id="nameLabel" text="John Doe" styleClass="name-label"/>
-                <Label fx:id="locationLabel" text="New York, USA" styleClass="location-label" style="-fx-font-size: 14px;"/>
-                <Label fx:id="bookHubIdLabel" text="ID: BH123456" styleClass="bookhub-id" style="-fx-font-size: 14px;"/>
-                <Button fx:id="editInfoButton" onAction="#handleEditInfo" text="Edit Profile" styleClass="edit-button" style="-fx-font-size: 14px;"/>
+                <Label fx:id="locationLabel" text="New York, USA" styleClass="location-label"/>
+                <Label fx:id="bookHubIdLabel" text="ID: BH123456" styleClass="bookhub-id"/>
+                <Button fx:id="editInfoButton" onAction="#handleEditInfo" text="Edit Profile" styleClass="edit-button"/>
             </VBox>
         </VBox>
 
@@ -35,14 +35,14 @@
         <VBox spacing="10" styleClass="stats-container">
             <Label text="Profile Overview" styleClass="section-header" />
             <GridPane hgap="20" vgap="10">
-            <Label text="Total Uploads:" GridPane.rowIndex="0" GridPane.columnIndex="0" style=" -fx-text-fill: black;"/>
-            <Label fx:id="totalUploadsLabel" text="0" GridPane.rowIndex="0" GridPane.columnIndex="1" style=" -fx-text-fill: black;"/>
+                <Label text="Total Uploads:" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="stats-label"/>
+                <Label fx:id="totalUploadsLabel" text="0" GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="stats-value"/>
 
-            <Label text="Total Borrowed:" GridPane.rowIndex="1" GridPane.columnIndex="0" style=" -fx-text-fill: black;"/>
-            <Label fx:id="totalBorrowedLabel" text="0" GridPane.rowIndex="1" GridPane.columnIndex="1" style=" -fx-text-fill: black;"/>
+                <Label text="Total Borrowed:" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="stats-label"/>
+                <Label fx:id="totalBorrowedLabel" text="0" GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="stats-value"/>
 
-            <Label text="Buyer Rating:" GridPane.rowIndex="2" GridPane.columnIndex="0" style=" -fx-text-fill: black;"/>
-            <Label fx:id="buyerRatingLabel" text="4.5/5" GridPane.rowIndex="2" GridPane.columnIndex="1" style=" -fx-text-fill: black;"/>
+                <Label text="Buyer Rating:" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="stats-label"/>
+                <Label fx:id="buyerRatingLabel" text="4.5/5" GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="stats-value"/>
             </GridPane>
         </VBox>
 
@@ -56,34 +56,36 @@
     </VBox>
 
     <!-- Right Panel - Main Content -->
-    <TabPane HBox.hgrow="ALWAYS" styleClass="content-tabs" style="-fx-background-radius: 10; -fx-border-radius: 10;">
+    <TabPane HBox.hgrow="ALWAYS" styleClass="content-tabs">
         <!-- Uploaded Books Tab -->
         <Tab text="Uploaded Books" closable="false">
-            <VBox spacing="10" style="-fx-background-radius: 10; -fx-border-radius: 10;">
-                <Label text="Your Uploaded Books" styleClass="section-header" style="-fx-font-size: 20px;" />
-                <TableView fx:id="uploadedBooksTable" VBox.vgrow="ALWAYS" prefHeight="400" prefWidth="600" style="-fx-background-radius: 10; -fx-border-radius: 10;">
+            <VBox spacing="0" styleClass="tab-content">
+                <HBox styleClass="tab-header-container">
+                    <Label text="Your Uploaded Books" styleClass="content-section-header"/>
+                </HBox>
+                <TableView fx:id="uploadedBooksTable" VBox.vgrow="ALWAYS" styleClass="data-table">
                     <columns>
-                        <TableColumn fx:id="uploadedTitleColumn" text="Book Title" styleClass="columnSTY" style="-fx-font-size: 14px;">
+                        <TableColumn fx:id="uploadedTitleColumn" text="Book Title" prefWidth="150" styleClass="table-column">
                             <cellValueFactory>
                                 <PropertyValueFactory property="title" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="uploadDateColumn" text="Upload Date" styleClass="columnSTY" style="-fx-font-size: 14px;">
+                        <TableColumn fx:id="uploadDateColumn" text="Upload Date" prefWidth="120" styleClass="table-column">
                             <cellValueFactory>
                                 <PropertyValueFactory property="uploadDate" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="priceColumn" text="Price" styleClass="columnSTY" style="-fx-font-size: 14px;">
+                        <TableColumn fx:id="priceColumn" text="Price" prefWidth="100" styleClass="table-column">
                             <cellValueFactory>
                                 <PropertyValueFactory property="price" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="totalPurchasesColumn" text="Total Purchases" styleClass="columnSTY" style="-fx-font-size: 14px;">
+                        <TableColumn fx:id="totalPurchasesColumn" text="Total Purchases" prefWidth="120" styleClass="table-column">
                             <cellValueFactory>
                                 <PropertyValueFactory property="totalPurchases" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="revenueColumn" text="Revenue" styleClass="columnSTY" style="-fx-font-size: 14px;">
+                        <TableColumn fx:id="revenueColumn" text="Revenue" prefWidth="120" styleClass="table-column">
                             <cellValueFactory>
                                 <PropertyValueFactory property="revenue" />
                             </cellValueFactory>
@@ -95,31 +97,33 @@
 
         <!-- Borrowed Books Tab -->
         <Tab text="Borrowed Books" closable="false">
-            <VBox spacing="10" style="-fx-background-radius: 10; -fx-border-radius: 10;">
-                <Label text="Your Borrowed Books" styleClass="section-header" style="-fx-font-size: 20px;"/>
-                <TableView fx:id="borrowedBooksTable" VBox.vgrow="ALWAYS" style="-fx-background-radius: 10; -fx-border-radius: 10;">
+            <VBox spacing="0" styleClass="tab-content">
+                <HBox styleClass="tab-header-container">
+                    <Label text="Your Borrowed Books" styleClass="content-section-header"/>
+                </HBox>
+                <TableView fx:id="borrowedBooksTable" VBox.vgrow="ALWAYS" styleClass="data-table">
                     <columns>
-                        <TableColumn fx:id="borrowedTitleColumn" text="Book Title" styleClass="columnSTY" style="-fx-font-size: 14px;">
+                        <TableColumn fx:id="borrowedTitleColumn" text="Book Title" prefWidth="150" styleClass="table-column">
                             <cellValueFactory>
                                 <PropertyValueFactory property="title"/>
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="sellerNameColumn" text="Seller Id" styleClass="columnSTY" style="-fx-font-size: 14px;">
+                        <TableColumn fx:id="sellerNameColumn" text="Seller Id" prefWidth="100" styleClass="table-column">
                             <cellValueFactory>
                                 <PropertyValueFactory property="sellerName" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="borrowDateColumn" text="Borrow Date" styleClass="columnSTY" style="-fx-font-size: 14px;">
+                        <TableColumn fx:id="borrowDateColumn" text="Borrow Date" prefWidth="120" styleClass="table-column">
                             <cellValueFactory>
                                 <PropertyValueFactory property="borrowDate" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="daysRemainingColumn" text="Days Remaining" styleClass="columnSTY" style="-fx-font-size: 14px;">
+                        <TableColumn fx:id="daysRemainingColumn" text="Days Remaining" prefWidth="120" styleClass="table-column">
                             <cellValueFactory>
                                 <PropertyValueFactory property="daysRemaining" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="statusColumn" text="Status" styleClass="columnSTY" style="-fx-font-size: 14px;">
+                        <TableColumn fx:id="statusColumn" text="Status" prefWidth="120" styleClass="table-column">
                             <cellValueFactory>
                                 <PropertyValueFactory property="status" />
                             </cellValueFactory>
@@ -131,9 +135,11 @@
 
         <!-- Reviews Tab -->
         <Tab text="Buyer Reviews" closable="false">
-            <VBox spacing="10" style="-fx-background-radius: 10; -fx-border-radius: 13;">
-                <Label text="Your Reviews" styleClass="section-header"/>
-                <ListView fx:id="reviewsList" VBox.vgrow="ALWAYS" styleClass="columnSTY" style="-fx-background-radius: 10; -fx-border-radius: 10;"/>
+            <VBox spacing="0" styleClass="tab-content">
+                <HBox styleClass="tab-header-container">
+                    <Label text="Your Reviews" styleClass="content-section-header"/>
+                </HBox>
+                <ListView fx:id="reviewsList" VBox.vgrow="ALWAYS" styleClass="reviews-list"/>
             </VBox>
         </Tab>
     </TabPane>
